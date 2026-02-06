@@ -26,15 +26,18 @@
 - [x] Support file arguments, `--from`/`--to`, `--pretty`/`--compact`
 - [x] CMake install target, integration tests (8 CLI tests)
 
-### Phase 5: Additional Fixtures and Edge Cases
+### Phase 5: Additional Fixtures and Edge Cases ✅
 
-- [ ] Add `test/fixtures/nested.hsd` + round-trip fixtures (nested.xml,
-  nested.json) — deeply nested tables/values
-- [ ] Add `test/fixtures/arrays.hsd` + arrays.json — 1-D and 2-D arrays,
-  mixed types
-- [ ] Add edge-case tests: empty tree, special characters, Unicode strings,
-  large values
-- [ ] Add README.md with build instructions, usage examples, API overview
+- [x] Nested fixtures (nested.hsd, nested.xml, nested.json) + CLI round-trips
+- [x] Array fixtures (arrays.hsd, arrays.json) + CLI round-trips
+- [x] Edge-case test suite (10 tests: empty trees, special chars, Unicode,
+  deep nesting, format detection edge cases, cross-format round-trip)
+- [x] README.md with build instructions, API reference, format mapping
+
+### Phase 6: Optional Backends (future)
+
+- [ ] TOML backend (guarded by `HSD_DATA_WITH_TOML`, requires toml-f)
+- [ ] HDF5 backend (guarded by `HSD_DATA_WITH_HDF5`, requires HDF5)
 
 ---
 
