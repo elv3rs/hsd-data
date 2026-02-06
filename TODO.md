@@ -2,22 +2,29 @@
 
 ## Implementation Tasks
 
-- [ ] Create `src/utils/hsd_data_xml_escape.f90`: XML entity escaping
-  (`&amp;`, `&lt;`, `&gt;`, `&quot;`, `&apos;`) and unescaping utilities
-- [ ] Create `src/backends/hsd_data_xml_writer.f90`: XML serializer using
-  custom recursive traversal of hsd_table → well-formed XML 1.0 with
-  indentation, element/attribute output, entity escaping
-- [ ] Create `test/fixtures/simple.xml` hand-written to match simple.hsd
-- [ ] Create `test/suites/test_xml_writer_suite.f90`: dump known HSD trees
-  to XML strings, verify structure
-- [ ] Create `src/backends/hsd_data_xml_parser.f90`: lightweight SAX-style
-  pull parser (character-level, stack-based tree building)
-- [ ] Create `test/suites/test_xml_parser_suite.f90`: parse fixture XMLs,
-  verify tree structure
-- [ ] Wire XML backend into `hsd_data.f90` dispatch (data_load/data_dump)
-  and update `data_format_available` to return .true. for XML
-- [ ] Create `test/suites/test_xml_roundtrip_suite.f90`: HSD→XML→HSD and
-  XML→HSD→XML end-to-end round-trip tests
+### Phase 2: XML Backend ✅
+
+- [x] XML escape/unescape utilities
+- [x] XML writer (serializer with pretty-print)
+- [x] XML parser (SAX-style pull parser, document element unwrapping)
+- [x] XML writer + parser tests
+- [x] Wire XML backend into dispatch (data_load/data_dump)
+- [x] XML round-trip tests (HSD↔XML, data_convert, auto-detect)
+
+### Phase 3: JSON Backend
+
+- [ ] Create `src/utils/hsd_data_json_escape.f90`: JSON string escaping
+  (backslash, quotes, control characters, Unicode `\uXXXX`)
+- [ ] Create `src/backends/hsd_data_json_writer.f90`: JSON serializer
+  mapping hsd_table→object, hsd_value→string/number/boolean, arrays→arrays,
+  with pretty-print support
+- [ ] Create `src/backends/hsd_data_json_parser.f90`: recursive-descent
+  JSON parser (objects, arrays, strings, numbers, booleans, null)
+- [ ] Create `test/fixtures/simple.json` hand-written to match simple.hsd
+- [ ] Create `test/suites/test_json_suite.f90`: writer + parser + round-trip
+  tests
+- [ ] Wire JSON backend into `hsd_data.f90` dispatch, update
+  `data_format_available`
 
 ---
 
