@@ -227,13 +227,21 @@ contains
       call table%add_child(child_table)
 
     case ("[")
-      ! Array → flatten to space-separated string value
-      call parse_array_to_string(src, src_len, pos, str_val, error, fname)
-      if (allocated(error)) return
-      allocate(child_value)
-      call new_value(child_value, name=child_name)
-      call child_value%set_string(str_val)
-      call table%add_child(child_value)
+      ! Array: peek to determine if it contains objects
+      if (array_contains_objects(src, src_len, pos)) then
+        ! Array of objects → multiple same-named children
+        call parse_object_array(src, src_len, pos, table, child_name, &
+            & error, fname)
+        if (allocated(error)) return
+      else
+        ! Array of scalars → flatten to space-separated string value
+        call parse_array_to_string(src, src_len, pos, str_val, error, fname)
+        if (allocated(error)) return
+        allocate(child_value)
+        call new_value(child_value, name=child_name)
+        call child_value%set_string(str_val)
+        call table%add_child(child_value)
+      end if
 
     case ('"')
       ! String
@@ -422,6 +430,96 @@ contains
     call table%add_child(child_value)
 
   end subroutine parse_number_value
+
+  !> Check whether a JSON array's first element is an object.
+  !> Does not advance pos.
+  function array_contains_objects(src, src_len, pos) result(is_obj_array)
+    character(len=*), intent(in) :: src
+    integer, intent(in) :: src_len, pos
+    logical :: is_obj_array
+
+    integer :: peek
+
+    is_obj_array = .false.
+    peek = pos + 1  ! skip '['
+
+    ! Skip whitespace
+    do while (peek <= src_len)
+      select case (iachar(src(peek:peek)))
+      case (32, 9, 10, 13)
+        peek = peek + 1
+      case default
+        exit
+      end select
+    end do
+
+    if (peek <= src_len .and. src(peek:peek) == "{") then
+      is_obj_array = .true.
+    end if
+
+  end function array_contains_objects
+
+  !> Parse a JSON array of objects into multiple same-named hsd_table children.
+  !> On entry, pos is at '['. On exit, pos is after ']'.
+  recursive subroutine parse_object_array(src, src_len, pos, table, name, &
+      & error, fname)
+    character(len=*), intent(in) :: src
+    integer, intent(in) :: src_len
+    integer, intent(inout) :: pos
+    type(hsd_table), intent(inout) :: table
+    character(len=*), intent(in) :: name
+    type(hsd_error_t), allocatable, intent(out), optional :: error
+    character(len=*), intent(in) :: fname
+
+    type(hsd_table), allocatable :: child_table
+
+    ! Skip '['
+    pos = pos + 1
+    call skip_ws(src, src_len, pos)
+
+    ! Empty array
+    if (pos <= src_len .and. src(pos:pos) == "]") then
+      pos = pos + 1
+      return
+    end if
+
+    do
+      call skip_ws(src, src_len, pos)
+      if (pos > src_len) then
+        call make_error(error, "Unexpected end of input in array", fname, pos)
+        return
+      end if
+
+      if (src(pos:pos) /= "{") then
+        call make_error(error, "Expected '{' in array of objects", fname, pos)
+        return
+      end if
+
+      allocate(child_table)
+      call new_table(child_table, name=name)
+      call parse_object_members(src, src_len, pos, child_table, error, fname)
+      if (allocated(error)) return
+      call table%add_child(child_table)
+      deallocate(child_table)
+
+      call skip_ws(src, src_len, pos)
+      if (pos > src_len) then
+        call make_error(error, "Unexpected end of input in array", fname, pos)
+        return
+      end if
+
+      if (src(pos:pos) == "]") then
+        pos = pos + 1
+        return
+      else if (src(pos:pos) == ",") then
+        pos = pos + 1
+      else
+        call make_error(error, "Expected ',' or ']' in array", fname, pos)
+        return
+      end if
+    end do
+
+  end subroutine parse_object_array
 
   !> Parse a JSON array to a space-separated string.
   !> Nested arrays produce newline-separated rows.
