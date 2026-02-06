@@ -2,25 +2,22 @@
 
 ## Implementation Tasks
 
-- [ ] Create `CMakeLists.txt` (top-level): project definition, FetchContent for
-  hsd-fortran and Fortuno, options for TOML/HDF5, install targets
-- [ ] Create `fpm.toml` with hsd-fortran dependency, fortitude config, test entry
-- [ ] Create `LICENSE` (BSD-2-Clause-Patent, matching hsd-fortran)
-- [ ] Create `cmake/hsd-data-config.cmake.in` package config template
-- [ ] Create `src/CMakeLists.txt` with library target and compiler flags
-- [ ] Create `src/hsd_data_common.f90`: `data_detect_format` and format constants
-  (`DATA_FMT_AUTO`, `DATA_FMT_HSD`, `DATA_FMT_XML`, `DATA_FMT_JSON`, etc.)
-- [ ] Create `src/backends/hsd_data_hsd.f90`: thin wrapper around `hsd_parse`/`hsd_dump`
-- [ ] Create `src/hsd_data.f90`: umbrella module re-exporting hsd + `data_load`,
-  `data_dump`, `data_load_string`, `data_dump_to_string`, `data_detect_format`,
-  `data_format_available` — dispatch to HSD backend only for now
-- [ ] Create test scaffolding: `test/CMakeLists.txt`, `test/build_env.f90.in`,
-  `test/testapp.f90`
-- [ ] Create `test/fixtures/simple.hsd` with representative test data
-- [ ] Create `test/suites/test_common_suite.f90`: test `data_detect_format`
-- [ ] Create `test/suites/test_hsd_backend_suite.f90`: load HSD → dump HSD → verify round-trip
-- [ ] Verify the full build + test cycle passes (`cmake --build build && ctest --test-dir build`)
-- [ ] Run `fortitude check` and fix any lint warnings
+- [ ] Create `src/utils/hsd_data_xml_escape.f90`: XML entity escaping
+  (`&amp;`, `&lt;`, `&gt;`, `&quot;`, `&apos;`) and unescaping utilities
+- [ ] Create `src/backends/hsd_data_xml_writer.f90`: XML serializer using
+  custom recursive traversal of hsd_table → well-formed XML 1.0 with
+  indentation, element/attribute output, entity escaping
+- [ ] Create `test/fixtures/simple.xml` hand-written to match simple.hsd
+- [ ] Create `test/suites/test_xml_writer_suite.f90`: dump known HSD trees
+  to XML strings, verify structure
+- [ ] Create `src/backends/hsd_data_xml_parser.f90`: lightweight SAX-style
+  pull parser (character-level, stack-based tree building)
+- [ ] Create `test/suites/test_xml_parser_suite.f90`: parse fixture XMLs,
+  verify tree structure
+- [ ] Wire XML backend into `hsd_data.f90` dispatch (data_load/data_dump)
+  and update `data_format_available` to return .true. for XML
+- [ ] Create `test/suites/test_xml_roundtrip_suite.f90`: HSD→XML→HSD and
+  XML→HSD→XML end-to-end round-trip tests
 
 ---
 
