@@ -58,7 +58,7 @@ contains
     case (DATA_FMT_HSD)
       available = .true.
     case (DATA_FMT_XML)
-      available = .false.  ! Not yet implemented
+      available = .true.
     case (DATA_FMT_JSON)
       available = .false.  ! Not yet implemented
     case (DATA_FMT_TOML)

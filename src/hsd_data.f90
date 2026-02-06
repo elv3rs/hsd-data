@@ -53,6 +53,8 @@ module hsd_data
   use hsd_data_hsd, only: &
       & hsd_backend_load, hsd_backend_load_string, &
       & hsd_backend_dump, hsd_backend_dump_to_string
+  use hsd_data_xml_parser, only: xml_parse_file, xml_parse_string
+  use hsd_data_xml_writer, only: xml_dump_file, xml_dump_to_string
 
   implicit none(type, external)
   private
@@ -143,6 +145,8 @@ contains
     select case (actual_fmt)
     case (DATA_FMT_HSD)
       call hsd_backend_load(filename, root, error)
+    case (DATA_FMT_XML)
+      call xml_parse_file(filename, root, error)
     case default
       if (present(error)) then
         allocate(error)
@@ -164,6 +168,8 @@ contains
     select case (fmt)
     case (DATA_FMT_HSD)
       call hsd_backend_load_string(source, root, error, filename)
+    case (DATA_FMT_XML)
+      call xml_parse_string(source, root, error, filename)
     case default
       if (present(error)) then
         allocate(error)
@@ -205,6 +211,8 @@ contains
     select case (actual_fmt)
     case (DATA_FMT_HSD)
       call hsd_backend_dump(root, filename, error, pretty)
+    case (DATA_FMT_XML)
+      call xml_dump_file(root, filename, error, pretty)
     case default
       if (present(error)) then
         allocate(error)
@@ -225,6 +233,8 @@ contains
     select case (fmt)
     case (DATA_FMT_HSD)
       call hsd_backend_dump_to_string(root, output, pretty)
+    case (DATA_FMT_XML)
+      call xml_dump_to_string(root, output, pretty)
     case default
       output = ""
     end select
