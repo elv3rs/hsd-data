@@ -1,0 +1,17 @@
+Geometry {
+  TypeNames = { "Si" "C" }
+  TypesAndCoordinates [Angstrom] {
+    1  0.000  0.000  0.000
+    2  1.356  1.356  1.356
+  }
+}
+Hamiltonian {
+  SCC = Yes
+  MaxSccIterations = 100
+  Filling {
+    Temperature [Kelvin] = 300.0
+  }
+}
+Options {
+  WriteDetailedXml = Yes
+}
