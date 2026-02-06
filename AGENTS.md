@@ -25,12 +25,14 @@ of working around it prefer to either fix it on the spot or tack it onto
 > **replenish** a couple of new actionable points by considering the current
 > project state and, if needed, surveying `SPECIFICATION.md` and the codebase.
 > Keep these directions at the **bottom** of the TODO list. Then resume working
-> through the list sequentially again.
+> through the list top down sequentially again.
 >
 > **Stop condition:** no further actionable points can be generated because the
 > project state fully meets `SPECIFICATION.md`.
 >
 > Use git for each atomic change — very concise commit messages suffice.
+
+Since history is preserved in git thusly, completed todo items should be removed to keep everything orderly.
 
 ## Project Overview
 

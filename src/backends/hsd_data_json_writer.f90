@@ -90,6 +90,7 @@ contains
   end subroutine json_dump_file
 
   !> Write a table as a JSON object.
+  !> Same-named children are grouped into JSON arrays to avoid duplicate keys.
   recursive subroutine write_table(table, buf, buf_len, buf_cap, depth, pretty)
     type(hsd_table), intent(in) :: table
     character(len=:), allocatable, intent(inout) :: buf
@@ -97,15 +98,34 @@ contains
     integer, intent(in) :: depth
     logical, intent(in) :: pretty
 
-    integer :: ii, member_count
+    integer :: ii, jj, member_count, name_count
+    character(len=:), allocatable :: child_name
+    logical, allocatable :: emitted(:)
 
     call append_str(buf, buf_len, buf_cap, "{")
     call append_newline(buf, buf_len, buf_cap, pretty)
 
     member_count = 0
 
+    ! Track which children have been emitted (for duplicate-name grouping)
+    allocate(emitted(table%num_children))
+    emitted = .false.
+
     do ii = 1, table%num_children
       if (.not. allocated(table%children(ii)%node)) cycle
+      if (emitted(ii)) cycle
+
+      ! Get this child's name
+      child_name = get_child_name(table%children(ii)%node)
+
+      ! Count how many children share this name
+      name_count = 0
+      do jj = ii, table%num_children
+        if (.not. allocated(table%children(jj)%node)) cycle
+        if (get_child_name(table%children(jj)%node) == child_name) then
+          name_count = name_count + 1
+        end if
+      end do
 
       ! Emit comma separator between members
       if (member_count > 0) then
@@ -113,33 +133,42 @@ contains
         call append_newline(buf, buf_len, buf_cap, pretty)
       end if
 
-      select type (child => table%children(ii)%node)
-      type is (hsd_table)
-        call write_table_member(child, buf, buf_len, buf_cap, depth + 1, pretty)
+      if (name_count > 1) then
+        ! Multiple children with same name → emit as JSON array
+        call write_array_group(table, child_name, ii, emitted, &
+            & buf, buf_len, buf_cap, depth + 1, pretty)
         member_count = member_count + 1
-
-        ! Emit attrib sibling if present
-        if (allocated(child%attrib) .and. len_trim(child%attrib) > 0) then
-          call append_str(buf, buf_len, buf_cap, ",")
-          call append_newline(buf, buf_len, buf_cap, pretty)
-          call write_attrib_member(child%name, child%attrib, &
-              & buf, buf_len, buf_cap, depth + 1, pretty)
+      else
+        ! Single child → emit normally
+        emitted(ii) = .true.
+        select type (child => table%children(ii)%node)
+        type is (hsd_table)
+          call write_table_member(child, buf, buf_len, buf_cap, depth + 1, pretty)
           member_count = member_count + 1
-        end if
 
-      type is (hsd_value)
-        call write_value_member(child, buf, buf_len, buf_cap, depth + 1, pretty)
-        member_count = member_count + 1
+          ! Emit attrib sibling if present
+          if (allocated(child%attrib) .and. len_trim(child%attrib) > 0) then
+            call append_str(buf, buf_len, buf_cap, ",")
+            call append_newline(buf, buf_len, buf_cap, pretty)
+            call write_attrib_member(child%name, child%attrib, &
+                & buf, buf_len, buf_cap, depth + 1, pretty)
+            member_count = member_count + 1
+          end if
 
-        ! Emit attrib sibling if present
-        if (allocated(child%attrib) .and. len_trim(child%attrib) > 0) then
-          call append_str(buf, buf_len, buf_cap, ",")
-          call append_newline(buf, buf_len, buf_cap, pretty)
-          call write_attrib_member(child%name, child%attrib, &
-              & buf, buf_len, buf_cap, depth + 1, pretty)
+        type is (hsd_value)
+          call write_value_member(child, buf, buf_len, buf_cap, depth + 1, pretty)
           member_count = member_count + 1
-        end if
-      end select
+
+          ! Emit attrib sibling if present
+          if (allocated(child%attrib) .and. len_trim(child%attrib) > 0) then
+            call append_str(buf, buf_len, buf_cap, ",")
+            call append_newline(buf, buf_len, buf_cap, pretty)
+            call write_attrib_member(child%name, child%attrib, &
+                & buf, buf_len, buf_cap, depth + 1, pretty)
+            member_count = member_count + 1
+          end if
+        end select
+      end if
     end do
 
     if (member_count > 0) then
@@ -149,6 +178,83 @@ contains
     call append_str(buf, buf_len, buf_cap, "}")
 
   end subroutine write_table
+
+  !> Get the effective name of a child node.
+  function get_child_name(node) result(name)
+    class(hsd_node), intent(in) :: node
+    character(len=:), allocatable :: name
+
+    select type (node)
+    type is (hsd_table)
+      if (allocated(node%name) .and. len_trim(node%name) > 0) then
+        name = node%name
+      else
+        name = ANON_VALUE_KEY
+      end if
+    type is (hsd_value)
+      if (allocated(node%name) .and. len_trim(node%name) > 0) then
+        name = node%name
+      else
+        name = ANON_VALUE_KEY
+      end if
+    class default
+      name = ANON_VALUE_KEY
+    end select
+
+  end function get_child_name
+
+  !> Write all children with the given name as a JSON array.
+  !> Marks each emitted child in the `emitted` array.
+  recursive subroutine write_array_group(table, name, start_idx, emitted, &
+      & buf, buf_len, buf_cap, depth, pretty)
+    type(hsd_table), intent(in) :: table
+    character(len=*), intent(in) :: name
+    integer, intent(in) :: start_idx
+    logical, intent(inout) :: emitted(:)
+    character(len=:), allocatable, intent(inout) :: buf
+    integer, intent(inout) :: buf_len, buf_cap
+    integer, intent(in) :: depth
+    logical, intent(in) :: pretty
+
+    integer :: jj, arr_count
+
+    ! Emit key
+    call write_indent(buf, buf_len, buf_cap, depth, pretty)
+    call append_str(buf, buf_len, buf_cap, '"' // json_escape_string(name) // '":')
+    if (pretty) call append_str(buf, buf_len, buf_cap, " ")
+
+    ! Open array
+    call append_str(buf, buf_len, buf_cap, "[")
+    call append_newline(buf, buf_len, buf_cap, pretty)
+
+    arr_count = 0
+    do jj = start_idx, table%num_children
+      if (.not. allocated(table%children(jj)%node)) cycle
+      if (get_child_name(table%children(jj)%node) /= name) cycle
+
+      emitted(jj) = .true.
+
+      if (arr_count > 0) then
+        call append_str(buf, buf_len, buf_cap, ",")
+        call append_newline(buf, buf_len, buf_cap, pretty)
+      end if
+
+      select type (child => table%children(jj)%node)
+      type is (hsd_table)
+        call write_indent(buf, buf_len, buf_cap, depth + 1, pretty)
+        call write_table(child, buf, buf_len, buf_cap, depth + 1, pretty)
+      type is (hsd_value)
+        call write_indent(buf, buf_len, buf_cap, depth + 1, pretty)
+        call write_value_content(child, buf, buf_len, buf_cap)
+      end select
+      arr_count = arr_count + 1
+    end do
+
+    call append_newline(buf, buf_len, buf_cap, pretty)
+    call write_indent(buf, buf_len, buf_cap, depth, pretty)
+    call append_str(buf, buf_len, buf_cap, "]")
+
+  end subroutine write_array_group
 
   !> Write a table child as "key": { ... }
   recursive subroutine write_table_member(table, buf, buf_len, buf_cap, &

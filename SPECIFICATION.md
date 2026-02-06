@@ -2,6 +2,7 @@
 
 ## Specification & Implementation Plan
 
+(General guidance only, deviation, if justifiable, allowed.)
 ---
 
 ## 1. Motivation and Scope
@@ -159,7 +160,7 @@ preserve them but are non-standard for data exchange). HSD include directives
 | Root table | Top-level JSON object `{ ... }` |
 
 **Lossy direction (JSON → HSD):** JSON `null` maps to empty string value.
-JSON allows duplicate keys; last-wins with a warning.
+JSON and hsd both allow duplicate keys.
 
 **Lossy direction (HSD → JSON):** Comments and includes are lost. Attributes
 require the `__attrib` convention (configurable).
@@ -457,8 +458,8 @@ hsd-data/
 │   │   ├── hsd_data_json.f90        ← JSON backend
 │   │   ├── hsd_data_json_parser.f90 ← JSON parser (pure Fortran)
 │   │   ├── hsd_data_json_writer.f90 ← JSON serializer (visitor-based)
-│   │   ├── hsd_data_toml.f90        ← TOML backend (optional, wraps toml-f)
-│   │   └── hsd_data_hdf5.f90        ← HDF5 backend (optional)
+│   │   ├── hsd_data_toml.f90        ← TOML backend (wraps toml-f)
+│   │   └── hsd_data_hdf5.f90        ← HDF5 backend (wraps hdf5)
 │   └── utils/
 │       ├── hsd_data_string_utils.f90 ← shared string helpers
 │       └── hsd_data_xml_escape.f90   ← XML entity escaping
@@ -469,8 +470,8 @@ hsd-data/
 │   ├── test_xml_writer.f90          ← XML writer unit tests
 │   ├── test_json_parser.f90         ← JSON parser unit tests
 │   ├── test_json_writer.f90         ← JSON writer unit tests
-│   ├── test_toml_backend.f90        ← TOML round-trip (optional)
-│   ├── test_hdf5_backend.f90        ← HDF5 round-trip (optional)
+│   ├── test_toml_backend.f90        ← TOML round-trip
+│   ├── test_hdf5_backend.f90        ← HDF5 round-trip
 │   ├── test_format_detect.f90       ← Extension-based format detection
 │   ├── test_edge_cases.f90          ← Empty trees, special chars, Unicode
 │   └── fixtures/
@@ -572,7 +573,7 @@ hsd-data/
 - `--pretty` / `--compact` flags.
 - Installation target in CMake.
 
-### Phase 5: TOML Backend (Week 9) — Optional
+### Phase 5: TOML Backend (Week 9)
 
 **Deliverables:**
 - `hsd_data_toml.f90` using toml-f as backend.
@@ -581,7 +582,7 @@ hsd-data/
 - Guarded by `WITH_TOML` cmake option.
 - Tests: round-trip with TOML fixtures.
 
-### Phase 6: HDF5 Backend (Weeks 10–12) — Optional
+### Phase 6: HDF5 Backend (Weeks 10–12)
 
 **Week 10: HDF5 Writer**
 - Map `hsd_table` → groups, `hsd_value` → datasets.
@@ -603,9 +604,8 @@ hsd-data/
 ### Phase 7: Polish and Release (Weeks 13–14)
 
 **Deliverables:**
-- FORD API documentation.
-- User guide with examples for each format.
-- Mapping convention documentation (this spec, polished).
+- User guide (sphinx) with examples for each format (compilable).
+- Mapping convention documentation (this spec, split into files, polished).
 - Performance benchmarks (parse/dump throughput for each format).
 - Release v0.1.0.
 
@@ -908,7 +908,7 @@ add_library(hsd-data
   src/utils/hsd_data_xml_escape.f90)
 target_link_libraries(hsd-data PUBLIC hsd::hsd)
 
-# Optional TOML backend
+# TOML backend
 option(WITH_TOML "Build TOML backend (requires toml-f)" ON)
 if(WITH_TOML)
   find_package(toml-f QUIET)
@@ -919,7 +919,7 @@ if(WITH_TOML)
   endif()
 endif()
 
-# Optional HDF5 backend
+# HDF5 backend
 option(WITH_HDF5 "Build HDF5 backend (requires HDF5)" OFF)
 if(WITH_HDF5)
   find_package(HDF5 REQUIRED COMPONENTS Fortran)
