@@ -1,0 +1,30 @@
+# Build directories
+build/
+build-*/
+
+# Module files
+*.mod
+*.smod
+*.o
+*.a
+
+# Editor
+*.swp
+*~
+.vscode/
+
+# fpm
+build/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Coverage
+*.gcda
+*.gcno
+*.info
+
+# OS
+.DS_Store
