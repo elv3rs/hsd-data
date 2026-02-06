@@ -6,6 +6,7 @@ program testapp
   use test_hsd_backend_suite, only: hsd_backend_tests => tests
   use test_xml_writer_suite, only: xml_writer_tests => tests
   use test_xml_parser_suite, only: xml_parser_tests => tests
+  use test_xml_roundtrip_suite, only: xml_roundtrip_tests => tests
   implicit none(type, external)
 
   call build_env_init()
@@ -13,7 +14,8 @@ program testapp
       common_tests(), &
       hsd_backend_tests(), &
       xml_writer_tests(), &
-      xml_parser_tests() &
+      xml_parser_tests(), &
+      xml_roundtrip_tests() &
   ]))
 
 end program testapp

@@ -40,7 +40,7 @@ contains
     type(hsd_error_t), allocatable :: error
     character(len=:), allocatable :: val
 
-    call xml_parse_string('<Foo>42</Foo>', root, error)
+    call xml_parse_string('<root><Foo>42</Foo></root>', root, error)
     call check(.not. allocated(error), msg="Parse should succeed")
     call check(hsd_has_child(root, "Foo"), msg="Should have Foo child")
     call hsd_get(root, "Foo", val)
@@ -53,7 +53,7 @@ contains
     type(hsd_error_t), allocatable :: error
     character(len=:), allocatable :: val
     character(len=*), parameter :: xml = &
-        & '<A><B><C>hello</C></B></A>'
+        & '<root><A><B><C>hello</C></B></A></root>'
 
     call xml_parse_string(xml, root, error)
     call check(.not. allocated(error), msg="Parse should succeed")
@@ -69,7 +69,8 @@ contains
     type(hsd_error_t), allocatable :: error
     character(len=:), allocatable :: val, attr
 
-    call xml_parse_string('<Temp unit="Kelvin">300</Temp>', root, error)
+    call xml_parse_string( &
+        & '<root><Temp unit="Kelvin">300</Temp></root>', root, error)
     call check(.not. allocated(error), msg="Parse should succeed")
 
     call hsd_get(root, "Temp", val)
@@ -84,7 +85,8 @@ contains
     type(hsd_table) :: root
     type(hsd_error_t), allocatable :: error
 
-    call xml_parse_string('<Parent><Empty/></Parent>', root, error)
+    call xml_parse_string( &
+        & '<root><Parent><Empty/></Parent></root>', root, error)
     call check(.not. allocated(error), msg="Parse should succeed")
     call check(hsd_has_child(root, "Parent"), msg="Should have Parent")
 
@@ -95,7 +97,8 @@ contains
     type(hsd_error_t), allocatable :: error
     character(len=:), allocatable :: val
 
-    call xml_parse_string('<Val>  hello world  </Val>', root, error)
+    call xml_parse_string( &
+        & '<root><Val>  hello world  </Val></root>', root, error)
     call check(.not. allocated(error), msg="Parse should succeed")
 
     call hsd_get(root, "Val", val)
@@ -108,7 +111,8 @@ contains
     type(hsd_error_t), allocatable :: error
     character(len=:), allocatable :: val
 
-    call xml_parse_string('<!-- comment --><X>1</X>', root, error)
+    call xml_parse_string( &
+        & '<!-- comment --><root><X>1</X></root>', root, error)
     call check(.not. allocated(error), msg="Parse should succeed")
     call hsd_get(root, "X", val)
     call check(val == "1", msg="X should be '1'")
@@ -120,7 +124,8 @@ contains
     type(hsd_error_t), allocatable :: error
     character(len=:), allocatable :: val
 
-    call xml_parse_string('<?xml version="1.0"?><Y>2</Y>', root, error)
+    call xml_parse_string( &
+        & '<?xml version="1.0"?><root><Y>2</Y></root>', root, error)
     call check(.not. allocated(error), msg="Parse should succeed")
     call hsd_get(root, "Y", val)
     call check(val == "2", msg="Y should be '2'")
@@ -132,7 +137,8 @@ contains
     type(hsd_error_t), allocatable :: error
     character(len=:), allocatable :: val
 
-    call xml_parse_string('<D><![CDATA[a<b>c]]></D>', root, error)
+    call xml_parse_string( &
+        & '<root><D><![CDATA[a<b>c]]></D></root>', root, error)
     call check(.not. allocated(error), msg="Parse should succeed")
     call hsd_get(root, "D", val)
     call check(val == "a<b>c", msg="CDATA content should be preserved")
@@ -144,7 +150,8 @@ contains
     type(hsd_error_t), allocatable :: error
     character(len=:), allocatable :: val
 
-    call xml_parse_string('<E>a&amp;b&lt;c&gt;d</E>', root, error)
+    call xml_parse_string( &
+        & '<root><E>a&amp;b&lt;c&gt;d</E></root>', root, error)
     call check(.not. allocated(error), msg="Parse should succeed")
     call hsd_get(root, "E", val)
     call check(val == "a&b<c>d", msg="Entities should be unescaped")
@@ -160,8 +167,13 @@ contains
     call xml_parse_file(trim(filepath), root, error)
     call check(.not. allocated(error), msg="Parsing simple.xml should succeed")
 
-    ! Check structure
-    call check(hsd_has_child(root, "root"), msg="Should have root element")
+    ! After unwrapping document element, children are at root level
+    call check(hsd_has_child(root, "Geometry"), &
+        & msg="Should have Geometry node")
+    call check(hsd_has_child(root, "Hamiltonian"), &
+        & msg="Should have Hamiltonian node")
+    call check(hsd_has_child(root, "Options"), &
+        & msg="Should have Options node")
 
   end subroutine test_parse_fixture
 
@@ -169,7 +181,7 @@ contains
     type(hsd_table) :: root
     type(hsd_error_t), allocatable :: error
 
-    call xml_parse_string('<A>text</B>', root, error)
+    call xml_parse_string('<root><A>text</B></root>', root, error)
     call check(allocated(error), msg="Mismatched tags should produce error")
 
   end subroutine test_error_mismatch

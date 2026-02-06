@@ -44,8 +44,12 @@ contains
     if (allocated(root%name) .and. len_trim(root%name) > 0) then
       call write_table(root, buf, buf_len, buf_cap, 0, do_pretty)
     else
-      ! Anonymous root: write children directly
-      call write_children(root, buf, buf_len, buf_cap, 0, do_pretty)
+      ! Anonymous root: wrap in <root> document element for valid XML
+      call append_str(buf, buf_len, buf_cap, "<root>")
+      call append_newline(buf, buf_len, buf_cap, do_pretty)
+      call write_children(root, buf, buf_len, buf_cap, 1, do_pretty)
+      call append_str(buf, buf_len, buf_cap, "</root>")
+      call append_newline(buf, buf_len, buf_cap, do_pretty)
     end if
 
     output = buf(1:buf_len)

@@ -77,6 +77,8 @@ contains
 
     integer :: pos, src_len, line, col
     character(len=:), allocatable :: fname
+    character(len=:), allocatable :: doc_tag, close_name
+    character(len=:), allocatable :: attr_name, attr_value
 
     if (present(filename)) then
       fname = filename
@@ -99,7 +101,82 @@ contains
       end if
     end if
 
+    ! Skip prolog: whitespace, PIs (<?xml ...?>), and comments before
+    ! the document element.
+    do while (pos <= src_len)
+      call skip_whitespace(source, src_len, pos, line, col)
+      if (pos > src_len) exit
+      if (source(pos:pos) == "<" .and. pos + 1 <= src_len) then
+        if (source(pos + 1:pos + 1) == "?") then
+          call skip_pi(source, src_len, pos, line, col, error, fname)
+          if (allocated(error)) return
+          cycle
+        else if (pos + 3 <= src_len .and. source(pos:pos + 3) == "<!--") then
+          call skip_comment(source, src_len, pos, line, col, error, fname)
+          if (allocated(error)) return
+          cycle
+        end if
+      end if
+      exit
+    end do
+
+    if (pos > src_len .or. source(pos:pos) /= "<") then
+      ! Empty or whitespace-only input — return empty root
+      return
+    end if
+
+    ! Read the document element open tag.
+    ! We unwrap it so its children go directly into root.
+    call advance(source, pos, line, col)  ! skip '<'
+    call read_name(source, src_len, pos, line, col, doc_tag)
+    if (len(doc_tag) == 0) then
+      call make_parse_error(error, "Expected document element name", &
+          & fname, line, col)
+      return
+    end if
+
+    ! Skip document element attributes
+    call skip_whitespace(source, src_len, pos, line, col)
+    do while (pos <= src_len)
+      if (source(pos:pos) == ">") then
+        call advance(source, pos, line, col)
+        exit
+      else if (source(pos:pos) == "/") then
+        ! Self-closing document element → empty root
+        if (pos + 1 <= src_len .and. source(pos + 1:pos + 1) == ">") then
+          call advance(source, pos, line, col)
+          call advance(source, pos, line, col)
+          return
+        end if
+      else
+        call read_name(source, src_len, pos, line, col, attr_name)
+        call skip_whitespace(source, src_len, pos, line, col)
+        if (pos <= src_len .and. source(pos:pos) == "=") then
+          call advance(source, pos, line, col)
+          call skip_whitespace(source, src_len, pos, line, col)
+          call read_attrib_value(source, src_len, pos, line, col, &
+              & attr_value, error, fname)
+          if (allocated(error)) return
+        end if
+        call skip_whitespace(source, src_len, pos, line, col)
+      end if
+    end do
+
+    ! Parse document element content directly into root
     call parse_content(source, src_len, pos, line, col, root, error, fname)
+    if (allocated(error)) return
+
+    ! Read document element close tag
+    call read_close_tag(source, src_len, pos, line, col, close_name, &
+        & error, fname)
+    if (allocated(error)) return
+
+    if (close_name /= doc_tag) then
+      call make_parse_error(error, "Mismatched document element: expected </" &
+          & // doc_tag // "> but got </" // close_name // ">", &
+          & fname, line, col)
+      return
+    end if
 
   end subroutine xml_parse_string
 
@@ -382,6 +459,29 @@ contains
 
   end subroutine skip_comment_or_cdata
 
+  !> Skip a comment <!-- ... --> without text accumulation (for prolog).
+  subroutine skip_comment(src, src_len, pos, line, col, error, fname)
+    character(len=*), intent(in) :: src
+    integer, intent(in) :: src_len
+    integer, intent(inout) :: pos, line, col
+    type(hsd_error_t), allocatable, intent(out), optional :: error
+    character(len=*), intent(in) :: fname
+
+    ! pos is at '<', expect <!--
+    pos = pos + 4
+    col = col + 4
+    do while (pos + 2 <= src_len)
+      if (src(pos:pos + 2) == "-->") then
+        pos = pos + 3
+        col = col + 3
+        return
+      end if
+      call advance(src, pos, line, col)
+    end do
+    call make_parse_error(error, "Unterminated comment", fname, line, col)
+
+  end subroutine skip_comment
+
   !> Skip a processing instruction <?...?>
   subroutine skip_pi(src, src_len, pos, line, col, error, fname)
     character(len=*), intent(in) :: src
@@ -527,22 +627,31 @@ contains
   end subroutine accum_text
 
   !> Flush accumulated text to parent as an anonymous hsd_value.
+  !> Whitespace-only text (spaces, newlines, tabs) is discarded as
+  !> insignificant whitespace between XML elements.
   subroutine flush_text(buf, buf_len, parent)
     character(len=:), allocatable, intent(inout) :: buf
     integer, intent(inout) :: buf_len
     type(hsd_table), intent(inout) :: parent
 
     type(hsd_value), allocatable :: val
-    character(len=:), allocatable :: trimmed
+    character(len=:), allocatable :: unescaped
+    character(len=*), parameter :: WHITESPACE = " " // char(9) // char(10) // char(13)
+    integer :: first, last
 
-    trimmed = trim(adjustl(xml_unescape(buf(1:buf_len))))
+    unescaped = xml_unescape(buf(1:buf_len))
     buf_len = 0
 
-    if (len_trim(trimmed) == 0) return
+    ! Discard if entirely whitespace (spaces, tabs, newlines, CR)
+    if (verify(unescaped, WHITESPACE) == 0) return
+
+    ! Strip leading and trailing whitespace (including newlines)
+    first = verify(unescaped, WHITESPACE)
+    last = verify(unescaped, WHITESPACE, back=.true.)
 
     allocate(val)
     call new_value(val)
-    call val%set_string(trimmed)
+    call val%set_string(unescaped(first:last))
     call parent%add_child(val)
 
   end subroutine flush_text
