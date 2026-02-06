@@ -64,6 +64,13 @@ endif()
 
 add_subdirectory(src)
 
+# --- CLI Tool ---
+
+option(HSD_DATA_BUILD_APP "Build hsd-convert CLI tool" ON)
+if(HSD_DATA_BUILD_APP)
+  add_subdirectory(app)
+endif()
+
 # --- Tests ---
 
 if(HSD_DATA_BUILD_TESTS)
