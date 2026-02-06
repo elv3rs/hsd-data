@@ -13,6 +13,7 @@ target_include_directories(hsd_data_build_env PUBLIC ${CMAKE_CURRENT_BINARY_DIR}
 set(TEST_SUITES
   suites/test_common_suite.f90
   suites/test_hsd_backend_suite.f90
+  suites/test_xml_writer_suite.f90
 )
 
 # Fortuno-based test app

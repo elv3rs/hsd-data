@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <Geometry>
+    <TypeNames>Si C</TypeNames>
+    <TypesAndCoordinates unit="Angstrom">
+1  0.000  0.000  0.000
+2  1.356  1.356  1.356
+    </TypesAndCoordinates>
+  </Geometry>
+  <Hamiltonian>
+    <SCC>Yes</SCC>
+    <MaxSccIterations>100</MaxSccIterations>
+    <Filling>
+      <Temperature unit="Kelvin">300.0</Temperature>
+    </Filling>
+  </Hamiltonian>
+  <Options>
+    <WriteDetailedXml>Yes</WriteDetailedXml>
+  </Options>
+</root>
