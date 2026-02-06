@@ -1,0 +1,33 @@
+name = "hsd-data"
+version = "0.1.0"
+license = "BSD-2-Clause-Patent"
+maintainer = ["DFTB+ developers group"]
+author = ["DFTB+ developers group"]
+copyright = "2026 DFTB+ developers group"
+keywords = ["hsd", "data", "io", "xml", "json", "multi-format"]
+description = "Multi-format structured data IO library for Fortran"
+
+[library]
+source-dir = "src"
+
+[build]
+auto-tests = true
+auto-examples = false
+
+[[test]]
+name = "hsd_data_testapp"
+source-dir = "test"
+main = "testapp.f90"
+
+[fortran]
+
+[extra.fortitude.check]
+select = ["C", "E", "S"]
+ignore = []
+line-length = 100
+
+[dependencies]
+hsd = { git = "https://github.com/dftbplus/hsd-fortran" }
+
+[dev-dependencies]
+fortuno = { git = "https://github.com/fortuno-repos/fortuno-fpm-serial.git" }
