@@ -3,9 +3,12 @@
 set(HSD_DATA_SOURCES
   hsd_data_common.f90
   utils/hsd_data_xml_escape.f90
+  utils/hsd_data_json_escape.f90
   backends/hsd_data_hsd.f90
   backends/hsd_data_xml_parser.f90
   backends/hsd_data_xml_writer.f90
+  backends/hsd_data_json_writer.f90
+  backends/hsd_data_json_parser.f90
   hsd_data.f90
 )
 

@@ -7,6 +7,7 @@ program testapp
   use test_xml_writer_suite, only: xml_writer_tests => tests
   use test_xml_parser_suite, only: xml_parser_tests => tests
   use test_xml_roundtrip_suite, only: xml_roundtrip_tests => tests
+  use test_json_suite, only: json_tests => tests
   implicit none(type, external)
 
   call build_env_init()
@@ -15,7 +16,8 @@ program testapp
       hsd_backend_tests(), &
       xml_writer_tests(), &
       xml_parser_tests(), &
-      xml_roundtrip_tests() &
+      xml_roundtrip_tests(), &
+      json_tests() &
   ]))
 
 end program testapp

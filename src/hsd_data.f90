@@ -55,6 +55,8 @@ module hsd_data
       & hsd_backend_dump, hsd_backend_dump_to_string
   use hsd_data_xml_parser, only: xml_parse_file, xml_parse_string
   use hsd_data_xml_writer, only: xml_dump_file, xml_dump_to_string
+  use hsd_data_json_parser, only: json_parse_file, json_parse_string
+  use hsd_data_json_writer, only: json_dump_file, json_dump_to_string
 
   implicit none(type, external)
   private
@@ -147,6 +149,8 @@ contains
       call hsd_backend_load(filename, root, error)
     case (DATA_FMT_XML)
       call xml_parse_file(filename, root, error)
+    case (DATA_FMT_JSON)
+      call json_parse_file(filename, root, error)
     case default
       if (present(error)) then
         allocate(error)
@@ -170,6 +174,8 @@ contains
       call hsd_backend_load_string(source, root, error, filename)
     case (DATA_FMT_XML)
       call xml_parse_string(source, root, error, filename)
+    case (DATA_FMT_JSON)
+      call json_parse_string(source, root, error, filename)
     case default
       if (present(error)) then
         allocate(error)
@@ -213,6 +219,8 @@ contains
       call hsd_backend_dump(root, filename, error, pretty)
     case (DATA_FMT_XML)
       call xml_dump_file(root, filename, error, pretty)
+    case (DATA_FMT_JSON)
+      call json_dump_file(root, filename, error, pretty)
     case default
       if (present(error)) then
         allocate(error)
@@ -235,6 +243,8 @@ contains
       call hsd_backend_dump_to_string(root, output, pretty)
     case (DATA_FMT_XML)
       call xml_dump_to_string(root, output, pretty)
+    case (DATA_FMT_JSON)
+      call json_dump_to_string(root, output, pretty)
     case default
       output = ""
     end select
