@@ -20,15 +20,21 @@
 - [x] JSON fixture and test suite (14 tests)
 - [x] Wire JSON backend into dispatch, update `data_format_available`
 
-### Phase 4: CLI Converter Tool
+### Phase 4: CLI Converter Tool ✅
 
-- [ ] Create `app/hsd_convert.f90`: command-line program that calls
-  `data_load` / `data_dump` to convert between HSD, XML, and JSON
-- [ ] Support file arguments: `hsd-convert input.hsd output.json`
-- [ ] Support `--from=FMT` / `--to=FMT` overrides for stdin/stdout
-- [ ] Support `--pretty` / `--compact` output flags
-- [ ] Add CMake install target for the CLI tool
-- [ ] Add integration tests for the CLI
+- [x] Create `app/hsd_convert.f90`: command-line program
+- [x] Support file arguments, `--from`/`--to`, `--pretty`/`--compact`
+- [x] CMake install target, integration tests (8 CLI tests)
+
+### Phase 5: Additional Fixtures and Edge Cases
+
+- [ ] Add `test/fixtures/nested.hsd` + round-trip fixtures (nested.xml,
+  nested.json) — deeply nested tables/values
+- [ ] Add `test/fixtures/arrays.hsd` + arrays.json — 1-D and 2-D arrays,
+  mixed types
+- [ ] Add edge-case tests: empty tree, special characters, Unicode strings,
+  large values
+- [ ] Add README.md with build instructions, usage examples, API overview
 
 ---
 
