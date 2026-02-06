@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <Geometry>
+    <GenFormat>2 C
+5.431 0.0 0.0
+0.0 5.431 0.0
+0.0 0.0 5.431</GenFormat>
+    <Periodic>No</Periodic>
+  </Geometry>
+  <Hamiltonian>
+    <DFTB>
+      <SCC>Yes</SCC>
+      <MaxSccIterations>200</MaxSccIterations>
+      <Mixer>
+        <Broyden>
+          <MixingParameter>0.2</MixingParameter>
+          <InverseJacobiWeight>0.01</InverseJacobiWeight>
+        </Broyden>
+      </Mixer>
+      <MaxAngularMomentum>
+        <O>p</O>
+        <H>s</H>
+      </MaxAngularMomentum>
+      <Filling>
+        <Fermi>
+          <Temperature unit="Kelvin">0.0</Temperature>
+        </Fermi>
+      </Filling>
+      <KPointsAndWeights>0.0 0.0 0.0 1.0</KPointsAndWeights>
+      <SpinPolarisation>
+        <Colinear>
+          <InitialSpins>
+            <AtomSpin>
+              <Atoms>1:-1</Atoms>
+              <SpinPerAtom>1.0</SpinPerAtom>
+            </AtomSpin>
+          </InitialSpins>
+        </Colinear>
+      </SpinPolarisation>
+    </DFTB>
+  </Hamiltonian>
+  <Analysis>
+    <ProjectStates>
+      <Region>
+        <Atoms>1 2 3</Atoms>
+        <Label>first_three</Label>
+        <ShellResolved>Yes</ShellResolved>
+      </Region>
+    </ProjectStates>
+  </Analysis>
+</root>

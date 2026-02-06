@@ -1,0 +1,25 @@
+Lattice {
+  LatticeVectors {
+    5.431  0.000  0.000
+    0.000  5.431  0.000
+    0.000  0.000  5.431
+  }
+}
+Atoms {
+  Positions {
+    0.0 0.0 0.0
+    1.358 1.358 1.358
+    2.716 2.716 0.0
+    4.073 4.073 1.358
+  }
+  TypeNames = "Si Ge"
+  TypeIndices = "1 1 2 2"
+}
+KPoints {
+  Weights = "0.25 0.25 0.25 0.25"
+  SupercellFolding {
+    2 0 0
+    0 2 0
+    0 0 2
+  }
+}

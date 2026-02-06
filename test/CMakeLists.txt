@@ -89,4 +89,56 @@ if(HSD_DATA_BUILD_APP)
 
   # --version exits successfully
   add_test(NAME cli/version COMMAND ${HSD_CONVERT} --version)
+
+  # --- Round-trip tests for additional fixtures ---
+
+  # nested: HSD → JSON → HSD round-trip
+  add_test(NAME cli/nested_hsd_to_json
+    COMMAND ${HSD_CONVERT} ${FIXTURE_DIR}/nested.hsd
+      ${CMAKE_CURRENT_BINARY_DIR}/cli_nested.json
+  )
+  add_test(NAME cli/nested_json_to_hsd
+    COMMAND ${HSD_CONVERT} ${CMAKE_CURRENT_BINARY_DIR}/cli_nested.json
+      ${CMAKE_CURRENT_BINARY_DIR}/cli_nested_rt.hsd
+  )
+  set_tests_properties(cli/nested_json_to_hsd PROPERTIES
+    DEPENDS cli/nested_hsd_to_json)
+
+  # nested: HSD → XML → HSD round-trip
+  add_test(NAME cli/nested_hsd_to_xml
+    COMMAND ${HSD_CONVERT} ${FIXTURE_DIR}/nested.hsd
+      ${CMAKE_CURRENT_BINARY_DIR}/cli_nested.xml
+  )
+  add_test(NAME cli/nested_xml_to_hsd
+    COMMAND ${HSD_CONVERT} ${CMAKE_CURRENT_BINARY_DIR}/cli_nested.xml
+      ${CMAKE_CURRENT_BINARY_DIR}/cli_nested_xml_rt.hsd
+  )
+  set_tests_properties(cli/nested_xml_to_hsd PROPERTIES
+    DEPENDS cli/nested_hsd_to_xml)
+
+  # arrays: HSD → JSON → HSD round-trip
+  add_test(NAME cli/arrays_hsd_to_json
+    COMMAND ${HSD_CONVERT} ${FIXTURE_DIR}/arrays.hsd
+      ${CMAKE_CURRENT_BINARY_DIR}/cli_arrays.json
+  )
+  add_test(NAME cli/arrays_json_to_hsd
+    COMMAND ${HSD_CONVERT} ${CMAKE_CURRENT_BINARY_DIR}/cli_arrays.json
+      ${CMAKE_CURRENT_BINARY_DIR}/cli_arrays_rt.hsd
+  )
+  set_tests_properties(cli/arrays_json_to_hsd PROPERTIES
+    DEPENDS cli/arrays_hsd_to_json)
+
+  # Load pre-built fixture files directly
+  add_test(NAME cli/load_nested_xml
+    COMMAND ${HSD_CONVERT} ${FIXTURE_DIR}/nested.xml
+      ${CMAKE_CURRENT_BINARY_DIR}/cli_nested_fixture.hsd
+  )
+  add_test(NAME cli/load_nested_json
+    COMMAND ${HSD_CONVERT} ${FIXTURE_DIR}/nested.json
+      ${CMAKE_CURRENT_BINARY_DIR}/cli_nested_fixture2.hsd
+  )
+  add_test(NAME cli/load_arrays_json
+    COMMAND ${HSD_CONVERT} ${FIXTURE_DIR}/arrays.json
+      ${CMAKE_CURRENT_BINARY_DIR}/cli_arrays_fixture.hsd
+  )
 endif()
