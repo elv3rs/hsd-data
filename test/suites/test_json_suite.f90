@@ -1,7 +1,7 @@
 !> Tests for the JSON backend: escape, writer, parser, and round-trips.
 module test_json_suite
   use hsd_data, only: hsd_table, hsd_value, hsd_error_t, hsd_has_child, &
-      & hsd_get, hsd_get_attrib, new_table, new_value, &
+      & hsd_get, hsd_get_attrib, new_table, new_value, hsd_child_count, &
       & data_load, data_load_string, data_dump, data_dump_to_string, &
       & DATA_FMT_HSD, DATA_FMT_JSON
   use hsd_data_json_escape, only: json_escape_string, json_unescape_string
@@ -28,13 +28,16 @@ contains
             test("write_simple", test_write_simple), &
             test("write_nested", test_write_nested), &
             test("write_attrib", test_write_attrib), &
+            test("write_dup_keys", test_write_dup_keys), &
             test("parse_simple", test_parse_simple), &
             test("parse_types", test_parse_types), &
             test("parse_attrib", test_parse_attrib), &
             test("parse_array", test_parse_array), &
+            test("parse_obj_array", test_parse_obj_array), &
             test("parse_fixture", test_parse_fixture), &
             test("roundtrip_string", test_roundtrip_string), &
             test("roundtrip_file", test_roundtrip_file), &
+            test("roundtrip_dup_keys", test_roundtrip_dup_keys), &
             test("auto_detect", test_auto_detect) &
         ])) &
     ])
@@ -289,5 +292,116 @@ contains
     call check(hsd_has_child(root, "Geometry"), msg="Should have Geometry")
 
   end subroutine test_auto_detect
+
+  ! ─── Duplicate-key tests ───
+
+  subroutine test_write_dup_keys()
+    type(hsd_table) :: root
+    type(hsd_table), allocatable :: child1, child2
+    type(hsd_value), allocatable :: v1, v2
+    character(len=:), allocatable :: output
+
+    call new_table(root)
+
+    ! Add two tables with the same name "Item"
+    allocate(child1)
+    call new_table(child1, name="Item")
+    allocate(v1)
+    call new_value(v1, name="Name")
+    call v1%set_string("first")
+    call child1%add_child(v1)
+    call root%add_child(child1)
+
+    allocate(child2)
+    call new_table(child2, name="Item")
+    allocate(v2)
+    call new_value(v2, name="Name")
+    call v2%set_string("second")
+    call child2%add_child(v2)
+    call root%add_child(child2)
+
+    call json_dump_to_string(root, output)
+
+    ! Should produce a JSON array, not duplicate keys
+    call check(index(output, '"Item":') > 0, msg="Should have Item key")
+    call check(index(output, "[") > 0, msg="Should contain array bracket")
+    ! Should NOT have two separate "Item": keys
+    ! (verify the key appears exactly once)
+    call check(count_occurrences(output, '"Item":') == 1, &
+        & msg="Item key should appear exactly once (as array)")
+
+  end subroutine test_write_dup_keys
+
+  subroutine test_parse_obj_array()
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+    character(len=:), allocatable :: val
+    character(len=*), parameter :: src = &
+        & '{"Item": [{"Name": "first"}, {"Name": "second"}]}'
+
+    call json_parse_string(src, root, error)
+    call check(.not. allocated(error), msg="Parse should succeed")
+
+    ! Should create two children named "Item"
+    call check(hsd_child_count(root, "") == 2, &
+        & msg="Should have 2 children")
+    call check(hsd_has_child(root, "Item"), msg="Should have Item child")
+
+  end subroutine test_parse_obj_array
+
+  subroutine test_roundtrip_dup_keys()
+    type(hsd_table) :: root, root2
+    type(hsd_error_t), allocatable :: error
+    character(len=:), allocatable :: json_str, dump1, dump2
+    character(len=*), parameter :: src = &
+        & 'Output {' // new_line("a") // &
+        & '  BandOut {' // new_line("a") // &
+        & '    Prefix = "alpha"' // new_line("a") // &
+        & '  }' // new_line("a") // &
+        & '  BandOut {' // new_line("a") // &
+        & '    Prefix = "beta"' // new_line("a") // &
+        & '  }' // new_line("a") // &
+        & '}'
+
+    ! Parse HSD with duplicate keys
+    call data_load_string(src, root, DATA_FMT_HSD, error)
+    call check(.not. allocated(error), msg="HSD parse should succeed")
+
+    ! Dump to JSON
+    call data_dump_to_string(root, json_str, DATA_FMT_JSON)
+    call check(len(json_str) > 0, msg="JSON output non-empty")
+
+    ! Verify JSON uses array not duplicate keys
+    call check(index(json_str, "[") > 0, &
+        & msg="JSON should use array for dup keys")
+
+    ! Parse JSON back
+    call data_load_string(json_str, root2, DATA_FMT_JSON, error)
+    call check(.not. allocated(error), msg="JSON re-parse should succeed")
+
+    ! Compare HSD dumps
+    call data_dump_to_string(root, dump1, DATA_FMT_HSD)
+    call data_dump_to_string(root2, dump2, DATA_FMT_HSD)
+    call check(dump1 == dump2, &
+        & msg="HSD->JSON->HSD dup-key round-trip should preserve content")
+
+  end subroutine test_roundtrip_dup_keys
+
+  ! ─── Helpers ───
+
+  function count_occurrences(str, sub) result(n)
+    character(len=*), intent(in) :: str, sub
+    integer :: n, pos, start
+
+    n = 0
+    start = 1
+    do
+      pos = index(str(start:), sub)
+      if (pos == 0) exit
+      n = n + 1
+      start = start + pos + len(sub) - 1
+    end do
+
+  end function count_occurrences
 
 end module test_json_suite
