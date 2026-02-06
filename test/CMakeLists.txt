@@ -17,6 +17,7 @@ set(TEST_SUITES
   suites/test_xml_parser_suite.f90
   suites/test_xml_roundtrip_suite.f90
   suites/test_json_suite.f90
+  suites/test_edge_cases_suite.f90
 )
 
 # Fortuno-based test app
