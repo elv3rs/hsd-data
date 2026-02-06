@@ -15,7 +15,33 @@
 !> ```
 module hsd_data
   ! Re-export the full hsd-fortran public API
-  use hsd
+  use hsd, only: dp, sp, &
+      & hsd_error_t, &
+      & HSD_STAT_OK, HSD_STAT_SYNTAX_ERROR, HSD_STAT_UNCLOSED_TAG, &
+      & HSD_STAT_UNCLOSED_ATTRIB, HSD_STAT_UNCLOSED_QUOTE, HSD_STAT_ORPHAN_TEXT, &
+      & HSD_STAT_INCLUDE_CYCLE, HSD_STAT_INCLUDE_DEPTH, HSD_STAT_FILE_NOT_FOUND, &
+      & HSD_STAT_IO_ERROR, HSD_STAT_TYPE_ERROR, HSD_STAT_NOT_FOUND, &
+      & HSD_STAT_SCHEMA_ERROR, &
+      & hsd_node, hsd_table, hsd_value, hsd_node_ptr, hsd_iterator, &
+      & new_table, new_value, &
+      & VALUE_TYPE_NONE, VALUE_TYPE_STRING, VALUE_TYPE_INTEGER, &
+      & VALUE_TYPE_REAL, VALUE_TYPE_LOGICAL, VALUE_TYPE_ARRAY, VALUE_TYPE_COMPLEX, &
+      & hsd_load, hsd_load_string, hsd_dump, hsd_dump_to_string, &
+      & hsd_visitor_t, hsd_accept, &
+      & hsd_get, hsd_get_or, hsd_get_matrix, &
+      & hsd_set, &
+      & hsd_get_child, hsd_get_table, hsd_has_child, hsd_remove_child, &
+      & hsd_get_type, hsd_is_table, hsd_is_value, hsd_is_array, &
+      & hsd_child_count, hsd_get_keys, hsd_get_attrib, hsd_has_attrib, &
+      & hsd_merge, hsd_clone, &
+      & hsd_require, hsd_validate_range, hsd_validate_one_of, hsd_get_with_unit, &
+      & hsd_schema_t, hsd_field_def_t, &
+      & FIELD_REQUIRED, FIELD_OPTIONAL, &
+      & FIELD_TYPE_ANY, FIELD_TYPE_STRING, FIELD_TYPE_INTEGER, &
+      & FIELD_TYPE_REAL, FIELD_TYPE_LOGICAL, FIELD_TYPE_TABLE, &
+      & FIELD_TYPE_ARRAY, FIELD_TYPE_COMPLEX, &
+      & schema_init, schema_destroy, schema_add_field, schema_add_field_enum, &
+      & schema_validate, schema_validate_strict
 
   ! hsd-data specific modules
   use hsd_data_common, only: &

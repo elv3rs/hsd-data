@@ -56,6 +56,7 @@ if(HSD_DATA_BUILD_TESTS)
   set(FORTUNO_WITH_EXAMPLES OFF CACHE BOOL "" FORCE)
   set(FORTUNO_INSTALL OFF CACHE BOOL "" FORCE)
   FetchContent_MakeAvailable(Fortuno)
+  list(APPEND CMAKE_MODULE_PATH ${fortuno_SOURCE_DIR}/cmake)
   include(Fortuno)
 endif()
 

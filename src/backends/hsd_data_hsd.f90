@@ -1,6 +1,6 @@
 !> HSD backend — thin wrapper around hsd-fortran's parser and formatter.
 module hsd_data_hsd
-  use hsd, only: hsd_table, hsd_error_t, hsd_parse, hsd_parse_string, &
+  use hsd, only: hsd_table, hsd_error_t, hsd_load, hsd_load_string, &
       & hsd_dump, hsd_dump_to_string
   implicit none(type, external)
   private
@@ -16,7 +16,7 @@ contains
     type(hsd_table), intent(out) :: root
     type(hsd_error_t), allocatable, intent(out), optional :: error
 
-    call hsd_parse(filename, root, error)
+    call hsd_load(filename, root, error)
 
   end subroutine hsd_backend_load
 
@@ -27,7 +27,7 @@ contains
     type(hsd_error_t), allocatable, intent(out), optional :: error
     character(len=*), intent(in), optional :: filename
 
-    call hsd_parse_string(source, root, error, filename)
+    call hsd_load_string(source, root, error, filename)
 
   end subroutine hsd_backend_load_string
 

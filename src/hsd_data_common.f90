@@ -62,17 +62,9 @@ contains
     case (DATA_FMT_JSON)
       available = .false.  ! Not yet implemented
     case (DATA_FMT_TOML)
-#ifdef WITH_TOML
-      available = .true.
-#else
-      available = .false.
-#endif
+      available = .false.  ! Not yet implemented
     case (DATA_FMT_HDF5)
-#ifdef WITH_HDF5
-      available = .true.
-#else
-      available = .false.
-#endif
+      available = .false.  ! Not yet implemented
     case default
       available = .false.
     end select

@@ -1,6 +1,8 @@
 !> Tests for the HSD backend: load and dump round-trip.
 module test_hsd_backend_suite
-  use hsd_data
+  use hsd_data, only: hsd_table, hsd_error_t, hsd_has_child, &
+      & data_load, data_load_string, data_dump, data_dump_to_string, &
+      & DATA_FMT_HSD
   use build_env, only: source_dir, build_dir
   use fortuno_serial, only: test => serial_case_item, &
       & check => serial_check, suite => serial_suite_item, test_list

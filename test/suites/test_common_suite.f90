@@ -1,6 +1,7 @@
 !> Tests for hsd_data_common: format detection and availability.
 module test_common_suite
-  use hsd_data
+  use hsd_data, only: data_detect_format, data_format_available, &
+      & DATA_FMT_HSD, DATA_FMT_XML, DATA_FMT_JSON, DATA_FMT_TOML, DATA_FMT_HDF5
   use fortuno_serial, only: test => serial_case_item, &
       & check => serial_check, suite => serial_suite_item, test_list
   implicit none(type, external)
