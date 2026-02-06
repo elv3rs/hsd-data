@@ -11,20 +11,24 @@
 - [x] Wire XML backend into dispatch (data_load/data_dump)
 - [x] XML round-trip tests (HSD↔XML, data_convert, auto-detect)
 
-### Phase 3: JSON Backend
+### Phase 3: JSON Backend ✅
 
-- [ ] Create `src/utils/hsd_data_json_escape.f90`: JSON string escaping
-  (backslash, quotes, control characters, Unicode `\uXXXX`)
-- [ ] Create `src/backends/hsd_data_json_writer.f90`: JSON serializer
-  mapping hsd_table→object, hsd_value→string/number/boolean, arrays→arrays,
-  with pretty-print support
-- [ ] Create `src/backends/hsd_data_json_parser.f90`: recursive-descent
-  JSON parser (objects, arrays, strings, numbers, booleans, null)
-- [ ] Create `test/fixtures/simple.json` hand-written to match simple.hsd
-- [ ] Create `test/suites/test_json_suite.f90`: writer + parser + round-trip
-  tests
-- [ ] Wire JSON backend into `hsd_data.f90` dispatch, update
-  `data_format_available`
+- [x] JSON escape/unescape utilities (`hsd_data_json_escape.f90`)
+- [x] JSON writer (`hsd_data_json_writer.f90`)
+- [x] JSON parser (`hsd_data_json_parser.f90`) — recursive descent, stores
+  all values as strings for `hsd_get` compatibility
+- [x] JSON fixture and test suite (14 tests)
+- [x] Wire JSON backend into dispatch, update `data_format_available`
+
+### Phase 4: CLI Converter Tool
+
+- [ ] Create `app/hsd_convert.f90`: command-line program that calls
+  `data_load` / `data_dump` to convert between HSD, XML, and JSON
+- [ ] Support file arguments: `hsd-convert input.hsd output.json`
+- [ ] Support `--from=FMT` / `--to=FMT` overrides for stdin/stdout
+- [ ] Support `--pretty` / `--compact` output flags
+- [ ] Add CMake install target for the CLI tool
+- [ ] Add integration tests for the CLI
 
 ---
 
