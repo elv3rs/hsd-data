@@ -1,9 +1,12 @@
-!> Tests for 3-format round-trip chains: HSD ↔ XML ↔ JSON.
+!> Tests for cross-format round-trip chains: HSD ↔ XML ↔ JSON ↔ TOML.
 module test_cross_format_suite
   use hsd_data, only: hsd_table, hsd_error_t, hsd_has_child, hsd_child_count, &
       & hsd_get, hsd_table_equal, &
       & data_load, data_load_string, data_dump_to_string, &
       & DATA_FMT_HSD, DATA_FMT_XML, DATA_FMT_JSON
+#ifdef WITH_TOML
+  use hsd_data, only: DATA_FMT_TOML
+#endif
   use build_env, only: source_dir
   use fortuno_serial, only: test => serial_case_item, &
       & check => serial_check, suite => serial_suite_item, test_list
@@ -17,29 +20,48 @@ contains
   function tests()
     type(test_list) :: tests
 
-    tests = test_list([&
-        suite("cross_format", test_list([&
-            test("hsd_json_xml_hsd", test_hsd_json_xml_hsd), &
-            test("hsd_xml_json_hsd", test_hsd_xml_json_hsd), &
-            test("json_hsd_xml_json", test_json_hsd_xml_json), &
-            test("xml_json_hsd_xml", test_xml_json_hsd_xml), &
-            test("json_xml_json", test_json_xml_json), &
-            test("all_three_preserve", test_all_three_preserve), &
-            test("empty_fixtures", test_empty_fixtures), &
-            test("special_chars_fixtures", test_special_chars_fixtures), &
-            test("tree_equal_basic", test_tree_equal_basic), &
-            test("root_name_match", test_root_name_match), &
-            test("root_name_mismatch", test_root_name_mismatch), &
-            test("fixture_simple_pairs", test_fixture_simple_pairs), &
-            test("fixture_nested_pairs", test_fixture_nested_pairs), &
-            test("fixture_arrays_pairs", test_fixture_arrays_pairs), &
-            test("fixture_matrix_pairs", test_fixture_matrix_pairs), &
-            test("fixture_attribs_pairs", test_fixture_attribs_pairs), &
-            test("fixture_complex_pairs", test_fixture_complex_pairs), &
-            test("fixture_special_pairs", test_fixture_special_pairs), &
-            test("fixture_unicode_pairs", test_fixture_unicode_pairs) &
-        ])) &
+    type(test_list) :: base_tests
+#ifdef WITH_TOML
+    type(test_list) :: toml_tests
+#endif
+
+    base_tests = test_list([&
+        test("hsd_json_xml_hsd", test_hsd_json_xml_hsd), &
+        test("hsd_xml_json_hsd", test_hsd_xml_json_hsd), &
+        test("json_hsd_xml_json", test_json_hsd_xml_json), &
+        test("xml_json_hsd_xml", test_xml_json_hsd_xml), &
+        test("json_xml_json", test_json_xml_json), &
+        test("all_three_preserve", test_all_three_preserve), &
+        test("empty_fixtures", test_empty_fixtures), &
+        test("special_chars_fixtures", test_special_chars_fixtures), &
+        test("tree_equal_basic", test_tree_equal_basic), &
+        test("root_name_match", test_root_name_match), &
+        test("root_name_mismatch", test_root_name_mismatch), &
+        test("fixture_simple_pairs", test_fixture_simple_pairs), &
+        test("fixture_nested_pairs", test_fixture_nested_pairs), &
+        test("fixture_arrays_pairs", test_fixture_arrays_pairs), &
+        test("fixture_matrix_pairs", test_fixture_matrix_pairs), &
+        test("fixture_attribs_pairs", test_fixture_attribs_pairs), &
+        test("fixture_complex_pairs", test_fixture_complex_pairs), &
+        test("fixture_special_pairs", test_fixture_special_pairs), &
+        test("fixture_unicode_pairs", test_fixture_unicode_pairs) &
     ])
+
+#ifdef WITH_TOML
+    toml_tests = test_list([&
+        test("toml_hsd_json_toml", test_toml_hsd_json_toml), &
+        test("hsd_toml_xml_hsd", test_hsd_toml_xml_hsd), &
+        test("fixture_simple_toml_pairs", test_fixture_simple_toml_pairs) &
+    ])
+
+    tests = test_list([&
+        suite("cross_format", test_list([base_tests, toml_tests])) &
+    ])
+#else
+    tests = test_list([&
+        suite("cross_format", base_tests) &
+    ])
+#endif
 
   end function tests
 
@@ -552,5 +574,103 @@ contains
         & "unicode XML->JSON->XML", ok)
 
   end subroutine test_fixture_unicode_pairs
+
+#ifdef WITH_TOML
+  !> TOML → HSD → JSON → TOML: full 3-format chain starting from TOML.
+  subroutine test_toml_hsd_json_toml()
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+    character(len=:), allocatable :: toml1, hsd_str, json_str, toml2
+
+    call data_load_string( &
+        & '[Alpha]' // new_line("a") // 'Beta = 7' // new_line("a") &
+        & // '[Gamma]' // new_line("a") // 'text = "hello"', &
+        & root, DATA_FMT_TOML, error)
+    call check(.not. allocated(error), msg="TOML parse should succeed")
+    call data_dump_to_string(root, toml1, DATA_FMT_TOML)
+
+    ! TOML → HSD
+    call data_dump_to_string(root, hsd_str, DATA_FMT_HSD)
+    call check(len(hsd_str) > 0, msg="HSD output should be non-empty")
+
+    ! HSD → tree
+    call data_load_string(hsd_str, root, DATA_FMT_HSD, error)
+    call check(.not. allocated(error), msg="HSD re-parse should succeed")
+
+    ! tree → JSON
+    call data_dump_to_string(root, json_str, DATA_FMT_JSON)
+    call check(len(json_str) > 0, msg="JSON output should be non-empty")
+
+    ! JSON → tree
+    call data_load_string(json_str, root, DATA_FMT_JSON, error)
+    call check(.not. allocated(error), msg="JSON re-parse should succeed")
+
+    ! tree → TOML (compare)
+    call data_dump_to_string(root, toml2, DATA_FMT_TOML)
+    call check(toml1 == toml2, &
+        & msg="TOML→HSD→JSON→TOML should preserve content")
+
+  end subroutine test_toml_hsd_json_toml
+
+  !> HSD → TOML → XML → HSD: chain including TOML.
+  !> Uses structural comparison since TOML reorders children
+  !> (scalars before table sections).
+  subroutine test_hsd_toml_xml_hsd()
+    type(hsd_table) :: root, orig
+    type(hsd_error_t), allocatable :: error
+    character(len=:), allocatable :: toml_str, xml_str
+
+    call data_load_string( &
+        & 'Foo { Bar = 42 }' // new_line("a") // 'Baz = "hello"', &
+        & orig, DATA_FMT_HSD, error)
+    call check(.not. allocated(error), msg="HSD parse should succeed")
+
+    ! HSD → TOML
+    call data_dump_to_string(orig, toml_str, DATA_FMT_TOML)
+    call check(len(toml_str) > 0, msg="TOML output should be non-empty")
+
+    ! TOML → tree
+    call data_load_string(toml_str, root, DATA_FMT_TOML, error)
+    call check(.not. allocated(error), msg="TOML re-parse should succeed")
+
+    ! tree → XML
+    call data_dump_to_string(root, xml_str, DATA_FMT_XML)
+    call check(len(xml_str) > 0, msg="XML output should be non-empty")
+
+    ! XML → tree
+    call data_load_string(xml_str, root, DATA_FMT_XML, error)
+    call check(.not. allocated(error), msg="XML re-parse should succeed")
+
+    ! Structural comparison (order-independent)
+    call check(hsd_table_equal(orig, root), &
+        & msg="HSD→TOML→XML→HSD should preserve structure")
+
+  end subroutine test_hsd_toml_xml_hsd
+
+  !> Systematic roundtrip for simple fixture across TOML format pairs.
+  subroutine test_fixture_simple_toml_pairs()
+    character(len=512) :: base
+    logical :: ok
+
+    base = source_dir // "/test/fixtures/simple"
+
+    ! From other formats → TOML
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_TOML, &
+        & "simple HSD->TOML", ok)
+    call roundtrip_pair(trim(base) // ".json", DATA_FMT_JSON, DATA_FMT_TOML, &
+        & "simple JSON->TOML", ok)
+    call roundtrip_pair(trim(base) // ".xml", DATA_FMT_XML, DATA_FMT_TOML, &
+        & "simple XML->TOML", ok)
+
+    ! From TOML → other formats
+    call roundtrip_pair(trim(base) // ".toml", DATA_FMT_TOML, DATA_FMT_HSD, &
+        & "simple TOML->HSD", ok)
+    call roundtrip_pair(trim(base) // ".toml", DATA_FMT_TOML, DATA_FMT_JSON, &
+        & "simple TOML->JSON", ok)
+    call roundtrip_pair(trim(base) // ".toml", DATA_FMT_TOML, DATA_FMT_XML, &
+        & "simple TOML->XML", ok)
+
+  end subroutine test_fixture_simple_toml_pairs
+#endif
 
 end module test_cross_format_suite
