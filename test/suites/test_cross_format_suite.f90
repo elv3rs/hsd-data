@@ -27,7 +27,9 @@ contains
             test("all_three_preserve", test_all_three_preserve), &
             test("empty_fixtures", test_empty_fixtures), &
             test("special_chars_fixtures", test_special_chars_fixtures), &
-            test("tree_equal_basic", test_tree_equal_basic) &
+            test("tree_equal_basic", test_tree_equal_basic), &
+            test("root_name_match", test_root_name_match), &
+            test("root_name_mismatch", test_root_name_mismatch) &
         ])) &
     ])
 
@@ -311,5 +313,43 @@ contains
     call check(hsd_table_equal(a, b), msg="Round-tripped trees should be equal")
 
   end subroutine test_tree_equal_basic
+
+
+  !> Test data_load root_name parameter — matching name.
+  subroutine test_root_name_match()
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+    character(len=:), allocatable :: path
+
+    ! HSD fixture has "Geometry" as a top-level child
+    path = source_dir // "/test/fixtures/simple.hsd"
+    call data_load(path, root, error, root_name="Geometry")
+    call check(.not. allocated(error), msg="root_name=Geometry should match")
+
+    ! XML fixture has "Geometry" under <root>
+    path = source_dir // "/test/fixtures/simple.xml"
+    call data_load(path, root, error, root_name="Geometry")
+    call check(.not. allocated(error), msg="root_name=Geometry should match (XML)")
+
+    ! JSON fixture has "Geometry" as top-level key
+    path = source_dir // "/test/fixtures/simple.json"
+    call data_load(path, root, error, root_name="Geometry")
+    call check(.not. allocated(error), msg="root_name=Geometry should match (JSON)")
+
+  end subroutine test_root_name_match
+
+
+  !> Test data_load root_name parameter — non-matching name.
+  subroutine test_root_name_mismatch()
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+    character(len=:), allocatable :: path
+
+    ! "NoSuchElement" should not be found in simple.hsd
+    path = source_dir // "/test/fixtures/simple.hsd"
+    call data_load(path, root, error, root_name="NoSuchElement")
+    call check(allocated(error), msg="root_name=NoSuchElement should fail")
+
+  end subroutine test_root_name_mismatch
 
 end module test_cross_format_suite

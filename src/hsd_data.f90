@@ -119,15 +119,20 @@ contains
   !> If fmt is DATA_FMT_AUTO (default), the format is detected from the file
   !> extension. Supported extensions: .hsd, .xml, .json, .toml, .h5/.hdf5
   !>
-  !> @param filename  Path to the input file.
-  !> @param root      Output HSD tree (overwritten on success).
-  !> @param error     Optional error descriptor; allocated on failure.
-  !> @param fmt       Optional format constant (DATA_FMT_*). Default: auto-detect.
-  subroutine data_load(filename, root, error, fmt)
+  !> When root_name is given the document element (XML) or first top-level
+  !> child (HSD/JSON) must have that name, otherwise an error is returned.
+  !>
+  !> @param filename   Path to the input file.
+  !> @param root       Output HSD tree (overwritten on success).
+  !> @param error      Optional error descriptor; allocated on failure.
+  !> @param fmt        Optional format constant (DATA_FMT_*). Default: auto-detect.
+  !> @param root_name  Optional expected root tag name.
+  subroutine data_load(filename, root, error, fmt, root_name)
     character(len=*), intent(in) :: filename
     type(hsd_table), intent(out) :: root
     type(hsd_error_t), allocatable, intent(out), optional :: error
     integer, intent(in), optional :: fmt
+    character(len=*), intent(in), optional :: root_name
 
     integer :: actual_fmt
 
@@ -163,6 +168,14 @@ contains
         error%message = "Unsupported or unavailable format"
       end if
     end select
+
+    ! Validate root_name if loading succeeded and root_name is provided
+    if (present(root_name)) then
+      if (present(error)) then
+        if (allocated(error)) return
+      end if
+      call check_root_name_(root, root_name, error)
+    end if
 
   end subroutine data_load
 
@@ -315,5 +328,32 @@ contains
     call data_dump(root, output_file, error, output_fmt)
 
   end subroutine data_convert
+
+
+  ! ---------------------------------------------------------------------------
+  !  Private helpers
+  ! ---------------------------------------------------------------------------
+
+  !> Check that root contains a child matching expected_name.
+  !>
+  !> After loading, the root table is anonymous.  In XML the document element
+  !> is unwrapped so its children are direct children of root; in HSD/JSON
+  !> the top-level keys become children.  We check that at least one top-level
+  !> child has the expected name.
+  subroutine check_root_name_(root, expected_name, error)
+    type(hsd_table), intent(in) :: root
+    character(len=*), intent(in) :: expected_name
+    type(hsd_error_t), allocatable, intent(inout), optional :: error
+
+    if (hsd_has_child(root, expected_name)) return
+
+    if (present(error)) then
+      allocate(error)
+      error%code = HSD_STAT_IO_ERROR
+      error%message = "Expected root element '" // expected_name &
+          & // "' not found"
+    end if
+
+  end subroutine check_root_name_
 
 end module hsd_data
