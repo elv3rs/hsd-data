@@ -1,16 +1,14 @@
-- Fix JSON parser type fidelity: numbers stored as VALUE_TYPE_STRING lose their
-  JSON type on round-trip (42 → "42"). Use set_integer/set_real/set_logical
-  to preserve JSON types, and teach the writer to sniff string values that
-  look numeric/boolean so HSD-originating trees still emit unquoted JSON.
-- Fix compiler warnings: unused `pretty` in hsd_backend (HSD backend), unused
-  `line` in xml_parser read_name
-- Replace magic error code 9 with HSD_STAT_IO_ERROR throughout
-- Add `data_convert` to the public API export (currently missing from public)
-- Add complex number detection in JSON parser: {"re": X, "im": Y} →
-  VALUE_TYPE_COMPLEX per spec §3.3
-- Add missing fixture files: attributes.hsd/.xml/.json, complex_values.hsd/.json
-- Add JSON→HSD→JSON round-trip test (currently only HSD→JSON→HSD is tested)
-- Add error output parameter to data_dump_to_string
+- JSON writer: emit VALUE_TYPE_ARRAY and multi-token strings as JSON arrays
+  (spec §3.3: `"1 2 3"` → `[1, 2, 3]`, matrices → `[[1,2,3],[4,5,6]]`).
+  Currently arrays are emitted as quoted strings.
+- Add fixture-based tests for arrays, matrix, and complex_values fixtures
+- Add 3-format round-trip tests (HSD↔XML↔JSON chains)
+- JSON parser: handle attrib-before-sibling ordering (currently `__attrib`
+  keys that appear before their sibling in JSON are silently dropped)
+- Add missing XML fixture files (arrays.xml, matrix.xml, complex_values.xml)
+- Add JSON compact-mode test (`pretty=.false.`)
+- Add `data_format_available` tests for all format constants
+- Expand public API doc-comments with parameter descriptions per spec §4
 
 ---
 
