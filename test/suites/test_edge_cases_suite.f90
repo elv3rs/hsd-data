@@ -36,7 +36,8 @@ contains
             test("detect_case_insensitive", test_detect_case_insensitive), &
             test("xml_json_roundtrip", test_xml_json_roundtrip), &
             test("nested_fixture_depth", test_nested_fixture_depth), &
-            test("deeply_nested_100", test_deeply_nested_100) &
+            test("deeply_nested_100", test_deeply_nested_100), &
+            test("large_fixture", test_large_fixture) &
         ])) &
     ])
   end function tests
@@ -331,5 +332,40 @@ contains
     call check(stat == 0 .and. val == "found", msg="XML deep access")
 
   end subroutine test_deeply_nested_100
+
+  !> Load large fixture (1000+ nodes) and verify structure.
+  subroutine test_large_fixture()
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+    character(len=512) :: filepath
+    character(len=:), allocatable :: dump_str
+    integer :: nc, stat
+    real(8) :: rval
+
+    filepath = source_dir // "/test/fixtures/large.json"
+    call data_load(trim(filepath), root, error)
+    call check(.not. allocated(error), msg="Large JSON load should succeed")
+
+    ! Verify structure: 10 top-level sections
+    nc = hsd_child_count(root, "")
+    call check(nc == 10, msg="Should have 10 top-level sections")
+
+    ! Verify a deep value
+    call hsd_get(root, "Section_005/Group_003/Value_007", rval, stat)
+    call check(stat == 0, msg="Deep value access should succeed")
+
+    ! Round-trip through HSD
+    call data_dump_to_string(root, dump_str, DATA_FMT_HSD)
+    call check(len(dump_str) > 0, msg="HSD dump of large fixture")
+    call data_load_string(dump_str, root, DATA_FMT_HSD, error)
+    call check(.not. allocated(error), msg="HSD re-parse of large fixture")
+
+    ! Round-trip through XML
+    call data_dump_to_string(root, dump_str, DATA_FMT_XML)
+    call check(len(dump_str) > 0, msg="XML dump of large fixture")
+    call data_load_string(dump_str, root, DATA_FMT_XML, error)
+    call check(.not. allocated(error), msg="XML re-parse of large fixture")
+
+  end subroutine test_large_fixture
 
 end module test_edge_cases_suite
