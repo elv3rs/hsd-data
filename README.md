@@ -19,8 +19,10 @@ serialization.
   serializer). No external XML/JSON libraries required.
 - **CLI tool** — `hsd-convert` converts between any supported format pair from
   the command line.
-- **Extensible** — TOML (via toml-f) and HDF5 backends planned as optional
-  compile-time features.
+- **TOML backend** — optional TOML support via
+  [toml-f](https://github.com/toml-f/toml-f), enabled with `WITH_TOML`
+  (auto-fetched).
+- **Extensible** — HDF5 backend planned as an additional optional feature.
 
 ## Quick Start
 
@@ -66,7 +68,7 @@ is not found as a sibling directory or installed system-wide.
 |---|---|---|
 | `HSD_DATA_BUILD_TESTS` | `ON` | Build the test suite |
 | `HSD_DATA_BUILD_APP` | `ON` | Build the `hsd-convert` CLI tool |
-| `HSD_DATA_WITH_TOML` | `OFF` | Enable TOML backend (requires toml-f) |
+| `HSD_DATA_WITH_TOML` | `ON` | Enable TOML backend (fetches toml-f automatically) |
 | `HSD_DATA_WITH_HDF5` | `OFF` | Enable HDF5 backend (requires HDF5) |
 | `HSD_DATA_COVERAGE` | `OFF` | Enable gcov instrumentation (GCC only) |
 
@@ -93,8 +95,8 @@ hsd-convert input.hsd output.json --compact
 
 | Flag | Description |
 |---|---|
-| `--from=FMT` | Input format (`hsd`, `xml`, `json`) |
-| `--to=FMT` | Output format (`hsd`, `xml`, `json`) |
+| `--from=FMT` | Input format (`hsd`, `xml`, `json`, `toml`) |
+| `--to=FMT` | Output format (`hsd`, `xml`, `json`, `toml`) |
 | `--pretty` | Pretty-print output (default) |
 | `--compact` | Compact output (no indentation) |
 | `--help` | Show help message |
@@ -129,8 +131,8 @@ DATA_FMT_AUTO   ! Auto-detect from file extension
 DATA_FMT_HSD    ! HSD format
 DATA_FMT_XML    ! XML format
 DATA_FMT_JSON   ! JSON format
-DATA_FMT_TOML   ! TOML format (optional)
-DATA_FMT_HDF5   ! HDF5 format (optional)
+DATA_FMT_TOML   ! TOML format (requires WITH_TOML)
+DATA_FMT_HDF5   ! HDF5 format (requires WITH_HDF5)
 ```
 
 ### Utilities
@@ -166,6 +168,16 @@ call data_convert(input_file, output_file, error [, input_fmt] [, output_fmt])
 | attribute | `"Bar__attrib": "unit"` sibling key |
 | anonymous value | `"_value": "..."` key |
 
+### HSD ↔ TOML
+
+| HSD | TOML |
+|---|---|
+| `hsd_table` named "Foo" | `[Foo]` section |
+| `hsd_value` named "Bar" | `Bar = value` |
+| attribute | `Bar__attrib = "unit"` sibling key |
+| complex value | `{re = 1.0, im = 2.0}` inline table |
+| array value | `[1, 2, 3]` TOML array |
+
 ## Project Structure
 
 ```
@@ -181,7 +193,8 @@ hsd-data/
 │   │   ├── hsd_data_xml_parser.f90  XML pull parser
 │   │   ├── hsd_data_xml_writer.f90  XML serializer
 │   │   ├── hsd_data_json_parser.f90 JSON recursive-descent parser
-│   │   └── hsd_data_json_writer.f90 JSON serializer
+│   │   ├── hsd_data_json_writer.f90 JSON serializer
+│   │   └── hsd_data_toml.f90        TOML backend (optional, wraps toml-f)
 │   └── utils/
 │       ├── hsd_data_xml_escape.f90  XML entity escaping
 │       └── hsd_data_json_escape.f90 JSON string escaping
