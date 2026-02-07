@@ -11,8 +11,8 @@
 !>   "key__attrib" → attrib on sibling "key"
 !>   "_value"      → anonymous value
 module hsd_data_json_parser
-  use hsd, only: hsd_table, hsd_value, hsd_error_t, new_table, new_value, &
-      & HSD_STAT_SYNTAX_ERROR, HSD_STAT_IO_ERROR
+  use hsd, only: hsd_table, hsd_value, hsd_node, hsd_error_t, new_table, &
+      & new_value, HSD_STAT_SYNTAX_ERROR, HSD_STAT_IO_ERROR, dp
   use hsd_data_json_escape, only: json_unescape_string
   implicit none(type, external)
   private
@@ -219,12 +219,19 @@ contains
 
     select case (src(pos:pos))
     case ("{")
-      ! Object → hsd_table
+      ! Object → hsd_table (or complex value if {"re": ..., "im": ...})
       allocate(child_table)
       call new_table(child_table, name=child_name)
       call parse_object_members(src, src_len, pos, child_table, error, fname)
       if (allocated(error)) return
-      call table%add_child(child_table)
+      if (is_complex_object(child_table)) then
+        allocate(child_value)
+        call new_value(child_value, name=child_name)
+        call child_value%set_complex(complex_from_table(child_table))
+        call table%add_child(child_value)
+      else
+        call table%add_child(child_table)
+      end if
 
     case ("[")
       ! Array: peek to determine if it contains objects
@@ -809,5 +816,66 @@ contains
     error%message = trim(fname) // " pos " // trim(pos_str) // ": " // msg
 
   end subroutine make_error
+
+  ! ─── Complex-value detection ───
+
+  !> Check whether a table represents a complex number: exactly 2 children
+  !> named "re" and "im", both numeric string values.
+  function is_complex_object(table) result(is_cpx)
+    type(hsd_table), intent(in) :: table
+    logical :: is_cpx
+
+    class(hsd_node), pointer :: re_node, im_node
+
+    is_cpx = .false.
+    if (table%num_children /= 2) return
+
+    call table%get_child_by_name("re", re_node)
+    if (.not. associated(re_node)) return
+    call table%get_child_by_name("im", im_node)
+    if (.not. associated(im_node)) return
+
+    select type (re_node)
+    type is (hsd_value)
+      select type (im_node)
+      type is (hsd_value)
+        is_cpx = .true.
+      end select
+    end select
+
+  end function is_complex_object
+
+  !> Extract a complex value from a table with "re" and "im" children.
+  function complex_from_table(table) result(val)
+    type(hsd_table), intent(in) :: table
+    complex(dp) :: val
+
+    class(hsd_node), pointer :: re_node, im_node
+    real(dp) :: re_part, im_part
+    integer :: ios
+
+    re_part = 0.0_dp
+    im_part = 0.0_dp
+
+    call table%get_child_by_name("re", re_node)
+    call table%get_child_by_name("im", im_node)
+
+    select type (re_node)
+    type is (hsd_value)
+      if (allocated(re_node%string_value)) then
+        read(re_node%string_value, *, iostat=ios) re_part
+      end if
+    end select
+
+    select type (im_node)
+    type is (hsd_value)
+      if (allocated(im_node%string_value)) then
+        read(im_node%string_value, *, iostat=ios) im_part
+      end if
+    end select
+
+    val = cmplx(re_part, im_part, dp)
+
+  end function complex_from_table
 
 end module hsd_data_json_parser

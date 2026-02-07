@@ -411,18 +411,24 @@ contains
 
     integer :: dot_pos, last_nonzero
 
-    write(buf, "(es23.15e3)") rval
+    ! Use G0 for compact output (fixed or scientific as appropriate)
+    write(buf, "(g0)") rval
     buf = adjustl(buf)
 
-    ! Find decimal point
+    ! Ensure there is always a decimal point (JSON requires it for reals)
     dot_pos = index(buf, ".")
+    if (dot_pos == 0 .and. scan(buf, "eEdD") == 0) then
+      buf = trim(buf) // ".0"
+      return
+    end if
+
     if (dot_pos == 0) return
 
     ! Find 'E' or 'e' for exponent
     last_nonzero = scan(buf, "eE") - 1
     if (last_nonzero < dot_pos) last_nonzero = len_trim(buf)
 
-    ! Strip trailing zeros before exponent
+    ! Strip trailing zeros before exponent (keep at least one after dot)
     do while (last_nonzero > dot_pos + 1 .and. buf(last_nonzero:last_nonzero) == "0")
       last_nonzero = last_nonzero - 1
     end do
