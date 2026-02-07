@@ -29,7 +29,15 @@ contains
             test("special_chars_fixtures", test_special_chars_fixtures), &
             test("tree_equal_basic", test_tree_equal_basic), &
             test("root_name_match", test_root_name_match), &
-            test("root_name_mismatch", test_root_name_mismatch) &
+            test("root_name_mismatch", test_root_name_mismatch), &
+            test("fixture_simple_pairs", test_fixture_simple_pairs), &
+            test("fixture_nested_pairs", test_fixture_nested_pairs), &
+            test("fixture_arrays_pairs", test_fixture_arrays_pairs), &
+            test("fixture_matrix_pairs", test_fixture_matrix_pairs), &
+            test("fixture_attribs_pairs", test_fixture_attribs_pairs), &
+            test("fixture_complex_pairs", test_fixture_complex_pairs), &
+            test("fixture_special_pairs", test_fixture_special_pairs), &
+            test("fixture_unicode_pairs", test_fixture_unicode_pairs) &
         ])) &
     ])
 
@@ -351,5 +359,198 @@ contains
     call check(allocated(error), msg="root_name=NoSuchElement should fail")
 
   end subroutine test_root_name_mismatch
+
+
+  !> Helper: Load a fixture in given format, dump to dst format,
+  !> then verify dst→tree→dst roundtrip is idempotent.
+  subroutine roundtrip_pair(filepath, src_fmt, dst_fmt, label, ok)
+    character(len=*), intent(in) :: filepath
+    integer, intent(in) :: src_fmt, dst_fmt
+    character(len=*), intent(in) :: label
+    logical, intent(out) :: ok
+
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+    character(len=:), allocatable :: dst1, dst2
+
+    ok = .false.
+
+    ! Load from source format
+    call data_load(filepath, root, error, fmt=src_fmt)
+    if (allocated(error)) then
+      call check(.false., msg=label // ": load failed")
+      return
+    end if
+
+    ! Dump to destination format (first pass)
+    call data_dump_to_string(root, dst1, dst_fmt)
+    if (len(dst1) == 0) then
+      call check(.false., msg=label // ": dump produced empty output")
+      return
+    end if
+
+    ! Parse back from destination format
+    call data_load_string(dst1, root, dst_fmt, error)
+    if (allocated(error)) then
+      call check(.false., msg=label // ": re-parse failed")
+      return
+    end if
+
+    ! Dump to destination format again (second pass)
+    call data_dump_to_string(root, dst2, dst_fmt)
+
+    ! The two destination-format dumps should be identical
+    call check(dst1 == dst2, msg=label // ": idempotency check")
+    ok = (dst1 == dst2)
+
+  end subroutine roundtrip_pair
+
+
+  !> Systematic roundtrip for simple fixture across all format pairs.
+  subroutine test_fixture_simple_pairs()
+    character(len=512) :: base
+    logical :: ok
+
+    base = source_dir // "/test/fixtures/simple"
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_JSON, &
+        & "simple HSD->JSON->HSD", ok)
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_XML, &
+        & "simple HSD->XML->HSD", ok)
+    call roundtrip_pair(trim(base) // ".json", DATA_FMT_JSON, DATA_FMT_HSD, &
+        & "simple JSON->HSD->JSON", ok)
+    call roundtrip_pair(trim(base) // ".json", DATA_FMT_JSON, DATA_FMT_XML, &
+        & "simple JSON->XML->JSON", ok)
+    call roundtrip_pair(trim(base) // ".xml", DATA_FMT_XML, DATA_FMT_HSD, &
+        & "simple XML->HSD->XML", ok)
+    call roundtrip_pair(trim(base) // ".xml", DATA_FMT_XML, DATA_FMT_JSON, &
+        & "simple XML->JSON->XML", ok)
+
+  end subroutine test_fixture_simple_pairs
+
+
+  !> Systematic roundtrip for nested fixture.
+  subroutine test_fixture_nested_pairs()
+    character(len=512) :: base
+    logical :: ok
+
+    base = source_dir // "/test/fixtures/nested"
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_JSON, &
+        & "nested HSD->JSON->HSD", ok)
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_XML, &
+        & "nested HSD->XML->HSD", ok)
+    call roundtrip_pair(trim(base) // ".json", DATA_FMT_JSON, DATA_FMT_XML, &
+        & "nested JSON->XML->JSON", ok)
+    call roundtrip_pair(trim(base) // ".xml", DATA_FMT_XML, DATA_FMT_JSON, &
+        & "nested XML->JSON->XML", ok)
+
+  end subroutine test_fixture_nested_pairs
+
+
+  !> Systematic roundtrip for arrays fixture.
+  subroutine test_fixture_arrays_pairs()
+    character(len=512) :: base
+    logical :: ok
+
+    base = source_dir // "/test/fixtures/arrays"
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_JSON, &
+        & "arrays HSD->JSON->HSD", ok)
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_XML, &
+        & "arrays HSD->XML->HSD", ok)
+    call roundtrip_pair(trim(base) // ".json", DATA_FMT_JSON, DATA_FMT_XML, &
+        & "arrays JSON->XML->JSON", ok)
+    call roundtrip_pair(trim(base) // ".xml", DATA_FMT_XML, DATA_FMT_JSON, &
+        & "arrays XML->JSON->XML", ok)
+
+  end subroutine test_fixture_arrays_pairs
+
+
+  !> Systematic roundtrip for matrix fixture.
+  subroutine test_fixture_matrix_pairs()
+    character(len=512) :: base
+    logical :: ok
+
+    base = source_dir // "/test/fixtures/matrix"
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_JSON, &
+        & "matrix HSD->JSON->HSD", ok)
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_XML, &
+        & "matrix HSD->XML->HSD", ok)
+    call roundtrip_pair(trim(base) // ".json", DATA_FMT_JSON, DATA_FMT_XML, &
+        & "matrix JSON->XML->JSON", ok)
+    call roundtrip_pair(trim(base) // ".xml", DATA_FMT_XML, DATA_FMT_JSON, &
+        & "matrix XML->JSON->XML", ok)
+
+  end subroutine test_fixture_matrix_pairs
+
+
+  !> Systematic roundtrip for attributes fixture.
+  subroutine test_fixture_attribs_pairs()
+    character(len=512) :: base
+    logical :: ok
+
+    base = source_dir // "/test/fixtures/attributes"
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_JSON, &
+        & "attributes HSD->JSON->HSD", ok)
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_XML, &
+        & "attributes HSD->XML->HSD", ok)
+    call roundtrip_pair(trim(base) // ".json", DATA_FMT_JSON, DATA_FMT_XML, &
+        & "attributes JSON->XML->JSON", ok)
+    call roundtrip_pair(trim(base) // ".xml", DATA_FMT_XML, DATA_FMT_JSON, &
+        & "attributes XML->JSON->XML", ok)
+
+  end subroutine test_fixture_attribs_pairs
+
+
+  !> Systematic roundtrip for complex_values fixture.
+  subroutine test_fixture_complex_pairs()
+    character(len=512) :: base
+    logical :: ok
+
+    base = source_dir // "/test/fixtures/complex_values"
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_JSON, &
+        & "complex HSD->JSON->HSD", ok)
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_XML, &
+        & "complex HSD->XML->HSD", ok)
+    call roundtrip_pair(trim(base) // ".json", DATA_FMT_JSON, DATA_FMT_XML, &
+        & "complex JSON->XML->JSON", ok)
+    call roundtrip_pair(trim(base) // ".xml", DATA_FMT_XML, DATA_FMT_JSON, &
+        & "complex XML->JSON->XML", ok)
+
+  end subroutine test_fixture_complex_pairs
+
+
+  !> Systematic roundtrip for special_chars fixture.
+  subroutine test_fixture_special_pairs()
+    character(len=512) :: base
+    logical :: ok
+
+    base = source_dir // "/test/fixtures/special_chars"
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_JSON, &
+        & "special HSD->JSON->HSD", ok)
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_XML, &
+        & "special HSD->XML->HSD", ok)
+    call roundtrip_pair(trim(base) // ".json", DATA_FMT_JSON, DATA_FMT_XML, &
+        & "special JSON->XML->JSON", ok)
+    call roundtrip_pair(trim(base) // ".xml", DATA_FMT_XML, DATA_FMT_JSON, &
+        & "special XML->JSON->XML", ok)
+
+  end subroutine test_fixture_special_pairs
+
+
+  !> Systematic roundtrip for unicode fixture.
+  subroutine test_fixture_unicode_pairs()
+    character(len=512) :: base
+    logical :: ok
+
+    base = source_dir // "/test/fixtures/unicode"
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_JSON, &
+        & "unicode HSD->JSON->HSD", ok)
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_XML, &
+        & "unicode HSD->XML->HSD", ok)
+    call roundtrip_pair(trim(base) // ".json", DATA_FMT_JSON, DATA_FMT_XML, &
+        & "unicode JSON->XML->JSON", ok)
+    call roundtrip_pair(trim(base) // ".xml", DATA_FMT_XML, DATA_FMT_JSON, &
+        & "unicode XML->JSON->XML", ok)
+
+  end subroutine test_fixture_unicode_pairs
 
 end module test_cross_format_suite
