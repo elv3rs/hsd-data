@@ -104,6 +104,9 @@ module hsd_data
 
   ! --- hsd-data public symbols ---
 
+  ! HSD format IO (from hsd-fortran)
+  public :: hsd_load, hsd_load_string, hsd_dump, hsd_dump_to_string
+
   ! Format constants
   public :: DATA_FMT_AUTO, DATA_FMT_HSD, DATA_FMT_XML, DATA_FMT_JSON
   public :: DATA_FMT_TOML, DATA_FMT_HDF5
