@@ -9,6 +9,7 @@ program testapp
   use test_xml_roundtrip_suite, only: xml_roundtrip_tests => tests
   use test_json_suite, only: json_tests => tests
   use test_edge_cases_suite, only: edge_tests => tests
+  use test_cross_format_suite, only: cross_format_tests => tests
   implicit none(type, external)
 
   call build_env_init()
@@ -19,7 +20,8 @@ program testapp
       xml_parser_tests(), &
       xml_roundtrip_tests(), &
       json_tests(), &
-      edge_tests() &
+      edge_tests(), &
+      cross_format_tests() &
   ]))
 
 end program testapp
