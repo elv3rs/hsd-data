@@ -51,7 +51,12 @@ contains
     toml_tests = test_list([&
         test("toml_hsd_json_toml", test_toml_hsd_json_toml), &
         test("hsd_toml_xml_hsd", test_hsd_toml_xml_hsd), &
-        test("fixture_simple_toml_pairs", test_fixture_simple_toml_pairs) &
+        test("fixture_simple_toml_pairs", test_fixture_simple_toml_pairs), &
+        test("fixture_nested_toml_pairs", test_fixture_nested_toml_pairs), &
+        test("fixture_arrays_toml_pairs", test_fixture_arrays_toml_pairs), &
+        test("fixture_attribs_toml_pairs", test_fixture_attribs_toml_pairs), &
+        test("fixture_special_toml_pairs", test_fixture_special_toml_pairs), &
+        test("fixture_unicode_toml_pairs", test_fixture_unicode_toml_pairs) &
     ])
 
     tests = test_list([&
@@ -671,6 +676,96 @@ contains
         & "simple TOML->XML", ok)
 
   end subroutine test_fixture_simple_toml_pairs
+
+
+  !> Systematic roundtrip for nested fixture across TOML format pairs.
+  subroutine test_fixture_nested_toml_pairs()
+    character(len=512) :: base
+    logical :: ok
+
+    base = source_dir // "/test/fixtures/nested"
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_TOML, &
+        & "nested HSD->TOML", ok)
+    call roundtrip_pair(trim(base) // ".json", DATA_FMT_JSON, DATA_FMT_TOML, &
+        & "nested JSON->TOML", ok)
+    call roundtrip_pair(trim(base) // ".toml", DATA_FMT_TOML, DATA_FMT_HSD, &
+        & "nested TOML->HSD", ok)
+    call roundtrip_pair(trim(base) // ".toml", DATA_FMT_TOML, DATA_FMT_JSON, &
+        & "nested TOML->JSON", ok)
+
+  end subroutine test_fixture_nested_toml_pairs
+
+
+  !> Systematic roundtrip for arrays fixture across TOML format pairs.
+  subroutine test_fixture_arrays_toml_pairs()
+    character(len=512) :: base
+    logical :: ok
+
+    base = source_dir // "/test/fixtures/arrays"
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_TOML, &
+        & "arrays HSD->TOML", ok)
+    call roundtrip_pair(trim(base) // ".json", DATA_FMT_JSON, DATA_FMT_TOML, &
+        & "arrays JSON->TOML", ok)
+    call roundtrip_pair(trim(base) // ".toml", DATA_FMT_TOML, DATA_FMT_HSD, &
+        & "arrays TOML->HSD", ok)
+    call roundtrip_pair(trim(base) // ".toml", DATA_FMT_TOML, DATA_FMT_JSON, &
+        & "arrays TOML->JSON", ok)
+
+  end subroutine test_fixture_arrays_toml_pairs
+
+
+  !> Systematic roundtrip for attributes fixture across TOML format pairs.
+  subroutine test_fixture_attribs_toml_pairs()
+    character(len=512) :: base
+    logical :: ok
+
+    base = source_dir // "/test/fixtures/attributes"
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_TOML, &
+        & "attributes HSD->TOML", ok)
+    call roundtrip_pair(trim(base) // ".json", DATA_FMT_JSON, DATA_FMT_TOML, &
+        & "attributes JSON->TOML", ok)
+    call roundtrip_pair(trim(base) // ".toml", DATA_FMT_TOML, DATA_FMT_HSD, &
+        & "attributes TOML->HSD", ok)
+    call roundtrip_pair(trim(base) // ".toml", DATA_FMT_TOML, DATA_FMT_JSON, &
+        & "attributes TOML->JSON", ok)
+
+  end subroutine test_fixture_attribs_toml_pairs
+
+
+  !> Systematic roundtrip for special_chars fixture across TOML format pairs.
+  subroutine test_fixture_special_toml_pairs()
+    character(len=512) :: base
+    logical :: ok
+
+    base = source_dir // "/test/fixtures/special_chars"
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_TOML, &
+        & "special HSD->TOML", ok)
+    call roundtrip_pair(trim(base) // ".json", DATA_FMT_JSON, DATA_FMT_TOML, &
+        & "special JSON->TOML", ok)
+    call roundtrip_pair(trim(base) // ".toml", DATA_FMT_TOML, DATA_FMT_HSD, &
+        & "special TOML->HSD", ok)
+    call roundtrip_pair(trim(base) // ".toml", DATA_FMT_TOML, DATA_FMT_JSON, &
+        & "special TOML->JSON", ok)
+
+  end subroutine test_fixture_special_toml_pairs
+
+
+  !> Systematic roundtrip for unicode fixture across TOML format pairs.
+  subroutine test_fixture_unicode_toml_pairs()
+    character(len=512) :: base
+    logical :: ok
+
+    base = source_dir // "/test/fixtures/unicode"
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_TOML, &
+        & "unicode HSD->TOML", ok)
+    call roundtrip_pair(trim(base) // ".json", DATA_FMT_JSON, DATA_FMT_TOML, &
+        & "unicode JSON->TOML", ok)
+    call roundtrip_pair(trim(base) // ".toml", DATA_FMT_TOML, DATA_FMT_HSD, &
+        & "unicode TOML->HSD", ok)
+    call roundtrip_pair(trim(base) // ".toml", DATA_FMT_TOML, DATA_FMT_JSON, &
+        & "unicode TOML->JSON", ok)
+
+  end subroutine test_fixture_unicode_toml_pairs
 #endif
 
 end module test_cross_format_suite

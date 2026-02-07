@@ -487,6 +487,47 @@ contains
     allocate(emitted(ht%num_children))
     emitted = .false.
 
+    ! --- Pass 1a: value children and their attribs ---
+    ! Emit all scalar key-value pairs before any table sections so that
+    ! the output matches what toml-f produces after parsing.
+    do ii = 1, ht%num_children
+      if (.not. allocated(ht%children(ii)%node)) cycle
+
+      select type (child => ht%children(ii)%node)
+      type is (hsd_value)
+        child_name = get_hsd_child_name(child)
+        ! Check for same-named siblings (arrays handled in pass 2)
+        name_count = 0
+        do jj = ii, ht%num_children
+          if (.not. allocated(ht%children(jj)%node)) cycle
+          if (get_hsd_child_name(ht%children(jj)%node) == child_name) then
+            name_count = name_count + 1
+          end if
+        end do
+        if (name_count > 1 .or. emitted(ii)) cycle
+        emitted(ii) = .true.
+        call write_hsd_value_to_toml(child, child_name, tt)
+        if (allocated(child%attrib) .and. len_trim(child%attrib) > 0) then
+          call set_value(tt, child_name // ATTRIB_SUFFIX, child%attrib)
+        end if
+      end select
+    end do
+
+    ! --- Pass 1b: table-child attribs (scalar keys for table attributes) ---
+    ! These must appear after value scalars but before table sections.
+    do ii = 1, ht%num_children
+      if (.not. allocated(ht%children(ii)%node)) cycle
+
+      select type (child => ht%children(ii)%node)
+      type is (hsd_table)
+        if (allocated(child%attrib) .and. len_trim(child%attrib) > 0) then
+          child_name = get_hsd_child_name(child)
+          call set_value(tt, child_name // ATTRIB_SUFFIX, child%attrib)
+        end if
+      end select
+    end do
+
+    ! --- Pass 2: table sections and array-of-tables ---
     do ii = 1, ht%num_children
       if (.not. allocated(ht%children(ii)%node)) cycle
       if (emitted(ii)) cycle
@@ -503,7 +544,6 @@ contains
       end do
 
       if (name_count > 1) then
-        ! Array of same-named children → TOML array of tables
         call write_array_of_tables(ht, child_name, ii, emitted, tt)
       else
         emitted(ii) = .true.
@@ -511,17 +551,9 @@ contains
         type is (hsd_table)
           call get_value(tt, child_name, child_tt)
           call hsd_to_toml_table(child, child_tt)
-          ! Emit attrib sibling
-          if (allocated(child%attrib) .and. len_trim(child%attrib) > 0) then
-            call set_value(tt, child_name // ATTRIB_SUFFIX, child%attrib)
-          end if
-
         type is (hsd_value)
+          ! Should not reach here — values are handled in pass 1a
           call write_hsd_value_to_toml(child, child_name, tt)
-          ! Emit attrib sibling
-          if (allocated(child%attrib) .and. len_trim(child%attrib) > 0) then
-            call set_value(tt, child_name // ATTRIB_SUFFIX, child%attrib)
-          end if
         end select
       end if
     end do
