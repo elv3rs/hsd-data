@@ -1,7 +1,8 @@
-- Add TOML format pairs to systematic cross-format roundtrip tests
-  (HSD↔TOML, JSON↔TOML, XML↔TOML) now that the TOML backend is complete.
-- Verify that `--compact` output mode actually produces compact (no
-  indentation) output for JSON and XML via CLI integration tests.
+- Extend the TOML-specific cross-format test to cover more fixtures
+  (nested, arrays, attributes, etc.) now that TOML fixture files exist
+  for all test patterns.
+- Update AGENTS.md project layout section to include `hsd_data_json_escape.f90`
+  and `hsd_data_toml.f90` for accuracy.
 
 ---
 
