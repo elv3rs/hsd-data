@@ -1,14 +1,15 @@
-- JSON writer: emit VALUE_TYPE_ARRAY and multi-token strings as JSON arrays
-  (spec §3.3: `"1 2 3"` → `[1, 2, 3]`, matrices → `[[1,2,3],[4,5,6]]`).
-  Currently arrays are emitted as quoted strings.
-- Add fixture-based tests for arrays, matrix, and complex_values fixtures
-- Add 3-format round-trip tests (HSD↔XML↔JSON chains)
-- JSON parser: handle attrib-before-sibling ordering (currently `__attrib`
-  keys that appear before their sibling in JSON are silently dropped)
-- Add missing XML fixture files (arrays.xml, matrix.xml, complex_values.xml)
-- Add JSON compact-mode test (`pretty=.false.`)
-- Add `data_format_available` tests for all format constants
-- Expand public API doc-comments with parameter descriptions per spec §4
+- XML parser: add numeric character reference support (`&#38;`, `&#x26;`)
+  per spec §5.3 ("Handles: … character references")
+- JSON parser: warn on non-ASCII `\uXXXX` escapes instead of silent `?`
+  replacement; map codes 128–255 via `achar()` for Latin-1 range
+- XML parser: preserve non-`unit` attributes instead of dropping them;
+  store as `__attr_<name>` child values per spec §5.3
+- Add whitespace-only input tests for all three parsers (spec §10.3)
+- Add JSON duplicate-key parsing test (`{"A": 1, "A": 2}`) per spec §10.3
+- Add mixed integer/real JSON array test (`[1, 2.5, 3]`) per spec §10.3
+- Add empty/special_chars fixture files (.hsd/.xml/.json) per spec §10.2
+- Add `tree_equal` test helper that compares trees structurally rather
+  than by serialized output (spec §10.1)
 
 ---
 
