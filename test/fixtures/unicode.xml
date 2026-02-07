@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <Ångström>
+    <Größe>42</Größe>
+    <Naïve>café</Naïve>
+    <Résumé>über cool</Résumé>
+  </Ångström>
+  <Données>
+    <Température>300.0</Température>
+    <Énergie>-1.5</Énergie>
+  </Données>
+</root>
