@@ -232,11 +232,12 @@ contains
   end subroutine data_dump
 
   !> Dump an HSD tree to a string in the specified format.
-  subroutine data_dump_to_string(root, output, fmt, pretty)
+  subroutine data_dump_to_string(root, output, fmt, pretty, error)
     type(hsd_table), intent(in) :: root
     character(len=:), allocatable, intent(out) :: output
     integer, intent(in) :: fmt
     logical, intent(in), optional :: pretty
+    type(hsd_error_t), allocatable, intent(out), optional :: error
 
     select case (fmt)
     case (DATA_FMT_HSD)
@@ -247,6 +248,11 @@ contains
       call json_dump_to_string(root, output, pretty)
     case default
       output = ""
+      if (present(error)) then
+        allocate(error)
+        error%code = HSD_STAT_IO_ERROR
+        error%message = "Unsupported format for dump_to_string"
+      end if
     end select
 
   end subroutine data_dump_to_string
