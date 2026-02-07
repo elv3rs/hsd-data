@@ -1,7 +1,7 @@
 !> Tests for 3-format round-trip chains: HSD ↔ XML ↔ JSON.
 module test_cross_format_suite
-  use hsd_data, only: hsd_table, hsd_error_t, hsd_has_child, &
-      & data_load, data_load_string, data_dump_to_string, &
+  use hsd_data, only: hsd_table, hsd_error_t, hsd_has_child, hsd_child_count, &
+      & hsd_get, data_load, data_load_string, data_dump_to_string, &
       & DATA_FMT_HSD, DATA_FMT_XML, DATA_FMT_JSON
   use build_env, only: source_dir
   use fortuno_serial, only: test => serial_case_item, &
@@ -23,7 +23,9 @@ contains
             test("json_hsd_xml_json", test_json_hsd_xml_json), &
             test("xml_json_hsd_xml", test_xml_json_hsd_xml), &
             test("json_xml_json", test_json_xml_json), &
-            test("all_three_preserve", test_all_three_preserve) &
+            test("all_three_preserve", test_all_three_preserve), &
+            test("empty_fixtures", test_empty_fixtures), &
+            test("special_chars_fixtures", test_special_chars_fixtures) &
         ])) &
     ])
 
@@ -220,5 +222,63 @@ contains
         & msg="Options should survive HSD→JSON→XML chain")
 
   end subroutine test_all_three_preserve
+
+  !> Load empty fixture files in all three formats.
+  subroutine test_empty_fixtures()
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+    character(len=256) :: path
+
+    ! Empty HSD
+    path = source_dir // "/test/fixtures/empty.hsd"
+    call data_load(trim(path), root, error, fmt=DATA_FMT_HSD)
+    call check(.not. allocated(error), msg="Empty HSD should load")
+    call check(hsd_child_count(root, "") == 0, &
+        & msg="Empty HSD should have 0 children")
+
+    ! Empty XML
+    path = source_dir // "/test/fixtures/empty.xml"
+    call data_load(trim(path), root, error, fmt=DATA_FMT_XML)
+    call check(.not. allocated(error), msg="Empty XML should load")
+    call check(hsd_child_count(root, "") == 0, &
+        & msg="Empty XML should have 0 children")
+
+    ! Empty JSON
+    path = source_dir // "/test/fixtures/empty.json"
+    call data_load(trim(path), root, error, fmt=DATA_FMT_JSON)
+    call check(.not. allocated(error), msg="Empty JSON should load")
+    call check(hsd_child_count(root, "") == 0, &
+        & msg="Empty JSON should have 0 children")
+
+  end subroutine test_empty_fixtures
+
+  !> Load special_chars fixture files and verify content round-trips.
+  subroutine test_special_chars_fixtures()
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+    character(len=256) :: path
+    character(len=:), allocatable :: val
+
+    ! Special chars JSON (canonical source)
+    path = source_dir // "/test/fixtures/special_chars.json"
+    call data_load(trim(path), root, error, fmt=DATA_FMT_JSON)
+    call check(.not. allocated(error), msg="Special chars JSON should load")
+    call check(hsd_has_child(root, "Label"), msg="Should have Label")
+    call hsd_get(root, "Label", val)
+    call check(val == "quotes & ampersands", msg="Label content preserved")
+    call hsd_get(root, "Tag", val)
+    call check(val == "<greeting>", msg="Tag content preserved")
+
+    ! Special chars XML
+    path = source_dir // "/test/fixtures/special_chars.xml"
+    call data_load(trim(path), root, error, fmt=DATA_FMT_XML)
+    call check(.not. allocated(error), msg="Special chars XML should load")
+    call hsd_get(root, "Label", val)
+    call check(val == "quotes & ampersands", &
+        & msg="XML entity Label content preserved")
+    call hsd_get(root, "Tag", val)
+    call check(val == "<greeting>", msg="XML entity Tag content preserved")
+
+  end subroutine test_special_chars_fixtures
 
 end module test_cross_format_suite
