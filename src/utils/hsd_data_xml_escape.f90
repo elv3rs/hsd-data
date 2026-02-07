@@ -110,7 +110,7 @@ contains
     character(len=*), intent(in) :: str
     character(len=:), allocatable :: unescaped
 
-    integer :: ii, out_len, nn
+    integer :: ii, out_len, nn, code_val, ref_len
 
     ! First pass: compute output length
     nn = len(str)
@@ -133,6 +133,11 @@ contains
         else if (ii + 5 <= nn .and. str(ii:ii + 5) == "&apos;") then
           out_len = out_len + 1
           ii = ii + 6
+        else if (ii + 1 <= nn .and. str(ii + 1:ii + 1) == "#") then
+          ! Numeric character reference: &#NNN; or &#xHH;
+          call parse_char_ref(str, nn, ii, code_val, ref_len)
+          out_len = out_len + 1
+          ii = ii + ref_len
         else
           out_len = out_len + 1
           ii = ii + 1
@@ -169,6 +174,15 @@ contains
           out_len = out_len + 1
           unescaped(out_len:out_len) = "'"
           ii = ii + 6
+        else if (ii + 1 <= nn .and. str(ii + 1:ii + 1) == "#") then
+          call parse_char_ref(str, nn, ii, code_val, ref_len)
+          out_len = out_len + 1
+          if (code_val >= 0 .and. code_val <= 255) then
+            unescaped(out_len:out_len) = achar(code_val)
+          else
+            unescaped(out_len:out_len) = "?"  ! Non-representable
+          end if
+          ii = ii + ref_len
         else
           out_len = out_len + 1
           unescaped(out_len:out_len) = "&"
@@ -182,5 +196,91 @@ contains
     end do
 
   end function xml_unescape
+
+  !> Parse a numeric character reference at position pos.
+  !> Handles &#NNN; (decimal) and &#xHH; (hexadecimal).
+  !> Returns the code point value and total reference length (including & and ;).
+  pure subroutine parse_char_ref(str, str_len, pos, code_val, ref_len)
+    character(len=*), intent(in) :: str
+    integer, intent(in) :: str_len, pos
+    integer, intent(out) :: code_val, ref_len
+
+    integer :: jj, digit
+    logical :: is_hex
+    character(len=1) :: ch
+
+    code_val = 0
+    ref_len = 1  ! Fallback: just consume the '&'
+
+    ! pos points to '&', pos+1 should be '#'
+    if (pos + 1 > str_len .or. str(pos + 1:pos + 1) /= "#") return
+
+    ! Check for hex prefix
+    is_hex = .false.
+    jj = pos + 2
+    if (jj <= str_len .and. (str(jj:jj) == "x" .or. str(jj:jj) == "X")) then
+      is_hex = .true.
+      jj = jj + 1
+    end if
+
+    ! Parse digits until ';'
+    code_val = 0
+    do while (jj <= str_len)
+      ch = str(jj:jj)
+      if (ch == ";") then
+        ref_len = jj - pos + 1
+        return
+      end if
+      if (is_hex) then
+        digit = hex_digit_value(ch)
+      else
+        digit = dec_digit_value(ch)
+      end if
+      if (digit < 0) then
+        ! Invalid digit: treat & as literal
+        code_val = 0
+        ref_len = 1
+        return
+      end if
+      if (is_hex) then
+        code_val = code_val * 16 + digit
+      else
+        code_val = code_val * 10 + digit
+      end if
+      jj = jj + 1
+    end do
+
+    ! No semicolon found: treat & as literal
+    code_val = 0
+    ref_len = 1
+
+  end subroutine parse_char_ref
+
+  !> Return decimal digit value, or -1 if not a digit.
+  pure function dec_digit_value(ch) result(val)
+    character(len=1), intent(in) :: ch
+    integer :: val
+
+    val = iachar(ch) - iachar("0")
+    if (val < 0 .or. val > 9) val = -1
+
+  end function dec_digit_value
+
+  !> Return hex digit value (0–15), or -1 if not a hex digit.
+  pure function hex_digit_value(ch) result(val)
+    character(len=1), intent(in) :: ch
+    integer :: val
+
+    if (ch >= "0" .and. ch <= "9") then
+      val = iachar(ch) - iachar("0")
+    else if (ch >= "a" .and. ch <= "f") then
+      val = iachar(ch) - iachar("a") + 10
+    else if (ch >= "A" .and. ch <= "F") then
+      val = iachar(ch) - iachar("A") + 10
+    else
+      val = -1
+    end if
+
+  end function hex_digit_value
 
 end module hsd_data_xml_escape

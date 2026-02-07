@@ -28,6 +28,7 @@ contains
             test("pi_skip", test_pi_skip), &
             test("cdata", test_cdata), &
             test("entity_refs", test_entity_refs), &
+            test("numeric_char_refs", test_numeric_char_refs), &
             test("parse_fixture", test_parse_fixture), &
             test("error_mismatch", test_error_mismatch) &
         ])) &
@@ -157,6 +158,35 @@ contains
     call check(val == "a&b<c>d", msg="Entities should be unescaped")
 
   end subroutine test_entity_refs
+
+  subroutine test_numeric_char_refs()
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+    character(len=:), allocatable :: val
+
+    ! Decimal numeric reference: &#38; = '&', &#60; = '<'
+    call xml_parse_string( &
+        & '<root><N>a&#38;b&#60;c</N></root>', root, error)
+    call check(.not. allocated(error), msg="Decimal char ref parse should succeed")
+    call hsd_get(root, "N", val)
+    call check(val == "a&b<c", msg="Decimal char refs should be resolved")
+
+    ! Hex numeric reference: &#x26; = '&', &#x3C; = '<'
+    call xml_parse_string( &
+        & '<root><H>x&#x26;y&#x3C;z</H></root>', root, error)
+    call check(.not. allocated(error), msg="Hex char ref parse should succeed")
+    call hsd_get(root, "H", val)
+    call check(val == "x&y<z", msg="Hex char refs should be resolved")
+
+    ! Tab and newline via decimal
+    call xml_parse_string( &
+        & '<root><T>a&#9;b&#10;c</T></root>', root, error)
+    call check(.not. allocated(error), msg="Control char ref parse should succeed")
+    call hsd_get(root, "T", val)
+    call check(val == "a" // achar(9) // "b" // achar(10) // "c", &
+        & msg="Control char refs should be resolved")
+
+  end subroutine test_numeric_char_refs
 
   subroutine test_parse_fixture()
     type(hsd_table) :: root
