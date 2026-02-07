@@ -4,6 +4,7 @@
 !> - Backslash sequences: \", \\, \/, \b, \f, \n, \r, \t
 !> - Control characters (U+0000–U+001F) as \uXXXX
 module hsd_data_json_escape
+  use, intrinsic :: iso_fortran_env, only: error_unit
   implicit none(type, external)
   private
 
@@ -88,7 +89,9 @@ contains
 
   !> Unescape a JSON string value.
   !> Input should NOT include surrounding quotes.
-  pure function json_unescape_string(str) result(unescaped)
+  !> Code points 0-255 are mapped via achar(); code points > 255 are replaced
+  !> with '?' and a warning is written to stderr.
+  function json_unescape_string(str) result(unescaped)
     character(len=*), intent(in) :: str
     character(len=:), allocatable :: unescaped
 
@@ -108,7 +111,7 @@ contains
           ii = ii + 2
         case ("u")
           if (ii + 5 <= nn) then
-            out_len = out_len + 1  ! ASCII range only for now
+            out_len = out_len + 1  ! one char for any code point
             ii = ii + 6
           else
             out_len = out_len + 1
@@ -169,10 +172,12 @@ contains
             hex_str = str(ii + 2:ii + 5)
             code = hex_to_int(hex_str)
             out_len = out_len + 1
-            if (code >= 0 .and. code <= 127) then
-              unescaped(out_len:out_len) = achar(code)
+            if (code >= 0 .and. code <= 255) then
+              unescaped(out_len:out_len) = char(code)
             else
-              unescaped(out_len:out_len) = "?"  ! Non-ASCII placeholder
+              unescaped(out_len:out_len) = "?"
+              write(error_unit, "(a,a,a)") "Warning: non-representable \u escape: \u", &
+                  & hex_str, " replaced with '?'"
             end if
             ii = ii + 6
           else

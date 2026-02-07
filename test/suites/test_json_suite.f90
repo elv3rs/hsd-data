@@ -47,7 +47,8 @@ contains
             test("complex_fixture", test_complex_fixture), &
             test("matrix_json_roundtrip", test_matrix_json_roundtrip), &
             test("attrib_before_sibling", test_attrib_before_sibling), &
-            test("compact_mode", test_compact_mode) &
+            test("compact_mode", test_compact_mode), &
+            test("unescape_unicode", test_unescape_unicode) &
         ])) &
     ])
 
@@ -89,6 +90,25 @@ contains
         & msg="Escaped newline unescaped")
 
   end subroutine test_unescape_basic
+
+  subroutine test_unescape_unicode()
+    ! ASCII range: \u0041 = 'A'
+    call check(json_unescape_string('\u0041') == "A", &
+        & msg="\\u0041 should produce 'A'")
+    ! Extended range 128-255: \u00E9 = char(233) = latin small e with acute
+    call check(json_unescape_string('\u00E9') == char(233), &
+        & msg="\\u00E9 should produce char(233)")
+    ! Extended range: \u00C0 = char(192)
+    call check(json_unescape_string('\u00C0') == char(192), &
+        & msg="\\u00C0 should produce char(192)")
+    ! Beyond byte range: \u0100 (256) should produce '?'
+    call check(json_unescape_string('\u0100') == "?", &
+        & msg="\\u0100 should produce '?' placeholder")
+    ! Beyond byte range: \u4E16 should produce '?'
+    call check(json_unescape_string('\u4E16') == "?", &
+        & msg="\\u4E16 should produce '?' placeholder")
+
+  end subroutine test_unescape_unicode
 
   ! ─── Writer tests ───
 
