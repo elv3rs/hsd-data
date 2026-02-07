@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <WaveFunction>
+    <Amplitude>(1.0, 0.0)</Amplitude>
+    <Phase>(0.0, 3.14159)</Phase>
+  </WaveFunction>
+</root>

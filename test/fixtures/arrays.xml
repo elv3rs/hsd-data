@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <Lattice>
+    <LatticeVectors>5.431  0.000  0.000 0.000  5.431  0.000 0.000  0.000  5.431</LatticeVectors>
+  </Lattice>
+  <Atoms>
+    <Positions>0.0 0.0 0.0 1.358 1.358 1.358 2.716 2.716 0.0 4.073 4.073 1.358</Positions>
+    <TypeNames>Si Ge</TypeNames>
+    <TypeIndices>1 1 2 2</TypeIndices>
+  </Atoms>
+  <KPoints>
+    <Weights>0.25 0.25 0.25 0.25</Weights>
+    <SupercellFolding>2 0 0 0 2 0 0 0 2</SupercellFolding>
+  </KPoints>
+</root>
