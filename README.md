@@ -3,10 +3,10 @@
 Multi-format structured data IO library for Fortran.
 
 **hsd-data** builds on [hsd-fortran](https://github.com/dftbplus/hsd-fortran) to
-provide unified loading and dumping of structured data in **HSD**, **XML**, and
-**JSON** formats. Application code works exclusively with the familiar
-`hsd_table` / `hsd_value` tree — the backend handles all format-specific
-serialization.
+provide unified loading and dumping of structured data in **HSD**, **XML**,
+**JSON**, **TOML**, and **HDF5** formats. Application code works exclusively with
+the familiar `hsd_table` / `hsd_value` tree — the backend handles all
+format-specific serialization.
 
 ## Features
 
@@ -20,9 +20,11 @@ serialization.
 - **CLI tool** — `hsd-convert` converts between any supported format pair from
   the command line.
 - **TOML backend** — optional TOML support via
-  [toml-f](https://github.com/toml-f/toml-f), enabled with `WITH_TOML`
+  [toml-f](https://github.com/toml-f/toml-f), enabled with `HSD_DATA_WITH_TOML`
   (auto-fetched).
-- **Extensible** — HDF5 backend planned as an additional optional feature.
+- **HDF5 backend** — optional HDF5 support using the HDF5 Fortran API, enabled
+  with `HSD_DATA_WITH_HDF5`. Supports scalars, arrays, matrices, complex
+  compound types, and attributes.
 
 ## Quick Start
 
@@ -50,6 +52,7 @@ call data_convert("input.xml", "output.hsd", error)
 - Fortran compiler (gfortran ≥ 10, Intel ifx, NAG)
 - [hsd-fortran](https://github.com/dftbplus/hsd-fortran) (auto-fetched if not
   found locally)
+- HDF5 with Fortran bindings (optional, for HDF5 backend)
 
 ### Build & Test
 
@@ -57,6 +60,12 @@ call data_convert("input.xml", "output.hsd", error)
 cmake -B build
 cmake --build build
 ctest --test-dir build
+```
+
+To enable optional backends:
+
+```bash
+cmake -B build -DHSD_DATA_WITH_TOML=ON -DHSD_DATA_WITH_HDF5=ON
 ```
 
 The build will automatically fetch hsd-fortran via CMake FetchContent if it
@@ -95,8 +104,8 @@ hsd-convert input.hsd output.json --compact
 
 | Flag | Description |
 |---|---|
-| `--from=FMT` | Input format (`hsd`, `xml`, `json`, `toml`) |
-| `--to=FMT` | Output format (`hsd`, `xml`, `json`, `toml`) |
+| `--from=FMT` | Input format (`hsd`, `xml`, `json`, `toml`, `h5`) |
+| `--to=FMT` | Output format (`hsd`, `xml`, `json`, `toml`, `h5`) |
 | `--pretty` | Pretty-print output (default) |
 | `--compact` | Compact output (no indentation) |
 | `--help` | Show help message |
@@ -178,6 +187,29 @@ call data_convert(input_file, output_file, error [, input_fmt] [, output_fmt])
 | complex value | `{re = 1.0, im = 2.0}` inline table |
 | array value | `[1, 2, 3]` TOML array |
 
+### HSD ↔ HDF5
+
+| HSD | HDF5 |
+|---|---|
+| `hsd_table` named "Foo" | HDF5 group `/Foo` |
+| `hsd_value` (scalar) | Scalar dataset |
+| `hsd_value` (array) | 1-D dataset |
+| `hsd_value` (matrix) | 2-D dataset |
+| `hsd_value` (string) | Fixed-length string dataset |
+| `hsd_value` (complex) | Compound type `{re, im}` |
+| `hsd_value` (logical) | Integer dataset 0/1 with `hsd_type="logical"` attribute |
+| attribute | HDF5 string attribute `attrib` on dataset/group |
+
+## Supported Formats
+
+| Format | Backend | Parser | Writer | Dependency |
+|---|---|---|---|---|
+| HSD | Built-in | hsd-fortran | hsd-fortran | hsd-fortran (required) |
+| XML | Built-in | Pure Fortran | Pure Fortran | None |
+| JSON | Built-in | Pure Fortran | Pure Fortran | None |
+| TOML | Optional | toml-f | toml-f | toml-f (auto-fetched) |
+| HDF5 | Optional | HDF5 Fortran API | HDF5 Fortran API | System HDF5 |
+
 ## Project Structure
 
 ```
@@ -194,14 +226,15 @@ hsd-data/
 │   │   ├── hsd_data_xml_writer.f90  XML serializer
 │   │   ├── hsd_data_json_parser.f90 JSON recursive-descent parser
 │   │   ├── hsd_data_json_writer.f90 JSON serializer
-│   │   └── hsd_data_toml.f90        TOML backend (optional, wraps toml-f)
+│   │   ├── hsd_data_toml.f90        TOML backend (optional)
+│   │   └── hsd_data_hdf5.f90        HDF5 backend (optional)
 │   └── utils/
 │       ├── hsd_data_xml_escape.f90  XML entity escaping
 │       └── hsd_data_json_escape.f90 JSON string escaping
 └── test/
     ├── testapp.f90          Fortuno test driver
     ├── fixtures/            Test data in all formats
-    └── suites/              Test suites (7 modules, 500+ tests)
+    └── suites/              Test suites (10 modules, 600+ tests)
 ```
 
 ## License

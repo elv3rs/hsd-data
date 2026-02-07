@@ -1,7 +1,4 @@
 
-- Implement HDF5 backend (reader + writer) in `src/backends/hsd_data_hdf5.f90`
-- Integrate HDF5 into build system, umbrella module, and format detection
-- Write HDF5 round-trip tests
 - Write README user guide with examples for all formats
 - Phase 8: Release prep (version 1.0.0, remove SPECIFICATION.md, tidy up)
 
