@@ -1,0 +1,14 @@
+Geometry {
+  LatticeVectors [Angstrom] {
+    6.32  0.00  0.00
+    0.00  6.32  0.00
+    0.00  0.00  6.32
+  }
+  Cutoff [Bohr] = 40.0
+}
+Hamiltonian {
+  Filling {
+    Temperature [Kelvin] = 300.0
+  }
+  Convergence [Hartree] = 1.0e-6
+}

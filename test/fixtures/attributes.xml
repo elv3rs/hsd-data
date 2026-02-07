@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <Geometry>
+    <LatticeVectors unit="Angstrom">6.32  0.00  0.00
+0.00  6.32  0.00
+0.00  0.00  6.32</LatticeVectors>
+    <Cutoff unit="Bohr">40.0</Cutoff>
+  </Geometry>
+  <Hamiltonian>
+    <Filling>
+      <Temperature unit="Kelvin">300.0</Temperature>
+    </Filling>
+    <Convergence unit="Hartree">1.0e-6</Convergence>
+  </Hamiltonian>
+</root>
