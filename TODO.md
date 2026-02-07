@@ -1,8 +1,7 @@
-- Extend the TOML-specific cross-format test to cover more fixtures
-  (nested, arrays, attributes, etc.) now that TOML fixture files exist
-  for all test patterns.
-- Update AGENTS.md project layout section to include `hsd_data_json_escape.f90`
-  and `hsd_data_toml.f90` for accuracy.
+- Add `pretty` parameter passthrough to `data_convert` so callers can
+  control compact vs pretty output without a manual load/dump sequence.
+- Add `pretty` parameter to `toml_backend_dump` (currently ignored) to
+  support compact TOML output via the `--compact` CLI flag.
 
 ---
 
