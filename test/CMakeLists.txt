@@ -19,6 +19,7 @@ set(TEST_SUITES
   suites/test_json_suite.f90
   suites/test_edge_cases_suite.f90
   suites/test_cross_format_suite.f90
+  suites/test_toml_suite.f90
 )
 
 # Fortuno-based test app
@@ -34,6 +35,11 @@ target_link_libraries(hsd_data_testapp PRIVATE
 target_include_directories(hsd_data_testapp PRIVATE
   ${CMAKE_BINARY_DIR}/modules/hsd-data
 )
+
+# Enable preprocessor for conditional compilation (#ifdef WITH_TOML etc.)
+if(HSD_DATA_WITH_TOML)
+  target_compile_options(hsd_data_testapp PRIVATE "-cpp")
+endif()
 
 # Register tests with CTest
 fortuno_discover_tests(hsd_data_testapp)

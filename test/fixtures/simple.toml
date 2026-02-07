@@ -1,0 +1,15 @@
+[Geometry]
+TypeNames = ["Si", "C"]
+TypesAndCoordinates = "1  0.000  0.000  0.000\n2  1.356  1.356  1.356"
+TypesAndCoordinates__attrib = "Angstrom"
+
+[Hamiltonian]
+SCC = true
+MaxSccIterations = 100
+
+[Hamiltonian.Filling]
+Temperature = 300.0
+Temperature__attrib = "Kelvin"
+
+[Options]
+WriteDetailedXml = true

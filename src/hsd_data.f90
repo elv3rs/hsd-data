@@ -57,6 +57,10 @@ module hsd_data
   use hsd_data_xml_writer, only: xml_dump_file, xml_dump_to_string
   use hsd_data_json_parser, only: json_parse_file, json_parse_string
   use hsd_data_json_writer, only: json_dump_file, json_dump_to_string
+#ifdef WITH_TOML
+  use hsd_data_toml, only: toml_backend_load, toml_backend_load_string, &
+      & toml_backend_dump, toml_backend_dump_to_string
+#endif
 
   implicit none(type, external)
   private
@@ -161,6 +165,16 @@ contains
       call xml_parse_file(filename, root, error)
     case (DATA_FMT_JSON)
       call json_parse_file(filename, root, error)
+    case (DATA_FMT_TOML)
+#ifdef WITH_TOML
+      call toml_backend_load(filename, root, error)
+#else
+      if (present(error)) then
+        allocate(error)
+        error%code = HSD_STAT_IO_ERROR
+        error%message = "TOML backend not available (compiled without WITH_TOML)"
+      end if
+#endif
     case default
       if (present(error)) then
         allocate(error)
@@ -203,6 +217,16 @@ contains
       call xml_parse_string(source, root, error, filename)
     case (DATA_FMT_JSON)
       call json_parse_string(source, root, error, filename)
+    case (DATA_FMT_TOML)
+#ifdef WITH_TOML
+      call toml_backend_load_string(source, root, error, filename)
+#else
+      if (present(error)) then
+        allocate(error)
+        error%code = HSD_STAT_IO_ERROR
+        error%message = "TOML backend not available (compiled without WITH_TOML)"
+      end if
+#endif
     case default
       if (present(error)) then
         allocate(error)
@@ -257,6 +281,16 @@ contains
       call xml_dump_file(root, filename, error, pretty)
     case (DATA_FMT_JSON)
       call json_dump_file(root, filename, error, pretty)
+    case (DATA_FMT_TOML)
+#ifdef WITH_TOML
+      call toml_backend_dump(root, filename, error, pretty)
+#else
+      if (present(error)) then
+        allocate(error)
+        error%code = HSD_STAT_IO_ERROR
+        error%message = "TOML backend not available (compiled without WITH_TOML)"
+      end if
+#endif
     case default
       if (present(error)) then
         allocate(error)
@@ -290,6 +324,17 @@ contains
       call xml_dump_to_string(root, output, pretty)
     case (DATA_FMT_JSON)
       call json_dump_to_string(root, output, pretty)
+    case (DATA_FMT_TOML)
+#ifdef WITH_TOML
+      call toml_backend_dump_to_string(root, output, pretty)
+#else
+      output = ""
+      if (present(error)) then
+        allocate(error)
+        error%code = HSD_STAT_IO_ERROR
+        error%message = "TOML backend not available (compiled without WITH_TOML)"
+      end if
+#endif
     case default
       output = ""
       if (present(error)) then

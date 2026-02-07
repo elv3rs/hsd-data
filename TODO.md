@@ -1,8 +1,3 @@
-- Add optional `root_name` parameter to `data_load` per spec §4.2; when
-  provided, verify the document element name matches after loading
-- Add TOML backend stub (`hsd_data_toml.f90`) guarded by `WITH_TOML`;
-  implement reader/writer using `toml-f` (available at `../toml-f`)
-  per spec §5.5 and §11.1
 - Create `unicode` fixture files (`.hsd`/`.xml`/`.json`) with non-ASCII
   Latin-1 characters in keys and values per spec §10.2
 - Add `nested` fixture unit tests that load all three fixture formats and

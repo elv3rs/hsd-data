@@ -15,6 +15,15 @@ set(HSD_DATA_SOURCES
 add_library(hsd-data ${HSD_DATA_SOURCES})
 target_link_libraries(hsd-data PUBLIC hsd)
 
+# TOML backend (optional)
+if(HSD_DATA_WITH_TOML)
+  target_sources(hsd-data PRIVATE backends/hsd_data_toml.f90)
+  target_link_libraries(hsd-data PUBLIC toml-f)
+  target_compile_definitions(hsd-data PUBLIC WITH_TOML)
+  # Enable Fortran preprocessor for #ifdef directives
+  target_compile_options(hsd-data PRIVATE "-cpp")
+endif()
+
 # Module output directory
 set(HSD_DATA_MODULE_DIR ${CMAKE_CURRENT_BINARY_DIR}/../modules/hsd-data)
 set_target_properties(hsd-data PROPERTIES

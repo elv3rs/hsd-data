@@ -45,6 +45,19 @@ else()
   endif()
 endif()
 
+# toml-f (optional, for TOML backend)
+if(HSD_DATA_WITH_TOML)
+  find_package(toml-f QUIET)
+  if(NOT toml-f_FOUND)
+    FetchContent_Declare(toml-f
+      GIT_REPOSITORY https://github.com/toml-f/toml-f
+      GIT_TAG v0.4.3
+    )
+    set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(toml-f)
+  endif()
+endif()
+
 # Fortuno (test framework)
 if(HSD_DATA_BUILD_TESTS)
   FetchContent_Declare(

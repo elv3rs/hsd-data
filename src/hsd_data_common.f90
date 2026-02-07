@@ -70,7 +70,11 @@ contains
     case (DATA_FMT_JSON)
       available = .true.
     case (DATA_FMT_TOML)
-      available = .false.  ! Not yet implemented
+#ifdef WITH_TOML
+      available = .true.
+#else
+      available = .false.
+#endif
     case (DATA_FMT_HDF5)
       available = .false.  ! Not yet implemented
     case default

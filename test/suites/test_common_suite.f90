@@ -86,8 +86,13 @@ contains
   end subroutine test_format_available_json
 
   subroutine test_format_unavailable()
+#ifdef WITH_TOML
+    call check(data_format_available(DATA_FMT_TOML), &
+        & msg="TOML format should be available (WITH_TOML)")
+#else
     call check(.not. data_format_available(DATA_FMT_TOML), &
         & msg="TOML format should not yet be available")
+#endif
     call check(.not. data_format_available(DATA_FMT_HDF5), &
         & msg="HDF5 format should not yet be available")
     call check(.not. data_format_available(-1), &
