@@ -37,7 +37,9 @@ contains
             test("xml_json_roundtrip", test_xml_json_roundtrip), &
             test("nested_fixture_depth", test_nested_fixture_depth), &
             test("deeply_nested_100", test_deeply_nested_100), &
-            test("large_fixture", test_large_fixture) &
+            test("large_fixture", test_large_fixture), &
+            test("very_long_string", test_very_long_string), &
+            test("very_large_array", test_very_large_array) &
         ])) &
     ])
   end function tests
@@ -367,5 +369,107 @@ contains
     call check(.not. allocated(error), msg="XML re-parse of large fixture")
 
   end subroutine test_large_fixture
+
+  !> Very long string value (>64 KB) round-trips through all formats.
+  subroutine test_very_long_string()
+    integer, parameter :: STR_LEN = 70000  ! > 64 KB
+    type(hsd_table) :: root, parsed
+    type(hsd_value), allocatable :: val
+    type(hsd_error_t), allocatable :: error
+    character(len=:), allocatable :: dump_str, retrieved, long_str
+    integer :: ii, stat
+
+    ! Build a long string of repeating characters
+    allocate(character(len=STR_LEN) :: long_str)
+    do ii = 1, STR_LEN
+      long_str(ii:ii) = achar(mod(ii - 1, 26) + iachar("a"))
+    end do
+
+    call new_table(root, name="")
+    allocate(val)
+    call new_value(val, name="BigText")
+    call val%set_string(long_str)
+    call root%add_child(val)
+
+    ! Round-trip through JSON
+    call data_dump_to_string(root, dump_str, DATA_FMT_JSON)
+    call check(len(dump_str) > STR_LEN, msg="JSON output should be larger than string")
+    call data_load_string(dump_str, parsed, DATA_FMT_JSON, error)
+    call check(.not. allocated(error), msg="JSON parse very long string")
+    call hsd_get(parsed, "BigText", retrieved, stat)
+    call check(stat == 0, msg="Should retrieve BigText")
+    call check(len(retrieved) == STR_LEN, msg="String length should be preserved")
+    call check(retrieved == long_str, msg="String content should be preserved")
+
+    ! Round-trip through XML
+    call data_dump_to_string(root, dump_str, DATA_FMT_XML)
+    call check(len(dump_str) > STR_LEN, msg="XML output should be larger than string")
+    call data_load_string(dump_str, parsed, DATA_FMT_XML, error)
+    call check(.not. allocated(error), msg="XML parse very long string")
+    call hsd_get(parsed, "BigText", retrieved, stat)
+    call check(stat == 0, msg="XML: Should retrieve BigText")
+    call check(retrieved == long_str, msg="XML: String content should be preserved")
+
+    ! Round-trip through HSD
+    call data_dump_to_string(root, dump_str, DATA_FMT_HSD)
+    call check(len(dump_str) > STR_LEN, msg="HSD output should be larger than string")
+    call data_load_string(dump_str, parsed, DATA_FMT_HSD, error)
+    call check(.not. allocated(error), msg="HSD parse very long string")
+    call hsd_get(parsed, "BigText", retrieved, stat)
+    call check(stat == 0, msg="HSD: Should retrieve BigText")
+    call check(retrieved == long_str, msg="HSD: String content should be preserved")
+
+  end subroutine test_very_long_string
+
+  !> Very large array (>100,000 elements) round-trips through JSON.
+  subroutine test_very_large_array()
+    integer, parameter :: ARR_SIZE = 100001
+    type(hsd_table) :: root, parsed
+    type(hsd_error_t), allocatable :: error
+    character(len=:), allocatable :: dump_str
+    integer, allocatable :: arr(:), retrieved(:)
+    integer :: ii, stat
+
+    ! Build array
+    allocate(arr(ARR_SIZE))
+    do ii = 1, ARR_SIZE
+      arr(ii) = ii
+    end do
+
+    ! Create tree with array value
+    call new_table(root, name="")
+    block
+      type(hsd_value), allocatable :: val
+      character(len=:), allocatable :: arr_text
+      character(len=12) :: buf
+
+      ! Build space-separated text for the array
+      arr_text = ""
+      do ii = 1, ARR_SIZE
+        write(buf, "(i0)") arr(ii)
+        if (ii > 1) arr_text = arr_text // " "
+        arr_text = arr_text // trim(buf)
+      end do
+      allocate(val)
+      call new_value(val, name="BigArray")
+      call val%set_string(arr_text)
+      call root%add_child(val)
+    end block
+
+    ! Round-trip through JSON
+    call data_dump_to_string(root, dump_str, DATA_FMT_JSON)
+    call check(len(dump_str) > 0, msg="JSON dump of very large array")
+    call data_load_string(dump_str, parsed, DATA_FMT_JSON, error)
+    call check(.not. allocated(error), msg="JSON parse very large array")
+
+    ! Retrieve array
+    call hsd_get(parsed, "BigArray", retrieved, stat)
+    call check(stat == 0, msg="Should retrieve BigArray")
+    call check(size(retrieved) == ARR_SIZE, &
+        & msg="Array size should be preserved")
+    call check(retrieved(1) == 1, msg="First element should be 1")
+    call check(retrieved(ARR_SIZE) == ARR_SIZE, msg="Last element should match")
+
+  end subroutine test_very_large_array
 
 end module test_edge_cases_suite
