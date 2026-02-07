@@ -133,33 +133,39 @@ hsd-data/
 │   ├── hsd_data_common.f90  # Shared helpers (format detection)
 │   ├── backends/
 │   │   ├── hsd_data_hsd.f90         # HSD backend (wraps hsd-fortran)
-│   │   ├── hsd_data_xml.f90         # XML backend
-│   │   ├── hsd_data_xml_parser.f90  # XML pull parser
-│   │   ├── hsd_data_xml_writer.f90  # XML serializer
-│   │   ├── hsd_data_json.f90        # JSON backend
 │   │   ├── hsd_data_json_parser.f90 # JSON parser
 │   │   ├── hsd_data_json_writer.f90 # JSON serializer
-│   │   ├── hsd_data_toml.f90        # TOML backend (optional)
-│   │   └── hsd_data_hdf5.f90        # HDF5 backend (optional)
+│   │   ├── hsd_data_toml.f90        # TOML backend (optional, WITH_TOML)
+│   │   ├── hsd_data_xml_parser.f90  # XML pull parser
+│   │   └── hsd_data_xml_writer.f90  # XML serializer
 │   └── utils/
-│       ├── hsd_data_string_utils.f90
-│       └── hsd_data_xml_escape.f90
+│       ├── hsd_data_json_escape.f90 # JSON string escape/unescape + \uXXXX
+│       └── hsd_data_xml_escape.f90  # XML entity escape/unescape
 ├── test/
 │   ├── CMakeLists.txt
 │   ├── testapp.f90
 │   ├── build_env.f90.in
+│   ├── check_compact.cmake  # CMake script for compact output verification
 │   ├── suites/
 │   │   ├── test_common_suite.f90
+│   │   ├── test_cross_format_suite.f90
+│   │   ├── test_edge_cases_suite.f90
 │   │   ├── test_hsd_backend_suite.f90
-│   │   ├── test_json_parser_suite.f90
-│   │   ├── test_json_writer_suite.f90
+│   │   ├── test_json_suite.f90
+│   │   ├── test_toml_suite.f90
 │   │   ├── test_xml_parser_suite.f90
+│   │   ├── test_xml_roundtrip_suite.f90
 │   │   └── test_xml_writer_suite.f90
 │   └── fixtures/
-│       ├── simple.hsd
-│       ├── simple.json
-│       ├── simple.xml
-│       └── ...
+│       ├── simple.{hsd,json,xml,toml}
+│       ├── nested.{hsd,json,xml,toml}
+│       ├── arrays.{hsd,json,xml,toml}
+│       ├── attributes.{hsd,json,xml,toml}
+│       ├── special_chars.{hsd,json,xml,toml}
+│       ├── unicode.{hsd,json,xml,toml}
+│       ├── matrix.{hsd,json,xml,toml}
+│       ├── complex_values.{hsd,json,xml,toml}
+│       └── empty.{hsd,json,xml,toml}
 ├── app/
 │   └── hsd_convert.f90      # CLI converter tool
 ├── cmake/
