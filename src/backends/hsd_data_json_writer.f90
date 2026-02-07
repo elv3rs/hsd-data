@@ -367,8 +367,18 @@ contains
 
     case (VALUE_TYPE_STRING)
       if (allocated(val%string_value)) then
-        call append_str(buf, buf_len, buf_cap, &
-            & '"' // json_escape_string(val%string_value) // '"')
+        ! Sniff whether the string looks like a JSON primitive so that
+        ! HSD-originating trees (which store everything as strings) emit
+        ! proper unquoted JSON numbers and booleans.
+        if (looks_like_json_number(val%string_value)) then
+          call append_str(buf, buf_len, buf_cap, val%string_value)
+        else if (is_hsd_boolean(val%string_value)) then
+          call append_str(buf, buf_len, buf_cap, &
+              & hsd_bool_to_json(val%string_value))
+        else
+          call append_str(buf, buf_len, buf_cap, &
+              & '"' // json_escape_string(val%string_value) // '"')
+        end if
       else
         call append_str(buf, buf_len, buf_cap, '""')
       end if
@@ -425,6 +435,114 @@ contains
     end if
 
   end subroutine format_real
+
+  ! ─── String sniffing helpers (for HSD-originating VALUE_TYPE_STRING) ───
+
+  !> Check if a string looks like a JSON number (integer or real).
+  pure function looks_like_json_number(str) result(is_num)
+    character(len=*), intent(in) :: str
+    logical :: is_num
+
+    integer :: ii, slen
+
+    is_num = .false.
+    slen = len_trim(str)
+    if (slen == 0) return
+
+    ii = 1
+    ! Optional minus
+    if (str(ii:ii) == "-") then
+      ii = ii + 1
+      if (ii > slen) return
+    end if
+
+    ! Must start with a digit
+    if (str(ii:ii) < "0" .or. str(ii:ii) > "9") return
+
+    ! Integer part
+    do while (ii <= slen)
+      if (str(ii:ii) < "0" .or. str(ii:ii) > "9") exit
+      ii = ii + 1
+    end do
+
+    ! Optional fraction
+    if (ii <= slen) then
+      if (str(ii:ii) == ".") then
+        ii = ii + 1
+        if (ii > slen .or. str(ii:ii) < "0" .or. str(ii:ii) > "9") return
+        do while (ii <= slen)
+          if (str(ii:ii) < "0" .or. str(ii:ii) > "9") exit
+          ii = ii + 1
+        end do
+      end if
+    end if
+
+    ! Optional exponent
+    if (ii <= slen) then
+      if (str(ii:ii) == "e" .or. str(ii:ii) == "E") then
+        ii = ii + 1
+        if (ii <= slen .and. (str(ii:ii) == "+" .or. str(ii:ii) == "-")) &
+            & ii = ii + 1
+        if (ii > slen .or. str(ii:ii) < "0" .or. str(ii:ii) > "9") return
+        do while (ii <= slen)
+          if (str(ii:ii) < "0" .or. str(ii:ii) > "9") exit
+          ii = ii + 1
+        end do
+      end if
+    end if
+
+    is_num = (ii > slen)
+
+  end function looks_like_json_number
+
+  !> Check if a string is an HSD boolean (Yes/No, True/False, .true./.false.)
+  pure function is_hsd_boolean(str) result(is_bool)
+    character(len=*), intent(in) :: str
+    logical :: is_bool
+
+    character(len=:), allocatable :: lower
+    integer :: ii
+
+    is_bool = .false.
+
+    allocate(character(len=len_trim(str)) :: lower)
+    do ii = 1, len_trim(str)
+      if (str(ii:ii) >= "A" .and. str(ii:ii) <= "Z") then
+        lower(ii:ii) = achar(iachar(str(ii:ii)) + 32)
+      else
+        lower(ii:ii) = str(ii:ii)
+      end if
+    end do
+
+    is_bool = (lower == "yes" .or. lower == "no" .or. lower == "true" &
+        & .or. lower == "false" .or. lower == ".true." .or. lower == ".false.")
+
+  end function is_hsd_boolean
+
+  !> Convert an HSD boolean string to JSON "true"/"false".
+  pure function hsd_bool_to_json(str) result(json)
+    character(len=*), intent(in) :: str
+    character(len=:), allocatable :: json
+
+    character(len=:), allocatable :: lower
+    integer :: ii
+
+    allocate(character(len=len_trim(str)) :: lower)
+    do ii = 1, len_trim(str)
+      if (str(ii:ii) >= "A" .and. str(ii:ii) <= "Z") then
+        lower(ii:ii) = achar(iachar(str(ii:ii)) + 32)
+      else
+        lower(ii:ii) = str(ii:ii)
+      end if
+    end do
+
+    if (lower == "yes" .or. lower == "true" .or. lower == ".true.") then
+      json = "true"
+    else
+      json = "false"
+    end if
+
+  end function hsd_bool_to_json
 
   ! ─── Buffer utilities (same pattern as XML writer) ───
 
