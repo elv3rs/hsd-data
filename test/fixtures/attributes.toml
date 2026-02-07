@@ -1,0 +1,13 @@
+[Geometry]
+Cutoff = 40.0000000000000000
+Cutoff__attrib = "Bohr"
+LatticeVectors__attrib = "Angstrom"
+[Geometry.LatticeVectors]
+_value = [ 6.3200000000000003, 0.0000000000000000, 0.0000000000000000, 0.0000000000000000, 6.3200000000000003, 0.0000000000000000, 0.0000000000000000, 0.0000000000000000, 6.3200000000000003 ]
+[Hamiltonian]
+Convergence = 0.0000010000000000
+Convergence__attrib = "Hartree"
+[Hamiltonian.Filling]
+Temperature = 300.0000000000000000
+Temperature__attrib = "Kelvin"
+

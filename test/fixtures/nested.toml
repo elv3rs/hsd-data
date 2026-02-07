@@ -1,0 +1,33 @@
+[Geometry]
+GenFormat = "2 C\n5.431 0.0 0.0\n0.0 5.431 0.0\n0.0 0.0 5.431"
+Periodic = false
+[Hamiltonian]
+[Hamiltonian.DFTB]
+SCC = true
+MaxSccIterations = 200
+[Hamiltonian.DFTB.Mixer]
+[Hamiltonian.DFTB.Mixer.Broyden]
+MixingParameter = 0.2000000000000000
+InverseJacobiWeight = 0.0100000000000000
+[Hamiltonian.DFTB.MaxAngularMomentum]
+O = "p"
+H = "s"
+[Hamiltonian.DFTB.Filling]
+[Hamiltonian.DFTB.Filling.Fermi]
+Temperature = 0.0000000000000000
+Temperature__attrib = "Kelvin"
+[Hamiltonian.DFTB.KPointsAndWeights]
+_value = [ 0.0000000000000000, 0.0000000000000000, 0.0000000000000000, 1.0000000000000000 ]
+[Hamiltonian.DFTB.SpinPolarisation]
+[Hamiltonian.DFTB.SpinPolarisation.Colinear]
+[Hamiltonian.DFTB.SpinPolarisation.Colinear.InitialSpins]
+[Hamiltonian.DFTB.SpinPolarisation.Colinear.InitialSpins.AtomSpin]
+Atoms = "1:-1"
+SpinPerAtom = 1.0000000000000000
+[Analysis]
+[Analysis.ProjectStates]
+[Analysis.ProjectStates.Region]
+Atoms = "1 2 3"
+Label = "first_three"
+ShellResolved = true
+
