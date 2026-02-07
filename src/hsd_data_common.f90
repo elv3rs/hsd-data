@@ -16,7 +16,9 @@ module hsd_data_common
 contains
 
   !> Detect format from file extension.
-  !> Returns DATA_FMT_* constant or -1 if unknown.
+  !>
+  !> @param filename  Path to the file (only the extension is examined).
+  !> @return DATA_FMT_* constant, or -1 if the extension is unrecognized.
   function data_detect_format(filename) result(fmt)
     character(len=*), intent(in) :: filename
     integer :: fmt
@@ -50,6 +52,12 @@ contains
   end function data_detect_format
 
   !> Check whether a format backend is available at runtime.
+  !>
+  !> TOML and HDF5 backends may be compiled out; this function lets callers
+  !> verify availability before attempting to load or dump.
+  !>
+  !> @param fmt  Format constant (DATA_FMT_*).
+  !> @return .true. if the backend is linked and ready.
   function data_format_available(fmt) result(available)
     integer, intent(in) :: fmt
     logical :: available

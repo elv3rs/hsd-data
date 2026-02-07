@@ -118,6 +118,11 @@ contains
   !>
   !> If fmt is DATA_FMT_AUTO (default), the format is detected from the file
   !> extension. Supported extensions: .hsd, .xml, .json, .toml, .h5/.hdf5
+  !>
+  !> @param filename  Path to the input file.
+  !> @param root      Output HSD tree (overwritten on success).
+  !> @param error     Optional error descriptor; allocated on failure.
+  !> @param fmt       Optional format constant (DATA_FMT_*). Default: auto-detect.
   subroutine data_load(filename, root, error, fmt)
     character(len=*), intent(in) :: filename
     type(hsd_table), intent(out) :: root
@@ -162,6 +167,15 @@ contains
   end subroutine data_load
 
   !> Load structured data from a string.
+  !>
+  !> The format must be specified explicitly (no auto-detection from string
+  !> content). HDF5 is not supported for string loading.
+  !>
+  !> @param source    Character string containing the serialized data.
+  !> @param root      Output HSD tree (overwritten on success).
+  !> @param fmt       Format constant (DATA_FMT_HSD, DATA_FMT_XML, DATA_FMT_JSON).
+  !> @param error     Optional error descriptor; allocated on failure.
+  !> @param filename  Optional filename for error messages (informational only).
   subroutine data_load_string(source, root, fmt, error, filename)
     character(len=*), intent(in) :: source
     type(hsd_table), intent(out) :: root
@@ -187,6 +201,15 @@ contains
   end subroutine data_load_string
 
   !> Dump an HSD tree to a file in the specified format.
+  !>
+  !> If fmt is DATA_FMT_AUTO (default), the format is detected from the file
+  !> extension. The file is created or overwritten.
+  !>
+  !> @param root      The HSD tree to serialize.
+  !> @param filename  Path to the output file.
+  !> @param error     Optional error descriptor; allocated on failure.
+  !> @param fmt       Optional format constant (DATA_FMT_*). Default: auto-detect.
+  !> @param pretty    Optional flag for pretty-printing (default: .true.).
   subroutine data_dump(root, filename, error, fmt, pretty)
     type(hsd_table), intent(in) :: root
     character(len=*), intent(in) :: filename
@@ -232,6 +255,14 @@ contains
   end subroutine data_dump
 
   !> Dump an HSD tree to a string in the specified format.
+  !>
+  !> HDF5 is not supported for string output.
+  !>
+  !> @param root    The HSD tree to serialize.
+  !> @param output  Allocatable string receiving the serialized output.
+  !> @param fmt     Format constant (DATA_FMT_HSD, DATA_FMT_XML, DATA_FMT_JSON).
+  !> @param pretty  Optional flag for pretty-printing (default: .true.).
+  !> @param error   Optional error descriptor; allocated on failure.
   subroutine data_dump_to_string(root, output, fmt, pretty, error)
     type(hsd_table), intent(in) :: root
     character(len=:), allocatable, intent(out) :: output
@@ -258,6 +289,15 @@ contains
   end subroutine data_dump_to_string
 
   !> Convert a file from one format to another.
+  !>
+  !> Convenience routine: loads the input file and dumps to the output file.
+  !> Formats default to DATA_FMT_AUTO (detected from file extensions).
+  !>
+  !> @param input_file   Path to the source file.
+  !> @param output_file  Path to the destination file.
+  !> @param error        Optional error descriptor; allocated on failure.
+  !> @param input_fmt    Optional input format (DATA_FMT_*). Default: auto-detect.
+  !> @param output_fmt   Optional output format (DATA_FMT_*). Default: auto-detect.
   subroutine data_convert(input_file, output_file, error, input_fmt, output_fmt)
     character(len=*), intent(in) :: input_file
     character(len=*), intent(in) :: output_file
