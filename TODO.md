@@ -1,7 +1,6 @@
-- Add `pretty` parameter passthrough to `data_convert` so callers can
-  control compact vs pretty output without a manual load/dump sequence.
-- Add `pretty` parameter to `toml_backend_dump` (currently ignored) to
-  support compact TOML output via the `--compact` CLI flag.
+No remaining actionable items — the project fully meets SPECIFICATION.md
+for all non-optional features (HSD, XML, JSON, TOML backends; unified API;
+CLI tool; comprehensive tests).  HDF5 backend is deferred (optional Phase 6).
 
 ---
 
