@@ -78,12 +78,39 @@ if(HSD_DATA_BUILD_APP)
         ${CMAKE_CURRENT_BINARY_DIR}/cli_xml_to_json.json
   )
 
-  # --compact flag
+  # --compact flag for JSON
   add_test(NAME cli/compact_json
     COMMAND ${CMAKE_COMMAND} -E env
       ${HSD_CONVERT} ${FIXTURE_DIR}/simple.hsd
         ${CMAKE_CURRENT_BINARY_DIR}/cli_compact.json --compact
   )
+
+  # Verify compact JSON output has no indentation (single line, no leading spaces)
+  add_test(NAME cli/compact_json_verify
+    COMMAND ${CMAKE_COMMAND}
+      -DFILE=${CMAKE_CURRENT_BINARY_DIR}/cli_compact.json
+      -DEXPECT_NO_INDENT=true
+      -P ${CMAKE_CURRENT_SOURCE_DIR}/check_compact.cmake
+  )
+  set_tests_properties(cli/compact_json_verify PROPERTIES
+    DEPENDS cli/compact_json)
+
+  # --compact flag for XML
+  add_test(NAME cli/compact_xml
+    COMMAND ${CMAKE_COMMAND} -E env
+      ${HSD_CONVERT} ${FIXTURE_DIR}/simple.hsd
+        ${CMAKE_CURRENT_BINARY_DIR}/cli_compact.xml --compact
+  )
+
+  # Verify compact XML output has no indentation
+  add_test(NAME cli/compact_xml_verify
+    COMMAND ${CMAKE_COMMAND}
+      -DFILE=${CMAKE_CURRENT_BINARY_DIR}/cli_compact.xml
+      -DEXPECT_NO_INDENT=true
+      -P ${CMAKE_CURRENT_SOURCE_DIR}/check_compact.cmake
+  )
+  set_tests_properties(cli/compact_xml_verify PROPERTIES
+    DEPENDS cli/compact_xml)
 
   # --from/--to override (HSD file read as HSD, output as XML by --to flag)
   add_test(NAME cli/format_override
