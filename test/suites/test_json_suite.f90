@@ -335,7 +335,6 @@ contains
   subroutine test_parse_obj_array()
     type(hsd_table) :: root
     type(hsd_error_t), allocatable :: error
-    character(len=:), allocatable :: val
     character(len=*), parameter :: src = &
         & '{"Item": [{"Name": "first"}, {"Name": "second"}]}'
 

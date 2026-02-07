@@ -41,6 +41,10 @@ contains
     character(len=:), allocatable :: output
     integer :: unit_num, ios
 
+    ! pretty is accepted for interface compatibility but not used
+    ! (HSD output is always human-readable)
+    if (.false. .and. present(pretty)) continue
+
     call hsd_dump_to_string(root, output)
 
     open(newunit=unit_num, file=filename, status="replace", action="write", &
@@ -69,6 +73,9 @@ contains
     type(hsd_table), intent(in) :: root
     character(len=:), allocatable, intent(out) :: output
     logical, intent(in), optional :: pretty
+
+    ! pretty is accepted for interface compatibility but not used
+    if (.false. .and. present(pretty)) continue
 
     call hsd_dump_to_string(root, output)
 

@@ -204,9 +204,9 @@ contains
 
   !> XML → JSON → XML round-trip via string APIs
   subroutine test_xml_json_roundtrip()
-    type(hsd_table) :: root, parsed_json, final
+    type(hsd_table) :: root, parsed_json
     type(hsd_error_t), allocatable :: error
-    character(len=:), allocatable :: xml_in, json_str, xml_out
+    character(len=:), allocatable :: xml_in, json_str
     integer :: nc
 
     xml_in = '<?xml version="1.0"?><root><A>1</A><B>hello</B></root>'

@@ -516,6 +516,10 @@ contains
     integer :: start
 
     start = pos
+
+    ! line is accepted for interface consistency but cannot change
+    ! (XML names never contain newlines)
+    if (.false.) line = line
     do while (pos <= src_len)
       select case (src(pos:pos))
       case (" ", achar(9), achar(10), achar(13), "=", ">", "/")
