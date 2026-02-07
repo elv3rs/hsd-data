@@ -49,7 +49,9 @@ contains
             test("attrib_before_sibling", test_attrib_before_sibling), &
             test("compact_mode", test_compact_mode), &
             test("unescape_unicode", test_unescape_unicode), &
-            test("whitespace_only", test_whitespace_only) &
+            test("whitespace_only", test_whitespace_only), &
+            test("duplicate_keys", test_duplicate_keys), &
+            test("mixed_array", test_mixed_array) &
         ])) &
     ])
 
@@ -702,5 +704,33 @@ contains
         & msg="Whitespace-only should produce empty root")
 
   end subroutine test_whitespace_only
+
+  subroutine test_duplicate_keys()
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+
+    ! JSON with duplicate keys — both should be kept as sibling children
+    call json_parse_string('{"A": 1, "A": 2}', root, error)
+    call check(.not. allocated(error), msg="Duplicate keys should parse OK")
+    ! HSD supports duplicate children, so both "A" values exist
+    call check(hsd_child_count(root, "") == 2, &
+        & msg="Root should have 2 children (both 'A')")
+
+  end subroutine test_duplicate_keys
+
+  subroutine test_mixed_array()
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+    character(len=:), allocatable :: val
+
+    ! Mixed int/real array
+    call json_parse_string('{"Vals": [1, 2.5, 3]}', root, error)
+    call check(.not. allocated(error), msg="Mixed array should parse OK")
+    call check(hsd_has_child(root, "Vals"), msg="Should have Vals child")
+    call hsd_get(root, "Vals", val)
+    ! The array should be stored as space-separated tokens
+    call check(len_trim(val) > 0, msg="Vals should have content")
+
+  end subroutine test_mixed_array
 
 end module test_json_suite
