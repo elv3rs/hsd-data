@@ -1,9 +1,7 @@
-- Create `large` fixture (`.json`) with 1000+ nodes for performance
-  baseline per spec §10.2
-- Add very-long-string (>64 KB) and very-large-array (>100 000 elements)
-  edge-case tests per spec §10.3
-- Add systematic fixture-based round-trip tests across all format pairs
-  (HSD↔XML, HSD↔JSON, XML↔JSON) for all non-trivial fixtures per §10.1
+- Add TOML format pairs to systematic cross-format roundtrip tests
+  (HSD↔TOML, JSON↔TOML, XML↔TOML) now that the TOML backend is complete.
+- Verify that `--compact` output mode actually produces compact (no
+  indentation) output for JSON and XML via CLI integration tests.
 
 ---
 
