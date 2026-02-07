@@ -17,6 +17,9 @@ module hsd_data_xml_writer
   !> Default indentation width
   integer, parameter :: INDENT_WIDTH = 2
 
+  !> Prefix for non-unit attribute children
+  character(len=*), parameter :: ATTR_PREFIX = "__attr_"
+
 contains
 
   !> Dump an hsd_table tree to an XML string.
@@ -99,6 +102,8 @@ contains
 
     character(len=:), allocatable :: tag_name
 
+    integer :: real_children
+
     tag_name = table%name
 
     ! Indent and open tag
@@ -110,16 +115,22 @@ contains
       call write_attrib_string(table%attrib, buf, buf_len, buf_cap)
     end if
 
-    ! Check for empty table (no children)
-    if (table%num_children == 0) then
+    ! Write __attr_* children as XML attributes
+    call write_extra_attrs(table, buf, buf_len, buf_cap)
+
+    ! Count non-attr children
+    real_children = count_real_children(table)
+
+    ! Check for empty table (no non-attr children)
+    if (real_children == 0) then
       call append_str(buf, buf_len, buf_cap, "/>")
       call append_newline(buf, buf_len, buf_cap, pretty)
       return
     end if
 
     ! Check for table with single anonymous value child → inline
-    if (table%num_children == 1) then
-      select type (child => table%children(1)%node)
+    if (real_children == 1) then
+      select type (child => table%children(first_real_child(table))%node)
       type is (hsd_value)
         if (.not. allocated(child%name) .or. len_trim(child%name) == 0) then
           call append_str(buf, buf_len, buf_cap, ">")
@@ -155,6 +166,7 @@ contains
 
     do ii = 1, table%num_children
       if (.not. allocated(table%children(ii)%node)) cycle
+      if (is_attr_child(table%children(ii)%node)) cycle
 
       select type (child => table%children(ii)%node)
       type is (hsd_table)
@@ -255,6 +267,86 @@ contains
     call append_str(buf, buf_len, buf_cap, '"')
 
   end subroutine write_attrib_string
+
+  !> Check if a node is an __attr_* value child.
+  pure function is_attr_child(node) result(is_attr)
+    class(hsd_node), intent(in) :: node
+    logical :: is_attr
+
+    is_attr = .false.
+    select type (node)
+    type is (hsd_value)
+      if (allocated(node%name)) then
+        if (len(node%name) > len(ATTR_PREFIX)) then
+          is_attr = node%name(1:len(ATTR_PREFIX)) == ATTR_PREFIX
+        end if
+      end if
+    end select
+
+  end function is_attr_child
+
+  !> Write __attr_* children as XML attributes.
+  subroutine write_extra_attrs(table, buf, buf_len, buf_cap)
+    type(hsd_table), intent(in) :: table
+    character(len=:), allocatable, intent(inout) :: buf
+    integer, intent(inout) :: buf_len, buf_cap
+
+    integer :: ii
+
+    do ii = 1, table%num_children
+      if (.not. allocated(table%children(ii)%node)) cycle
+      select type (child => table%children(ii)%node)
+      type is (hsd_value)
+        if (allocated(child%name)) then
+          if (len(child%name) > len(ATTR_PREFIX)) then
+            if (child%name(1:len(ATTR_PREFIX)) == ATTR_PREFIX) then
+              call append_str(buf, buf_len, buf_cap, " " &
+                  & // child%name(len(ATTR_PREFIX) + 1:) // '="')
+              if (allocated(child%string_value)) then
+                call append_str(buf, buf_len, buf_cap, &
+                    & xml_escape_attrib(child%string_value))
+              end if
+              call append_str(buf, buf_len, buf_cap, '"')
+            end if
+          end if
+        end if
+      end select
+    end do
+
+  end subroutine write_extra_attrs
+
+  !> Count non-attr children.
+  pure function count_real_children(table) result(cnt)
+    type(hsd_table), intent(in) :: table
+    integer :: cnt
+
+    integer :: ii
+
+    cnt = 0
+    do ii = 1, table%num_children
+      if (.not. allocated(table%children(ii)%node)) cycle
+      if (.not. is_attr_child(table%children(ii)%node)) cnt = cnt + 1
+    end do
+
+  end function count_real_children
+
+  !> Find the index of the first non-attr child.
+  pure function first_real_child(table) result(idx)
+    type(hsd_table), intent(in) :: table
+    integer :: idx
+
+    integer :: ii
+
+    idx = 1
+    do ii = 1, table%num_children
+      if (.not. allocated(table%children(ii)%node)) cycle
+      if (.not. is_attr_child(table%children(ii)%node)) then
+        idx = ii
+        return
+      end if
+    end do
+
+  end function first_real_child
 
   !> Write indentation.
   subroutine write_indent(buf, buf_len, buf_cap, depth, pretty)

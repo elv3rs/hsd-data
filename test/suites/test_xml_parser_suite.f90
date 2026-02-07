@@ -4,6 +4,7 @@ module test_xml_parser_suite
       & hsd_get, hsd_is_table, hsd_is_value, hsd_child_count, hsd_get_child, &
       & hsd_get_attrib, hsd_has_attrib
   use hsd_data_xml_parser, only: xml_parse_string, xml_parse_file
+  use hsd_data_xml_writer, only: xml_dump_to_string
   use build_env, only: source_dir
   use fortuno_serial, only: test => serial_case_item, &
       & check => serial_check, suite => serial_suite_item, test_list
@@ -30,7 +31,8 @@ contains
             test("entity_refs", test_entity_refs), &
             test("numeric_char_refs", test_numeric_char_refs), &
             test("parse_fixture", test_parse_fixture), &
-            test("error_mismatch", test_error_mismatch) &
+            test("error_mismatch", test_error_mismatch), &
+            test("non_unit_attrs", test_non_unit_attrs) &
         ])) &
     ])
 
@@ -215,5 +217,31 @@ contains
     call check(allocated(error), msg="Mismatched tags should produce error")
 
   end subroutine test_error_mismatch
+
+  subroutine test_non_unit_attrs()
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+    character(len=:), allocatable :: val, xml_out
+
+    ! Parse XML with non-unit attributes
+    call xml_parse_string( &
+        & '<root><Item id="abc" class="big">42</Item></root>', root, error)
+    call check(.not. allocated(error), msg="Parse should succeed")
+
+    ! Non-unit attrs stored as __attr_<name> children
+    call check(hsd_has_child(root, "Item"), msg="Should have Item child")
+    call hsd_get(root, "Item/__attr_id", val)
+    call check(val == "abc", msg="__attr_id should be 'abc'")
+    call hsd_get(root, "Item/__attr_class", val)
+    call check(val == "big", msg="__attr_class should be 'big'")
+
+    ! Round-trip: dump back to XML and verify attributes appear
+    call xml_dump_to_string(root, xml_out)
+    call check(index(xml_out, 'id="abc"') > 0, &
+        & msg="Output should contain id attr")
+    call check(index(xml_out, 'class="big"') > 0, &
+        & msg="Output should contain class attr")
+
+  end subroutine test_non_unit_attrs
 
 end module test_xml_parser_suite

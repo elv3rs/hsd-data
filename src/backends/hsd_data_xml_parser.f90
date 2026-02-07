@@ -267,6 +267,10 @@ contains
     type(hsd_value), allocatable :: child_value
     character(len=:), allocatable :: close_name
     logical :: self_closing
+    integer :: n_extra_attrs, jj
+    integer, parameter :: MAX_EXTRA_ATTRS = 64
+    character(len=256) :: extra_attr_names(MAX_EXTRA_ATTRS)
+    character(len=256) :: extra_attr_values(MAX_EXTRA_ATTRS)
 
     ! Skip '<'
     call advance(src, pos, line, col)
@@ -282,6 +286,7 @@ contains
     ! Read attributes
     all_attribs = ""
     self_closing = .false.
+    n_extra_attrs = 0
 
     call skip_whitespace(src, src_len, pos, line, col)
 
@@ -319,6 +324,13 @@ contains
             else
               all_attribs = attr_value
             end if
+          else
+            ! Store non-unit attributes for __attr_<name> children
+            if (n_extra_attrs < MAX_EXTRA_ATTRS) then
+              n_extra_attrs = n_extra_attrs + 1
+              extra_attr_names(n_extra_attrs) = attr_name
+              extra_attr_values(n_extra_attrs) = attr_value
+            end if
           end if
         end if
         call skip_whitespace(src, src_len, pos, line, col)
@@ -330,6 +342,14 @@ contains
       allocate(child_table)
       call new_table(child_table, name=tag_name)
       if (len(all_attribs) > 0) child_table%attrib = all_attribs
+      do jj = 1, n_extra_attrs
+        allocate(child_value)
+        call new_value(child_value, &
+            & name="__attr_" // trim(extra_attr_names(jj)))
+        child_value%string_value = trim(extra_attr_values(jj))
+        call child_table%add_child(child_value)
+        deallocate(child_value)
+      end do
       call parent%add_child(child_table)
       return
     end if
@@ -340,6 +360,14 @@ contains
     allocate(child_table)
     call new_table(child_table, name=tag_name)
     if (len(all_attribs) > 0) child_table%attrib = all_attribs
+    do jj = 1, n_extra_attrs
+      allocate(child_value)
+      call new_value(child_value, &
+          & name="__attr_" // trim(extra_attr_names(jj)))
+      child_value%string_value = trim(extra_attr_values(jj))
+      call child_table%add_child(child_value)
+      deallocate(child_value)
+    end do
 
     call parse_content(src, src_len, pos, line, col, child_table, error, fname)
     if (allocated(error)) return
