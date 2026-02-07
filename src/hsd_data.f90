@@ -28,11 +28,12 @@ module hsd_data
       & VALUE_TYPE_REAL, VALUE_TYPE_LOGICAL, VALUE_TYPE_ARRAY, VALUE_TYPE_COMPLEX, &
       & hsd_load, hsd_load_string, hsd_dump, hsd_dump_to_string, &
       & hsd_visitor_t, hsd_accept, &
-      & hsd_get, hsd_get_or, hsd_get_matrix, &
+      & hsd_get, hsd_get_or, hsd_get_or_set, hsd_get_matrix, &
       & hsd_set, &
       & hsd_get_child, hsd_get_table, hsd_has_child, hsd_remove_child, &
       & hsd_get_type, hsd_is_table, hsd_is_value, hsd_is_array, &
       & hsd_child_count, hsd_get_keys, hsd_get_attrib, hsd_has_attrib, &
+      & hsd_set_attrib, hsd_rename_child, hsd_get_choice, &
       & hsd_merge, hsd_clone, hsd_table_equal, &
       & hsd_require, hsd_validate_range, hsd_validate_one_of, hsd_get_with_unit, &
       & hsd_schema_t, hsd_field_def_t, &
@@ -57,13 +58,6 @@ module hsd_data
   use hsd_data_xml_writer, only: xml_dump_file, xml_dump_to_string
   use hsd_data_json_parser, only: json_parse_file, json_parse_string
   use hsd_data_json_writer, only: json_dump_file, json_dump_to_string
-#ifdef WITH_TOML
-  use hsd_data_toml, only: toml_backend_load, toml_backend_load_string, &
-      & toml_backend_dump, toml_backend_dump_to_string
-#endif
-#ifdef WITH_HDF5
-  use hsd_data_hdf5, only: hdf5_backend_load, hdf5_backend_dump
-#endif
 
   implicit none(type, external)
   private
@@ -90,11 +84,12 @@ module hsd_data
   public :: VALUE_TYPE_COMPLEX
 
   ! Accessors / mutators / query
-  public :: hsd_get, hsd_get_or, hsd_get_matrix
+  public :: hsd_get, hsd_get_or, hsd_get_or_set, hsd_get_matrix
   public :: hsd_set
   public :: hsd_get_child, hsd_get_table, hsd_has_child, hsd_remove_child
   public :: hsd_get_type, hsd_is_table, hsd_is_value, hsd_is_array
   public :: hsd_child_count, hsd_get_keys, hsd_get_attrib, hsd_has_attrib
+  public :: hsd_set_attrib, hsd_rename_child, hsd_get_choice
   public :: hsd_merge, hsd_clone, hsd_table_equal
 
   ! Validation / schema
@@ -168,26 +163,6 @@ contains
       call xml_parse_file(filename, root, error)
     case (DATA_FMT_JSON)
       call json_parse_file(filename, root, error)
-    case (DATA_FMT_TOML)
-#ifdef WITH_TOML
-      call toml_backend_load(filename, root, error)
-#else
-      if (present(error)) then
-        allocate(error)
-        error%code = HSD_STAT_IO_ERROR
-        error%message = "TOML backend not available (compiled without WITH_TOML)"
-      end if
-#endif
-    case (DATA_FMT_HDF5)
-#ifdef WITH_HDF5
-      call hdf5_backend_load(filename, root, error)
-#else
-      if (present(error)) then
-        allocate(error)
-        error%code = HSD_STAT_IO_ERROR
-        error%message = "HDF5 backend not available (compiled without WITH_HDF5)"
-      end if
-#endif
     case default
       if (present(error)) then
         allocate(error)
@@ -230,22 +205,6 @@ contains
       call xml_parse_string(source, root, error, filename)
     case (DATA_FMT_JSON)
       call json_parse_string(source, root, error, filename)
-    case (DATA_FMT_TOML)
-#ifdef WITH_TOML
-      call toml_backend_load_string(source, root, error, filename)
-#else
-      if (present(error)) then
-        allocate(error)
-        error%code = HSD_STAT_IO_ERROR
-        error%message = "TOML backend not available (compiled without WITH_TOML)"
-      end if
-#endif
-    case (DATA_FMT_HDF5)
-      if (present(error)) then
-        allocate(error)
-        error%code = HSD_STAT_IO_ERROR
-        error%message = "HDF5 format does not support loading from string"
-      end if
     case default
       if (present(error)) then
         allocate(error)
@@ -300,26 +259,6 @@ contains
       call xml_dump_file(root, filename, error, pretty)
     case (DATA_FMT_JSON)
       call json_dump_file(root, filename, error, pretty)
-    case (DATA_FMT_TOML)
-#ifdef WITH_TOML
-      call toml_backend_dump(root, filename, error, pretty)
-#else
-      if (present(error)) then
-        allocate(error)
-        error%code = HSD_STAT_IO_ERROR
-        error%message = "TOML backend not available (compiled without WITH_TOML)"
-      end if
-#endif
-    case (DATA_FMT_HDF5)
-#ifdef WITH_HDF5
-      call hdf5_backend_dump(root, filename, error, pretty)
-#else
-      if (present(error)) then
-        allocate(error)
-        error%code = HSD_STAT_IO_ERROR
-        error%message = "HDF5 backend not available (compiled without WITH_HDF5)"
-      end if
-#endif
     case default
       if (present(error)) then
         allocate(error)
@@ -353,24 +292,6 @@ contains
       call xml_dump_to_string(root, output, pretty)
     case (DATA_FMT_JSON)
       call json_dump_to_string(root, output, pretty)
-    case (DATA_FMT_TOML)
-#ifdef WITH_TOML
-      call toml_backend_dump_to_string(root, output, pretty)
-#else
-      output = ""
-      if (present(error)) then
-        allocate(error)
-        error%code = HSD_STAT_IO_ERROR
-        error%message = "TOML backend not available (compiled without WITH_TOML)"
-      end if
-#endif
-    case (DATA_FMT_HDF5)
-      output = ""
-      if (present(error)) then
-        allocate(error)
-        error%code = HSD_STAT_IO_ERROR
-        error%message = "HDF5 format does not support dump_to_string"
-      end if
     case default
       output = ""
       if (present(error)) then
@@ -392,15 +313,12 @@ contains
   !> @param error        Optional error descriptor; allocated on failure.
   !> @param input_fmt    Optional input format (DATA_FMT_*). Default: auto-detect.
   !> @param output_fmt   Optional output format (DATA_FMT_*). Default: auto-detect.
-  !> @param pretty       Optional flag for pretty-printing (default: .true.).
-  subroutine data_convert(input_file, output_file, error, input_fmt, output_fmt, &
-      & pretty)
+  subroutine data_convert(input_file, output_file, error, input_fmt, output_fmt)
     character(len=*), intent(in) :: input_file
     character(len=*), intent(in) :: output_file
     type(hsd_error_t), allocatable, intent(out), optional :: error
     integer, intent(in), optional :: input_fmt
     integer, intent(in), optional :: output_fmt
-    logical, intent(in), optional :: pretty
 
     type(hsd_table) :: root
 
@@ -409,7 +327,7 @@ contains
       if (allocated(error)) return
     end if
 
-    call data_dump(root, output_file, error, output_fmt, pretty)
+    call data_dump(root, output_file, error, output_fmt)
 
   end subroutine data_convert
 

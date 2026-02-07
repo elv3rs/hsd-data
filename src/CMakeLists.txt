@@ -15,13 +15,14 @@ set(HSD_DATA_SOURCES
 add_library(hsd-data ${HSD_DATA_SOURCES})
 target_link_libraries(hsd-data PUBLIC hsd)
 
+# Always enable preprocessor since hsd_data.f90 uses #ifdef guards
+target_compile_options(hsd-data PRIVATE "-cpp")
+
 # TOML backend (optional)
 if(HSD_DATA_WITH_TOML)
   target_sources(hsd-data PRIVATE backends/hsd_data_toml.f90)
   target_link_libraries(hsd-data PUBLIC toml-f)
   target_compile_definitions(hsd-data PUBLIC WITH_TOML)
-  # Enable Fortran preprocessor for #ifdef directives
-  target_compile_options(hsd-data PRIVATE "-cpp")
 endif()
 
 # HDF5 backend (optional)
@@ -30,7 +31,6 @@ if(HSD_DATA_WITH_HDF5)
   target_link_libraries(hsd-data PUBLIC ${HDF5_Fortran_LIBRARIES})
   target_include_directories(hsd-data PUBLIC ${HDF5_Fortran_INCLUDE_DIRS})
   target_compile_definitions(hsd-data PUBLIC WITH_HDF5)
-  target_compile_options(hsd-data PRIVATE "-cpp")
 endif()
 
 # Module output directory
