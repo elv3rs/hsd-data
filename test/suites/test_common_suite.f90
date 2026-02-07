@@ -24,6 +24,9 @@ contains
             test("detect_unknown", test_detect_unknown), &
             test("detect_no_ext", test_detect_no_ext), &
             test("format_available_hsd", test_format_available_hsd), &
+            test("format_available_xml", test_format_available_xml), &
+            test("format_available_json", test_format_available_json), &
+            test("format_unavailable", test_format_unavailable), &
             test("detect_case_insensitive", test_detect_case_insensitive) &
         ])) &
     ])
@@ -71,6 +74,25 @@ contains
     call check(data_format_available(DATA_FMT_HSD), &
         & msg="HSD format should always be available")
   end subroutine test_format_available_hsd
+
+  subroutine test_format_available_xml()
+    call check(data_format_available(DATA_FMT_XML), &
+        & msg="XML format should be available")
+  end subroutine test_format_available_xml
+
+  subroutine test_format_available_json()
+    call check(data_format_available(DATA_FMT_JSON), &
+        & msg="JSON format should be available")
+  end subroutine test_format_available_json
+
+  subroutine test_format_unavailable()
+    call check(.not. data_format_available(DATA_FMT_TOML), &
+        & msg="TOML format should not yet be available")
+    call check(.not. data_format_available(DATA_FMT_HDF5), &
+        & msg="HDF5 format should not yet be available")
+    call check(.not. data_format_available(-1), &
+        & msg="Invalid format code should not be available")
+  end subroutine test_format_unavailable
 
   subroutine test_detect_case_insensitive()
     call check(data_detect_format("file.HSD") == DATA_FMT_HSD, &
