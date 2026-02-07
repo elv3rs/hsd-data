@@ -1,6 +1,6 @@
 !> Tests for the HSD backend: load and dump round-trip.
 module test_hsd_backend_suite
-  use hsd_data, only: hsd_table, hsd_error_t, hsd_has_child, &
+  use hsd_data, only: hsd_table, hsd_error_t, hsd_has_child, hsd_child_count, &
       & data_load, data_load_string, data_dump, data_dump_to_string, &
       & DATA_FMT_HSD
   use build_env, only: source_dir, build_dir
@@ -23,7 +23,8 @@ contains
             test("load_string", test_load_string), &
             test("roundtrip_string", test_roundtrip_string), &
             test("data_load_auto", test_data_load_auto), &
-            test("data_dump_auto", test_data_dump_auto) &
+            test("data_dump_auto", test_data_dump_auto), &
+            test("whitespace_only", test_whitespace_only) &
         ])) &
     ])
 
@@ -133,5 +134,16 @@ contains
     call check(.not. allocated(error), msg="Auto-detect dump should succeed")
 
   end subroutine test_data_dump_auto
+
+  subroutine test_whitespace_only()
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+
+    call data_load_string("   ", root, DATA_FMT_HSD, error)
+    call check(.not. allocated(error), msg="Whitespace-only should not error")
+    call check(hsd_child_count(root, "") == 0, &
+        & msg="Whitespace-only should produce empty root")
+
+  end subroutine test_whitespace_only
 
 end module test_hsd_backend_suite

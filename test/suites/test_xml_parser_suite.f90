@@ -32,7 +32,8 @@ contains
             test("numeric_char_refs", test_numeric_char_refs), &
             test("parse_fixture", test_parse_fixture), &
             test("error_mismatch", test_error_mismatch), &
-            test("non_unit_attrs", test_non_unit_attrs) &
+            test("non_unit_attrs", test_non_unit_attrs), &
+            test("whitespace_only", test_whitespace_only) &
         ])) &
     ])
 
@@ -243,5 +244,16 @@ contains
         & msg="Output should contain class attr")
 
   end subroutine test_non_unit_attrs
+
+  subroutine test_whitespace_only()
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+
+    call xml_parse_string("   ", root, error)
+    call check(.not. allocated(error), msg="Whitespace-only should not error")
+    call check(hsd_child_count(root, "") == 0, &
+        & msg="Whitespace-only should produce empty root")
+
+  end subroutine test_whitespace_only
 
 end module test_xml_parser_suite

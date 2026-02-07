@@ -48,7 +48,8 @@ contains
             test("matrix_json_roundtrip", test_matrix_json_roundtrip), &
             test("attrib_before_sibling", test_attrib_before_sibling), &
             test("compact_mode", test_compact_mode), &
-            test("unescape_unicode", test_unescape_unicode) &
+            test("unescape_unicode", test_unescape_unicode), &
+            test("whitespace_only", test_whitespace_only) &
         ])) &
     ])
 
@@ -690,5 +691,16 @@ contains
     end do
 
   end function count_occurrences
+
+  subroutine test_whitespace_only()
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+
+    call json_parse_string("   ", root, error)
+    call check(.not. allocated(error), msg="Whitespace-only should not error")
+    call check(hsd_child_count(root, "") == 0, &
+        & msg="Whitespace-only should produce empty root")
+
+  end subroutine test_whitespace_only
 
 end module test_json_suite
