@@ -3,7 +3,7 @@ module test_json_suite
   use hsd_data, only: hsd_table, hsd_value, hsd_error_t, hsd_has_child, &
       & hsd_get, hsd_get_attrib, new_table, new_value, hsd_child_count, &
       & data_load, data_load_string, data_dump, data_dump_to_string, &
-      & DATA_FMT_HSD, DATA_FMT_JSON
+      & DATA_FMT_HSD, DATA_FMT_JSON, dp
   use hsd_data_json_escape, only: json_escape_string, json_unescape_string
   use hsd_data_json_parser, only: json_parse_string
   use hsd_data_json_writer, only: json_dump_to_string
@@ -38,7 +38,10 @@ contains
             test("roundtrip_string", test_roundtrip_string), &
             test("roundtrip_file", test_roundtrip_file), &
             test("roundtrip_dup_keys", test_roundtrip_dup_keys), &
-            test("auto_detect", test_auto_detect) &
+            test("auto_detect", test_auto_detect), &
+            test("json_hsd_json_roundtrip", test_json_hsd_json_roundtrip), &
+            test("parse_complex", test_parse_complex), &
+            test("parse_attrib_fixture", test_parse_attrib_fixture) &
         ])) &
     ])
 
@@ -385,6 +388,89 @@ contains
         & msg="HSD->JSON->HSD dup-key round-trip should preserve content")
 
   end subroutine test_roundtrip_dup_keys
+
+  ! ─── Helpers ───
+
+  ! ─── JSON → HSD → JSON round-trip ───
+
+  subroutine test_json_hsd_json_roundtrip()
+    type(hsd_table) :: root1, root2
+    type(hsd_error_t), allocatable :: error
+    character(len=:), allocatable :: json1, json2
+    character(len=*), parameter :: src = &
+        & '{"Alpha": {"Beta": 7, "Gamma": 3.14, "Flag": true}, "Name": "hello"}'
+
+    call data_load_string(src, root1, DATA_FMT_JSON, error)
+    call check(.not. allocated(error), msg="JSON parse should succeed")
+
+    call data_dump_to_string(root1, json1, DATA_FMT_JSON)
+    call check(len(json1) > 0, msg="JSON dump non-empty")
+
+    call data_load_string(json1, root2, DATA_FMT_JSON, error)
+    call check(.not. allocated(error), msg="JSON re-parse should succeed")
+
+    call data_dump_to_string(root2, json2, DATA_FMT_JSON)
+    call check(json1 == json2, msg="JSON->HSD->JSON round-trip stable")
+
+  end subroutine test_json_hsd_json_roundtrip
+
+  ! ─── Complex value parsing ───
+
+  subroutine test_parse_complex()
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+    complex(dp) :: cpx
+    integer :: stat
+    character(len=:), allocatable :: json_out
+
+    call data_load_string('{"Z": {"re": 1.5, "im": -2.3}}', root, &
+        & DATA_FMT_JSON, error)
+    call check(.not. allocated(error), msg="Complex JSON parse should succeed")
+
+    call hsd_get(root, "Z", cpx, stat)
+    call check(stat == 0, msg="hsd_get complex should succeed")
+    call check(abs(real(cpx) - 1.5_dp) < 1.0e-10_dp, &
+        & msg="Real part should be 1.5")
+    call check(abs(aimag(cpx) + 2.3_dp) < 1.0e-10_dp, &
+        & msg="Imaginary part should be -2.3")
+
+    ! Verify it round-trips to JSON with re/im keys
+    call data_dump_to_string(root, json_out, DATA_FMT_JSON)
+    call check(index(json_out, '"re"') > 0, msg="JSON should contain re key")
+    call check(index(json_out, '"im"') > 0, msg="JSON should contain im key")
+
+  end subroutine test_parse_complex
+
+  ! ─── Attributes fixture ───
+
+  subroutine test_parse_attrib_fixture()
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+    character(len=512) :: filepath
+    character(len=:), allocatable :: attrib
+    real(dp) :: temp
+    integer :: stat
+
+    filepath = source_dir // "/test/fixtures/attributes.json"
+    call data_load(trim(filepath), root, error, fmt=DATA_FMT_JSON)
+    call check(.not. allocated(error), msg="Loading attributes.json should succeed")
+
+    call check(hsd_has_child(root, "Geometry"), &
+        & msg="Should have Geometry")
+    call check(hsd_has_child(root, "Hamiltonian"), &
+        & msg="Should have Hamiltonian")
+
+    ! Check attribute on Temperature
+    call hsd_get(root, "Hamiltonian/Filling/Temperature", temp, stat)
+    call check(stat == 0, msg="Get Temperature should succeed")
+    call check(abs(temp - 300.0_dp) < 1.0e-10_dp, &
+        & msg="Temperature should be 300.0")
+
+    call hsd_get_attrib(root, "Hamiltonian/Filling/Temperature", attrib, stat)
+    call check(stat == 0, msg="Get attrib should succeed")
+    call check(attrib == "Kelvin", msg="Temperature attrib should be Kelvin")
+
+  end subroutine test_parse_attrib_fixture
 
   ! ─── Helpers ───
 
