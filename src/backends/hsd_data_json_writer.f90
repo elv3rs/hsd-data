@@ -417,7 +417,7 @@ contains
 
     character(len=:), allocatable :: text
     integer :: ii, nlines, line_start, line_end
-    logical :: has_newlines
+    logical :: has_newlines, is_nl
 
     if (allocated(val%string_value)) then
       text = val%string_value
@@ -448,7 +448,13 @@ contains
       line_start = 1
       nlines = 0
       do ii = 1, len(text) + 1
-        if (ii > len(text) .or. text(ii:ii) == new_line("a")) then
+        ! Guard against out-of-bounds (gfortran evaluates both sides of .or.)
+        if (ii > len(text)) then
+          is_nl = .true.
+        else
+          is_nl = (text(ii:ii) == new_line("a"))
+        end if
+        if (is_nl) then
           line_end = ii - 1
           if (line_start <= line_end .and. len_trim(text(line_start:line_end)) > 0) then
             if (nlines > 0) call append_str(buf, buf_len, buf_cap, ",")

@@ -41,7 +41,11 @@ contains
             test("auto_detect", test_auto_detect), &
             test("json_hsd_json_roundtrip", test_json_hsd_json_roundtrip), &
             test("parse_complex", test_parse_complex), &
-            test("parse_attrib_fixture", test_parse_attrib_fixture) &
+            test("parse_attrib_fixture", test_parse_attrib_fixture), &
+            test("arrays_fixture", test_arrays_fixture), &
+            test("matrix_fixture", test_matrix_fixture), &
+            test("complex_fixture", test_complex_fixture), &
+            test("matrix_json_roundtrip", test_matrix_json_roundtrip) &
         ])) &
     ])
 
@@ -472,6 +476,122 @@ contains
     call check(attrib == "Kelvin", msg="Temperature attrib should be Kelvin")
 
   end subroutine test_parse_attrib_fixture
+
+  ! ─── Fixture-based tests ───
+
+  subroutine test_arrays_fixture()
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+    character(len=512) :: filepath
+    character(len=:), allocatable :: json_out, val_str
+    integer :: stat
+
+    filepath = source_dir // "/test/fixtures/arrays.json"
+    call data_load(trim(filepath), root, error, fmt=DATA_FMT_JSON)
+    call check(.not. allocated(error), msg="Loading arrays.json should succeed")
+
+    call check(hsd_has_child(root, "Lattice"), msg="Should have Lattice")
+    call check(hsd_has_child(root, "Atoms"), msg="Should have Atoms")
+    call check(hsd_has_child(root, "KPoints"), msg="Should have KPoints")
+
+    ! Check flattened array values
+    call hsd_get(root, "Atoms/TypeNames", val_str, stat)
+    call check(stat == 0, msg="Get TypeNames should succeed")
+    call check(val_str == "Si Ge", msg="TypeNames should be 'Si Ge'")
+
+    call hsd_get(root, "Atoms/TypeIndices", val_str, stat)
+    call check(stat == 0, msg="Get TypeIndices should succeed")
+    call check(val_str == "1 1 2 2", msg="TypeIndices should be '1 1 2 2'")
+
+    call hsd_get(root, "KPoints/Weights", val_str, stat)
+    call check(stat == 0, msg="Get Weights should succeed")
+    call check(val_str == "0.25 0.25 0.25 0.25", &
+        & msg="Weights should be '0.25 0.25 0.25 0.25'")
+
+    ! Verify JSON output contains expected keys
+    call data_dump_to_string(root, json_out, DATA_FMT_JSON)
+    call check(index(json_out, '"Lattice"') > 0, &
+        & msg="JSON should contain Lattice")
+    call check(index(json_out, '"LatticeVectors"') > 0, &
+        & msg="JSON should contain LatticeVectors")
+
+  end subroutine test_arrays_fixture
+
+  subroutine test_matrix_fixture()
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+    character(len=512) :: filepath
+    character(len=:), allocatable :: json_out
+
+    filepath = source_dir // "/test/fixtures/matrix.json"
+    call data_load(trim(filepath), root, error, fmt=DATA_FMT_JSON)
+    call check(.not. allocated(error), msg="Loading matrix.json should succeed")
+
+    call check(hsd_has_child(root, "Data"), msg="Should have Data")
+
+    ! Verify nested arrays produce newline-separated values
+    call data_dump_to_string(root, json_out, DATA_FMT_JSON)
+    call check(index(json_out, '"IntMatrix"') > 0, &
+        & msg="JSON should contain IntMatrix")
+    call check(index(json_out, '"RealMatrix"') > 0, &
+        & msg="JSON should contain RealMatrix")
+    ! Nested arrays should produce nested JSON arrays on output
+    call check(index(json_out, "[[") > 0, &
+        & msg="JSON should contain nested array brackets")
+
+  end subroutine test_matrix_fixture
+
+  subroutine test_complex_fixture()
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+    character(len=512) :: filepath
+    complex(dp) :: cpx
+    integer :: stat
+
+    filepath = source_dir // "/test/fixtures/complex_values.json"
+    call data_load(trim(filepath), root, error, fmt=DATA_FMT_JSON)
+    call check(.not. allocated(error), &
+        & msg="Loading complex_values.json should succeed")
+
+    call check(hsd_has_child(root, "WaveFunction"), &
+        & msg="Should have WaveFunction")
+
+    call hsd_get(root, "WaveFunction/Amplitude", cpx, stat)
+    call check(stat == 0, msg="Get Amplitude should succeed")
+    call check(abs(real(cpx) - 1.0_dp) < 1.0e-10_dp, &
+        & msg="Amplitude real part should be 1.0")
+    call check(abs(aimag(cpx) - 0.0_dp) < 1.0e-10_dp, &
+        & msg="Amplitude imag part should be 0.0")
+
+    call hsd_get(root, "WaveFunction/Phase", cpx, stat)
+    call check(stat == 0, msg="Get Phase should succeed")
+    call check(abs(real(cpx) - 0.0_dp) < 1.0e-10_dp, &
+        & msg="Phase real part should be 0.0")
+    call check(abs(aimag(cpx) - 3.14159_dp) < 1.0e-4_dp, &
+        & msg="Phase imag part should be 3.14159")
+
+  end subroutine test_complex_fixture
+
+  subroutine test_matrix_json_roundtrip()
+    type(hsd_table) :: root1, root2
+    type(hsd_error_t), allocatable :: error
+    character(len=512) :: filepath
+    character(len=:), allocatable :: json1, json2
+
+    filepath = source_dir // "/test/fixtures/matrix.json"
+    call data_load(trim(filepath), root1, error, fmt=DATA_FMT_JSON)
+    call check(.not. allocated(error), msg="Load matrix.json should succeed")
+
+    call data_dump_to_string(root1, json1, DATA_FMT_JSON)
+
+    call data_load_string(json1, root2, DATA_FMT_JSON, error)
+    call check(.not. allocated(error), msg="Re-parse should succeed")
+
+    call data_dump_to_string(root2, json2, DATA_FMT_JSON)
+    call check(json1 == json2, &
+        & msg="matrix.json round-trip should be JSON-idempotent")
+
+  end subroutine test_matrix_json_roundtrip
 
   ! ─── Helpers ───
 
