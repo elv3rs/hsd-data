@@ -45,7 +45,8 @@ contains
             test("arrays_fixture", test_arrays_fixture), &
             test("matrix_fixture", test_matrix_fixture), &
             test("complex_fixture", test_complex_fixture), &
-            test("matrix_json_roundtrip", test_matrix_json_roundtrip) &
+            test("matrix_json_roundtrip", test_matrix_json_roundtrip), &
+            test("attrib_before_sibling", test_attrib_before_sibling) &
         ])) &
     ])
 
@@ -592,6 +593,30 @@ contains
         & msg="matrix.json round-trip should be JSON-idempotent")
 
   end subroutine test_matrix_json_roundtrip
+
+  !> Verify that __attrib keys appearing before their sibling are applied.
+  subroutine test_attrib_before_sibling()
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+    character(len=:), allocatable :: val, attr
+    integer :: stat
+
+    ! attrib appears BEFORE the value it annotates
+    call data_load_string( &
+        & '{"Temp__attrib": "Kelvin", "Temp": 300}', &
+        & root, DATA_FMT_JSON, error)
+    call check(.not. allocated(error), msg="Parse should succeed")
+
+    call hsd_get(root, "Temp", val, stat)
+    call check(stat == 0, msg="Get Temp should succeed")
+    call check(val == "300", msg="Temp value should be 300")
+
+    call hsd_get_attrib(root, "Temp", attr, stat)
+    call check(stat == 0, msg="Get Temp attrib should succeed")
+    call check(attr == "Kelvin", &
+        & msg="Forward-referenced attrib should be Kelvin")
+
+  end subroutine test_attrib_before_sibling
 
   ! ─── Helpers ───
 

@@ -120,9 +120,16 @@ contains
     type(hsd_error_t), allocatable, intent(out), optional :: error
     character(len=*), intent(in) :: fname
 
-    character(len=:), allocatable :: key
-    integer :: attrib_check
-    logical :: is_attrib
+    character(len=:), allocatable :: key, deferred_val
+    integer :: attrib_check, ii
+
+    ! Deferred attrib storage for forward-referenced __attrib keys
+    integer, parameter :: MAX_DEFERRED = 64
+    character(len=256) :: def_names(MAX_DEFERRED), def_vals(MAX_DEFERRED)
+    integer :: ndef
+    logical :: is_attrib, applied
+
+    ndef = 0
 
     ! Skip '{'
     pos = pos + 1
@@ -160,8 +167,17 @@ contains
       end if
       if (is_attrib) then
         call parse_attrib_value(src, src_len, pos, table, &
-            & key(1:attrib_check), error, fname)
+            & key(1:attrib_check), error, fname, applied, deferred_val)
         if (allocated(error)) return
+        ! If sibling not found yet, defer for later application
+        if (.not. applied .and. ndef < MAX_DEFERRED &
+            & .and. allocated(deferred_val)) then
+          ndef = ndef + 1
+          def_names(ndef) = ""
+          def_names(ndef)(1:attrib_check) = key(1:attrib_check)
+          def_vals(ndef) = ""
+          def_vals(ndef)(1:len(deferred_val)) = deferred_val
+        end if
       else
         ! Parse value and add as child
         call parse_member_value(src, src_len, pos, table, key, error, fname)
@@ -178,7 +194,7 @@ contains
 
       if (src(pos:pos) == "}") then
         pos = pos + 1
-        return
+        exit
       else if (src(pos:pos) == ",") then
         pos = pos + 1
         call skip_ws(src, src_len, pos)
@@ -186,6 +202,12 @@ contains
         call make_error(error, "Expected ',' or '}' in object", fname, pos)
         return
       end if
+    end do
+
+    ! Apply any deferred attribs (for __attrib keys that appeared before sibling)
+    do ii = 1, ndef
+      call apply_deferred_attrib(table, trim(def_names(ii)), &
+          & trim(def_vals(ii)))
     end do
 
   end subroutine parse_object_members
@@ -299,7 +321,7 @@ contains
 
   !> Parse an attribute value and attach it to the sibling node.
   recursive subroutine parse_attrib_value(src, src_len, pos, table, &
-      & sibling_name, error, fname)
+      & sibling_name, error, fname, applied, parsed_val)
     character(len=*), intent(in) :: src
     integer, intent(in) :: src_len
     integer, intent(inout) :: pos
@@ -307,14 +329,19 @@ contains
     character(len=*), intent(in) :: sibling_name
     type(hsd_error_t), allocatable, intent(out), optional :: error
     character(len=*), intent(in) :: fname
+    logical, intent(out), optional :: applied
+    character(len=:), allocatable, intent(out), optional :: parsed_val
 
     character(len=:), allocatable :: attrib_val
     integer :: ii
+
+    if (present(applied)) applied = .false.
 
     ! Parse the value as a string
     if (pos > src_len .or. src(pos:pos) /= '"') then
       ! Skip non-string attrib values
       call skip_json_value(src, src_len, pos, error, fname)
+      if (present(applied)) applied = .true.  ! consumed, nothing to defer
       return
     end if
 
@@ -322,6 +349,36 @@ contains
     if (allocated(error)) return
 
     ! Find the sibling and set its attrib
+    do ii = table%num_children, 1, -1
+      if (.not. allocated(table%children(ii)%node)) cycle
+      select type (child => table%children(ii)%node)
+      type is (hsd_table)
+        if (allocated(child%name) .and. child%name == sibling_name) then
+          child%attrib = attrib_val
+          if (present(applied)) applied = .true.
+          return
+        end if
+      type is (hsd_value)
+        if (allocated(child%name) .and. child%name == sibling_name) then
+          child%attrib = attrib_val
+          if (present(applied)) applied = .true.
+          return
+        end if
+      end select
+    end do
+
+    ! Sibling not found — return parsed value for deferral
+    if (present(parsed_val)) parsed_val = attrib_val
+
+  end subroutine parse_attrib_value
+
+  !> Apply a deferred attribute to a named sibling in the table.
+  subroutine apply_deferred_attrib(table, sibling_name, attrib_val)
+    type(hsd_table), intent(inout) :: table
+    character(len=*), intent(in) :: sibling_name, attrib_val
+
+    integer :: ii
+
     do ii = table%num_children, 1, -1
       if (.not. allocated(table%children(ii)%node)) cycle
       select type (child => table%children(ii)%node)
@@ -338,9 +395,7 @@ contains
       end select
     end do
 
-    ! Sibling not found — ignore (JSON order might differ)
-
-  end subroutine parse_attrib_value
+  end subroutine apply_deferred_attrib
 
   !> Parse a JSON string (including surrounding quotes).
   subroutine parse_json_string(src, src_len, pos, val, error, fname)
