@@ -430,8 +430,9 @@ contains
 
     type(toml_table), allocatable :: toml_root
 
-    ! pretty is accepted for interface compatibility but not used —
-    ! TOML output is always human-readable
+    ! TOML has no meaningful compact form — it always uses key = value lines
+    ! and [section] headers.  The pretty argument is accepted for API
+    ! consistency with other backends but has no effect on the output.
     if (.false. .and. present(pretty)) continue
 
     allocate(toml_root)

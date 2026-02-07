@@ -356,12 +356,15 @@ contains
   !> @param error        Optional error descriptor; allocated on failure.
   !> @param input_fmt    Optional input format (DATA_FMT_*). Default: auto-detect.
   !> @param output_fmt   Optional output format (DATA_FMT_*). Default: auto-detect.
-  subroutine data_convert(input_file, output_file, error, input_fmt, output_fmt)
+  !> @param pretty       Optional flag for pretty-printing (default: .true.).
+  subroutine data_convert(input_file, output_file, error, input_fmt, output_fmt, &
+      & pretty)
     character(len=*), intent(in) :: input_file
     character(len=*), intent(in) :: output_file
     type(hsd_error_t), allocatable, intent(out), optional :: error
     integer, intent(in), optional :: input_fmt
     integer, intent(in), optional :: output_fmt
+    logical, intent(in), optional :: pretty
 
     type(hsd_table) :: root
 
@@ -370,7 +373,7 @@ contains
       if (allocated(error)) return
     end if
 
-    call data_dump(root, output_file, error, output_fmt)
+    call data_dump(root, output_file, error, output_fmt, pretty)
 
   end subroutine data_convert
 
