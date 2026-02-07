@@ -76,11 +76,7 @@ contains
       available = .false.
 #endif
     case (DATA_FMT_HDF5)
-#ifdef WITH_HDF5
-      available = .true.
-#else
-      available = .false.
-#endif
+      available = .false.  ! Not yet implemented
     case default
       available = .false.
     end select
