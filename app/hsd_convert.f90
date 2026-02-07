@@ -56,7 +56,7 @@ program hsd_convert
       stop 0
 
     else if (arg == "--version" .or. arg == "-V") then
-      write(*, "(a)") "hsd-convert 0.1.0"
+      write(*, "(a)") "hsd-convert 1.0.0"
       stop 0
 
     else if (arg == "--pretty") then
