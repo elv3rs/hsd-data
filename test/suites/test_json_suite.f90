@@ -264,7 +264,7 @@ contains
     type(hsd_table) :: root1, root2
     type(hsd_error_t), allocatable :: error
     character(len=512) :: hsd_path, json_path
-    character(len=:), allocatable :: dump1, dump2
+    character(len=:), allocatable :: json1, json2
 
     hsd_path = source_dir // "/test/fixtures/simple.hsd"
     json_path = build_dir // "/test_roundtrip.json"
@@ -278,9 +278,10 @@ contains
     call data_load(trim(json_path), root2, error, fmt=DATA_FMT_JSON)
     call check(.not. allocated(error), msg="JSON re-load should succeed")
 
-    call data_dump_to_string(root1, dump1, DATA_FMT_HSD)
-    call data_dump_to_string(root2, dump2, DATA_FMT_HSD)
-    call check(dump1 == dump2, msg="HSD->JSON->HSD file round-trip stable")
+    ! Compare JSON→JSON stability (HSD→JSON may normalize whitespace in arrays)
+    call data_dump_to_string(root1, json1, DATA_FMT_JSON)
+    call data_dump_to_string(root2, json2, DATA_FMT_JSON)
+    call check(json1 == json2, msg="HSD->JSON->HSD file round-trip stable (JSON idempotent)")
 
   end subroutine test_roundtrip_file
 

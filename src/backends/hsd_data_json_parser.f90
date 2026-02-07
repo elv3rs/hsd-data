@@ -246,7 +246,7 @@ contains
         if (allocated(error)) return
         allocate(child_value)
         call new_value(child_value, name=child_name)
-        call child_value%set_string(str_val)
+        call child_value%set_raw(str_val)
         call table%add_child(child_value)
       end if
 

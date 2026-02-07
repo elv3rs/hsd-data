@@ -365,6 +365,9 @@ contains
       call append_str(buf, buf_len, buf_cap, trim(adjustl(num_buf)))
       call append_str(buf, buf_len, buf_cap, "}")
 
+    case (VALUE_TYPE_ARRAY)
+      call write_array_value(val, buf, buf_len, buf_cap)
+
     case (VALUE_TYPE_STRING)
       if (allocated(val%string_value)) then
         ! Sniff whether the string looks like a JSON primitive so that
@@ -403,6 +406,116 @@ contains
     end select
 
   end subroutine write_value_content
+
+  !> Write an array value as a JSON array.
+  !> Single-line text → flat array: [1, 2, 3]
+  !> Multi-line text → nested arrays: [[1, 2, 3], [4, 5, 6]]
+  subroutine write_array_value(val, buf, buf_len, buf_cap)
+    type(hsd_value), intent(in) :: val
+    character(len=:), allocatable, intent(inout) :: buf
+    integer, intent(inout) :: buf_len, buf_cap
+
+    character(len=:), allocatable :: text
+    integer :: ii, nlines, line_start, line_end
+    logical :: has_newlines
+
+    if (allocated(val%string_value)) then
+      text = val%string_value
+    else if (allocated(val%raw_text)) then
+      text = val%raw_text
+    else
+      call append_str(buf, buf_len, buf_cap, "[]")
+      return
+    end if
+
+    if (len_trim(text) == 0) then
+      call append_str(buf, buf_len, buf_cap, "[]")
+      return
+    end if
+
+    ! Check for newlines (indicates matrix / multi-row data)
+    has_newlines = .false.
+    do ii = 1, len(text)
+      if (text(ii:ii) == new_line("a")) then
+        has_newlines = .true.
+        exit
+      end if
+    end do
+
+    if (has_newlines) then
+      ! Matrix: emit as nested arrays [[...], [...], ...]
+      call append_str(buf, buf_len, buf_cap, "[")
+      line_start = 1
+      nlines = 0
+      do ii = 1, len(text) + 1
+        if (ii > len(text) .or. text(ii:ii) == new_line("a")) then
+          line_end = ii - 1
+          if (line_start <= line_end .and. len_trim(text(line_start:line_end)) > 0) then
+            if (nlines > 0) call append_str(buf, buf_len, buf_cap, ",")
+            call write_tokens_as_array(text(line_start:line_end), buf, buf_len, buf_cap)
+            nlines = nlines + 1
+          end if
+          line_start = ii + 1
+        end if
+      end do
+      call append_str(buf, buf_len, buf_cap, "]")
+    else
+      ! Flat array: emit as [t1, t2, ...]
+      call write_tokens_as_array(text, buf, buf_len, buf_cap)
+    end if
+
+  end subroutine write_array_value
+
+  !> Write space-separated tokens as a JSON array: [t1, t2, ...]
+  !> Tokens that look like numbers are emitted unquoted; others as strings.
+  subroutine write_tokens_as_array(line, buf, buf_len, buf_cap)
+    character(len=*), intent(in) :: line
+    character(len=:), allocatable, intent(inout) :: buf
+    integer, intent(inout) :: buf_len, buf_cap
+
+    integer :: ii, tok_start, tok_count
+    logical :: in_token, is_sep
+    character(len=:), allocatable :: token
+
+    call append_str(buf, buf_len, buf_cap, "[")
+    tok_count = 0
+    in_token = .false.
+    tok_start = 1
+
+    do ii = 1, len(line) + 1
+      ! Check if current position is a separator (or past end of string)
+      if (ii > len(line)) then
+        is_sep = .true.
+      else
+        is_sep = (line(ii:ii) == " " .or. line(ii:ii) == achar(9) &
+            & .or. line(ii:ii) == ",")
+      end if
+
+      if (is_sep) then
+        if (in_token) then
+          token = line(tok_start:ii - 1)
+          if (tok_count > 0) call append_str(buf, buf_len, buf_cap, ",")
+          if (looks_like_json_number(token)) then
+            call append_str(buf, buf_len, buf_cap, token)
+          else if (is_hsd_boolean(token)) then
+            call append_str(buf, buf_len, buf_cap, hsd_bool_to_json(token))
+          else
+            call append_str(buf, buf_len, buf_cap, &
+                & '"' // json_escape_string(token) // '"')
+          end if
+          tok_count = tok_count + 1
+          in_token = .false.
+        end if
+      else
+        if (.not. in_token) then
+          tok_start = ii
+          in_token = .true.
+        end if
+      end if
+    end do
+    call append_str(buf, buf_len, buf_cap, "]")
+
+  end subroutine write_tokens_as_array
 
   !> Format a real number for JSON (no trailing zeros, always has decimal).
   subroutine format_real(rval, buf)
