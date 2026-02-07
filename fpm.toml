@@ -24,6 +24,7 @@ main = "testapp.f90"
 [extra.fortitude.check]
 select = ["C", "E", "S"]
 ignore = []
+exclude = ["test/testapp.f90"]
 line-length = 100
 
 [dependencies]

@@ -22,6 +22,10 @@ set(TEST_SUITES
   suites/test_toml_suite.f90
 )
 
+if(HSD_DATA_WITH_HDF5)
+  list(APPEND TEST_SUITES suites/test_hdf5_suite.f90)
+endif()
+
 # Fortuno-based test app
 add_executable(hsd_data_testapp
   testapp.f90

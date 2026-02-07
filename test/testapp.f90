@@ -11,6 +11,9 @@ program testapp
   use test_edge_cases_suite, only: edge_tests => tests
   use test_cross_format_suite, only: cross_format_tests => tests
   use test_toml_suite, only: toml_tests => tests
+#ifdef WITH_HDF5
+  use test_hdf5_suite, only: hdf5_tests => tests
+#endif
   implicit none(type, external)
 
   call build_env_init()
@@ -24,6 +27,9 @@ program testapp
       edge_tests(), &
       cross_format_tests(), &
       toml_tests() &
+#ifdef WITH_HDF5
+      , hdf5_tests() &
+#endif
   ]))
 
 end program testapp
