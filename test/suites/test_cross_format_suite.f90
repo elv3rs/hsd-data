@@ -1,7 +1,8 @@
 !> Tests for 3-format round-trip chains: HSD ↔ XML ↔ JSON.
 module test_cross_format_suite
   use hsd_data, only: hsd_table, hsd_error_t, hsd_has_child, hsd_child_count, &
-      & hsd_get, data_load, data_load_string, data_dump_to_string, &
+      & hsd_get, hsd_table_equal, &
+      & data_load, data_load_string, data_dump_to_string, &
       & DATA_FMT_HSD, DATA_FMT_XML, DATA_FMT_JSON
   use build_env, only: source_dir
   use fortuno_serial, only: test => serial_case_item, &
@@ -25,7 +26,8 @@ contains
             test("json_xml_json", test_json_xml_json), &
             test("all_three_preserve", test_all_three_preserve), &
             test("empty_fixtures", test_empty_fixtures), &
-            test("special_chars_fixtures", test_special_chars_fixtures) &
+            test("special_chars_fixtures", test_special_chars_fixtures), &
+            test("tree_equal_basic", test_tree_equal_basic) &
         ])) &
     ])
 
@@ -280,5 +282,34 @@ contains
     call check(val == "<greeting>", msg="XML entity Tag content preserved")
 
   end subroutine test_special_chars_fixtures
+
+  !> Test hsd_table_equal for structural comparison.
+  subroutine test_tree_equal_basic()
+    type(hsd_table) :: a, b
+    type(hsd_error_t), allocatable :: error
+    character(len=:), allocatable :: json_str
+
+    ! Build two identical trees from same source
+    call data_load_string('{"Foo": {"Bar": "42"}}', a, DATA_FMT_JSON, error)
+    call check(.not. allocated(error), msg="Parse a should succeed")
+    call data_load_string('{"Foo": {"Bar": "42"}}', b, DATA_FMT_JSON, error)
+    call check(.not. allocated(error), msg="Parse b should succeed")
+    call check(hsd_table_equal(a, b), msg="Identical trees should be equal")
+
+    ! Build a different tree
+    call data_load_string('{"Foo": {"Bar": "99"}}', b, DATA_FMT_JSON, error)
+    call check(.not. allocated(error), msg="Parse b2 should succeed")
+    call check(.not. hsd_table_equal(a, b), &
+        & msg="Different values should not be equal")
+
+    ! Parse→dump→parse round-trip and compare structurally
+    call data_load_string('{"X": 1, "Y": {"Z": "hello"}}', a, DATA_FMT_JSON, error)
+    call check(.not. allocated(error), msg="JSON parse should succeed")
+    call data_dump_to_string(a, json_str, DATA_FMT_JSON)
+    call data_load_string(json_str, b, DATA_FMT_JSON, error)
+    call check(.not. allocated(error), msg="JSON re-parse should succeed")
+    call check(hsd_table_equal(a, b), msg="Round-tripped trees should be equal")
+
+  end subroutine test_tree_equal_basic
 
 end module test_cross_format_suite

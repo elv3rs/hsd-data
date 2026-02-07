@@ -33,7 +33,7 @@ module hsd_data
       & hsd_get_child, hsd_get_table, hsd_has_child, hsd_remove_child, &
       & hsd_get_type, hsd_is_table, hsd_is_value, hsd_is_array, &
       & hsd_child_count, hsd_get_keys, hsd_get_attrib, hsd_has_attrib, &
-      & hsd_merge, hsd_clone, &
+      & hsd_merge, hsd_clone, hsd_table_equal, &
       & hsd_require, hsd_validate_range, hsd_validate_one_of, hsd_get_with_unit, &
       & hsd_schema_t, hsd_field_def_t, &
       & FIELD_REQUIRED, FIELD_OPTIONAL, &
@@ -88,7 +88,7 @@ module hsd_data
   public :: hsd_get_child, hsd_get_table, hsd_has_child, hsd_remove_child
   public :: hsd_get_type, hsd_is_table, hsd_is_value, hsd_is_array
   public :: hsd_child_count, hsd_get_keys, hsd_get_attrib, hsd_has_attrib
-  public :: hsd_merge, hsd_clone
+  public :: hsd_merge, hsd_clone, hsd_table_equal
 
   ! Validation / schema
   public :: hsd_require, hsd_validate_range, hsd_validate_one_of, hsd_get_with_unit
