@@ -93,8 +93,13 @@ contains
     call check(.not. data_format_available(DATA_FMT_TOML), &
         & msg="TOML format should not yet be available")
 #endif
+#ifdef WITH_HDF5
+    call check(data_format_available(DATA_FMT_HDF5), &
+        & msg="HDF5 format should be available (WITH_HDF5)")
+#else
     call check(.not. data_format_available(DATA_FMT_HDF5), &
         & msg="HDF5 format should not yet be available")
+#endif
     call check(.not. data_format_available(-1), &
         & msg="Invalid format code should not be available")
   end subroutine test_format_unavailable

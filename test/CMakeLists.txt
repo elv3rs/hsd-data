@@ -37,7 +37,7 @@ target_include_directories(hsd_data_testapp PRIVATE
 )
 
 # Enable preprocessor for conditional compilation (#ifdef WITH_TOML etc.)
-if(HSD_DATA_WITH_TOML)
+if(HSD_DATA_WITH_TOML OR HSD_DATA_WITH_HDF5)
   target_compile_options(hsd_data_testapp PRIVATE "-cpp")
 endif()
 

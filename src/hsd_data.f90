@@ -61,6 +61,9 @@ module hsd_data
   use hsd_data_toml, only: toml_backend_load, toml_backend_load_string, &
       & toml_backend_dump, toml_backend_dump_to_string
 #endif
+#ifdef WITH_HDF5
+  use hsd_data_hdf5, only: hdf5_backend_load, hdf5_backend_dump
+#endif
 
   implicit none(type, external)
   private
@@ -175,6 +178,16 @@ contains
         error%message = "TOML backend not available (compiled without WITH_TOML)"
       end if
 #endif
+    case (DATA_FMT_HDF5)
+#ifdef WITH_HDF5
+      call hdf5_backend_load(filename, root, error)
+#else
+      if (present(error)) then
+        allocate(error)
+        error%code = HSD_STAT_IO_ERROR
+        error%message = "HDF5 backend not available (compiled without WITH_HDF5)"
+      end if
+#endif
     case default
       if (present(error)) then
         allocate(error)
@@ -227,6 +240,12 @@ contains
         error%message = "TOML backend not available (compiled without WITH_TOML)"
       end if
 #endif
+    case (DATA_FMT_HDF5)
+      if (present(error)) then
+        allocate(error)
+        error%code = HSD_STAT_IO_ERROR
+        error%message = "HDF5 format does not support loading from string"
+      end if
     case default
       if (present(error)) then
         allocate(error)
@@ -291,6 +310,16 @@ contains
         error%message = "TOML backend not available (compiled without WITH_TOML)"
       end if
 #endif
+    case (DATA_FMT_HDF5)
+#ifdef WITH_HDF5
+      call hdf5_backend_dump(root, filename, error, pretty)
+#else
+      if (present(error)) then
+        allocate(error)
+        error%code = HSD_STAT_IO_ERROR
+        error%message = "HDF5 backend not available (compiled without WITH_HDF5)"
+      end if
+#endif
     case default
       if (present(error)) then
         allocate(error)
@@ -335,6 +364,13 @@ contains
         error%message = "TOML backend not available (compiled without WITH_TOML)"
       end if
 #endif
+    case (DATA_FMT_HDF5)
+      output = ""
+      if (present(error)) then
+        allocate(error)
+        error%code = HSD_STAT_IO_ERROR
+        error%message = "HDF5 format does not support dump_to_string"
+      end if
     case default
       output = ""
       if (present(error)) then

@@ -24,6 +24,15 @@ if(HSD_DATA_WITH_TOML)
   target_compile_options(hsd-data PRIVATE "-cpp")
 endif()
 
+# HDF5 backend (optional)
+if(HSD_DATA_WITH_HDF5)
+  target_sources(hsd-data PRIVATE backends/hsd_data_hdf5.f90)
+  target_link_libraries(hsd-data PUBLIC ${HDF5_Fortran_LIBRARIES})
+  target_include_directories(hsd-data PUBLIC ${HDF5_Fortran_INCLUDE_DIRS})
+  target_compile_definitions(hsd-data PUBLIC WITH_HDF5)
+  target_compile_options(hsd-data PRIVATE "-cpp")
+endif()
+
 # Module output directory
 set(HSD_DATA_MODULE_DIR ${CMAKE_CURRENT_BINARY_DIR}/../modules/hsd-data)
 set_target_properties(hsd-data PROPERTIES

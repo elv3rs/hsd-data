@@ -607,7 +607,14 @@ hsd-data/
 - User guide (sphinx) with examples for each format (compilable).
 - Mapping convention documentation (this spec, split into files, polished).
 - Performance benchmarks (parse/dump throughput for each format).
-- Release v0.1.0.
+- Add ci for tests, coverage (see hsd-fortran)
+
+### Phase 8: Release
+- Tidy up repository
+- Remove SPECIFICATION.md
+- Set Version to 1.0.0
+- Remove TODO.md
+- Stop condition reached, project complete
 
 ---
 
@@ -1004,9 +1011,9 @@ Once the core library is stable:
 | **Name** | `hsd-data` |
 | **Purpose** | Multi-format structured data IO with HSD tree as canonical model |
 | **Core dependency** | hsd-fortran (required) |
-| **Optional deps** | toml-f (TOML), HDF5 (HDF5) |
+| **External deps** | toml-f (TOML), HDF5 (HDF5) |
 | **Built-in formats** | HSD, XML, JSON (pure Fortran, no external deps) |
-| **Optional formats** | TOML, HDF5 |
+| **External formats** | TOML, HDF5 |
 | **Key API** | `data_load(file, root, fmt)`, `data_dump(root, file, fmt)` |
 | **Estimated total size** | ~3,000–4,500 lines of Fortran |
 | **Timeline** | 14 weeks to v0.1.0 |

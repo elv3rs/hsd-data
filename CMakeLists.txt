@@ -58,6 +58,11 @@ if(HSD_DATA_WITH_TOML)
   endif()
 endif()
 
+# HDF5 (optional, for HDF5 backend)
+if(HSD_DATA_WITH_HDF5)
+  find_package(HDF5 REQUIRED COMPONENTS Fortran)
+endif()
+
 # Fortuno (test framework)
 if(HSD_DATA_BUILD_TESTS)
   FetchContent_Declare(
