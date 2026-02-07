@@ -1,15 +1,20 @@
-- XML parser: add numeric character reference support (`&#38;`, `&#x26;`)
-  per spec §5.3 ("Handles: … character references")
-- JSON parser: warn on non-ASCII `\uXXXX` escapes instead of silent `?`
-  replacement; map codes 128–255 via `achar()` for Latin-1 range
-- XML parser: preserve non-`unit` attributes instead of dropping them;
-  store as `__attr_<name>` child values per spec §5.3
-- Add whitespace-only input tests for all three parsers (spec §10.3)
-- Add JSON duplicate-key parsing test (`{"A": 1, "A": 2}`) per spec §10.3
-- Add mixed integer/real JSON array test (`[1, 2.5, 3]`) per spec §10.3
-- Add empty/special_chars fixture files (.hsd/.xml/.json) per spec §10.2
-- Add `tree_equal` test helper that compares trees structurally rather
-  than by serialized output (spec §10.1)
+- Add optional `root_name` parameter to `data_load` per spec §4.2; when
+  provided, verify the document element name matches after loading
+- Add TOML backend stub (`hsd_data_toml.f90`) guarded by `WITH_TOML`;
+  implement reader/writer using `toml-f` (available at `../toml-f`)
+  per spec §5.5 and §11.1
+- Create `unicode` fixture files (`.hsd`/`.xml`/`.json`) with non-ASCII
+  Latin-1 characters in keys and values per spec §10.2
+- Add `nested` fixture unit tests that load all three fixture formats and
+  verify children at multiple nesting depths per spec §10.2
+- Extend deeply-nested edge-case test to 100+ levels per spec §10.3
+  (currently only tests 6 levels)
+- Create `large` fixture (`.json`) with 1000+ nodes for performance
+  baseline per spec §10.2
+- Add very-long-string (>64 KB) and very-large-array (>100 000 elements)
+  edge-case tests per spec §10.3
+- Add systematic fixture-based round-trip tests across all format pairs
+  (HSD↔XML, HSD↔JSON, XML↔JSON) for all non-trivial fixtures per §10.1
 
 ---
 
