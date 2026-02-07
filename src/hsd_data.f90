@@ -137,7 +137,7 @@ contains
       if (actual_fmt < 0) then
         if (present(error)) then
           allocate(error)
-          error%code = 9  ! IO_ERROR
+          error%code = HSD_STAT_IO_ERROR
           error%message = "Cannot detect format from extension: " // trim(filename)
         end if
         return
@@ -154,7 +154,7 @@ contains
     case default
       if (present(error)) then
         allocate(error)
-        error%code = 9
+        error%code = HSD_STAT_IO_ERROR
         error%message = "Unsupported or unavailable format"
       end if
     end select
@@ -179,7 +179,7 @@ contains
     case default
       if (present(error)) then
         allocate(error)
-        error%code = 9
+        error%code = HSD_STAT_IO_ERROR
         error%message = "Unsupported or unavailable format"
       end if
     end select
@@ -207,7 +207,7 @@ contains
       if (actual_fmt < 0) then
         if (present(error)) then
           allocate(error)
-          error%code = 9
+          error%code = HSD_STAT_IO_ERROR
           error%message = "Cannot detect format from extension: " // trim(filename)
         end if
         return
@@ -224,7 +224,7 @@ contains
     case default
       if (present(error)) then
         allocate(error)
-        error%code = 9
+        error%code = HSD_STAT_IO_ERROR
         error%message = "Unsupported or unavailable format"
       end if
     end select

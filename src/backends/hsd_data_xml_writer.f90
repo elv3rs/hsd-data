@@ -7,7 +7,7 @@ module hsd_data_xml_writer
   use hsd, only: hsd_table, hsd_value, hsd_node, hsd_node_ptr, &
       & VALUE_TYPE_NONE, VALUE_TYPE_STRING, VALUE_TYPE_INTEGER, &
       & VALUE_TYPE_REAL, VALUE_TYPE_LOGICAL, VALUE_TYPE_ARRAY, &
-      & VALUE_TYPE_COMPLEX, hsd_error_t, dp
+      & VALUE_TYPE_COMPLEX, hsd_error_t, dp, HSD_STAT_IO_ERROR
   use hsd_data_xml_escape, only: xml_escape_text, xml_escape_attrib
   implicit none(type, external)
   private
@@ -73,7 +73,7 @@ contains
     if (ios /= 0) then
       if (present(error)) then
         allocate(error)
-        error%code = 9
+        error%code = HSD_STAT_IO_ERROR
         error%message = "Failed to open file for writing: " // trim(filename)
       end if
       return
@@ -83,7 +83,7 @@ contains
 
     if (ios /= 0 .and. present(error)) then
       allocate(error)
-      error%code = 9
+      error%code = HSD_STAT_IO_ERROR
       error%message = "Failed to write to file: " // trim(filename)
     end if
 

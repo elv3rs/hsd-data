@@ -1,7 +1,7 @@
 !> HSD backend — thin wrapper around hsd-fortran's parser and formatter.
 module hsd_data_hsd
   use hsd, only: hsd_table, hsd_error_t, hsd_load, hsd_load_string, &
-      & hsd_dump, hsd_dump_to_string
+      & hsd_dump, hsd_dump_to_string, HSD_STAT_IO_ERROR
   implicit none(type, external)
   private
 
@@ -52,7 +52,7 @@ contains
     if (ios /= 0) then
       if (present(error)) then
         allocate(error)
-        error%code = 9  ! HSD_STAT_IO_ERROR
+        error%code = HSD_STAT_IO_ERROR
         error%message = "Failed to open file for writing: " // trim(filename)
       end if
       return
@@ -62,7 +62,7 @@ contains
 
     if (ios /= 0 .and. present(error)) then
       allocate(error)
-      error%code = 9
+      error%code = HSD_STAT_IO_ERROR
       error%message = "Failed to write to file: " // trim(filename)
     end if
 
