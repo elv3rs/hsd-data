@@ -46,7 +46,8 @@ contains
             test("matrix_fixture", test_matrix_fixture), &
             test("complex_fixture", test_complex_fixture), &
             test("matrix_json_roundtrip", test_matrix_json_roundtrip), &
-            test("attrib_before_sibling", test_attrib_before_sibling) &
+            test("attrib_before_sibling", test_attrib_before_sibling), &
+            test("compact_mode", test_compact_mode) &
         ])) &
     ])
 
@@ -617,6 +618,41 @@ contains
         & msg="Forward-referenced attrib should be Kelvin")
 
   end subroutine test_attrib_before_sibling
+
+  !> Verify that pretty=.false. produces compact (no-whitespace) JSON.
+  subroutine test_compact_mode()
+    type(hsd_table) :: root, root2
+    type(hsd_error_t), allocatable :: error
+    character(len=:), allocatable :: compact, pretty_out, dump1, dump2
+
+    call data_load_string( &
+        & 'Alpha { Beta = 7 }' // new_line("a") // 'Gamma = "text"', &
+        & root, DATA_FMT_HSD, error)
+    call check(.not. allocated(error), msg="HSD parse should succeed")
+
+    ! Compact mode
+    call data_dump_to_string(root, compact, DATA_FMT_JSON, pretty=.false.)
+    call check(len(compact) > 0, msg="Compact output should be non-empty")
+    ! Should not contain newlines or leading spaces
+    call check(index(compact, new_line("a")) == 0, &
+        & msg="Compact JSON should have no newlines")
+    call check(index(compact, "  ") == 0, &
+        & msg="Compact JSON should have no indentation")
+    ! Should still be valid JSON (parse and compare)
+    call data_load_string(compact, root2, DATA_FMT_JSON, error)
+    call check(.not. allocated(error), msg="Compact JSON should be parseable")
+
+    call data_dump_to_string(root, dump1, DATA_FMT_HSD)
+    call data_dump_to_string(root2, dump2, DATA_FMT_HSD)
+    call check(dump1 == dump2, &
+        & msg="Compact JSON should preserve content on round-trip")
+
+    ! Pretty mode should be longer
+    call data_dump_to_string(root, pretty_out, DATA_FMT_JSON, pretty=.true.)
+    call check(len(pretty_out) > len(compact), &
+        & msg="Pretty output should be longer than compact")
+
+  end subroutine test_compact_mode
 
   ! ─── Helpers ───
 
