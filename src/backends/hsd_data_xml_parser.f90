@@ -384,10 +384,21 @@ contains
 
     ! Optimization: if the table has exactly one unnamed value child,
     ! convert to a named value node instead (matching HSD semantics).
+    ! Exception: if the text contains newlines, keep as table with #text
+    ! child to preserve multi-line block structure for matrix data.
     if (child_table%num_children == 1) then
       select type (only_child => child_table%children(1)%node)
       type is (hsd_value)
         if (.not. allocated(only_child%name) .or. len_trim(only_child%name) == 0) then
+          ! Check if the text content contains newlines
+          if (has_newline_content(only_child)) then
+            ! Multi-line content: keep as table with #text child
+            only_child%name = "#text"
+            ! Invalidate hash index since we renamed the child
+            call child_table%invalidate_index()
+            call parent%add_child(child_table)
+            return
+          end if
           allocate(child_value)
           child_value%name = tag_name
           child_value%value_type = only_child%value_type
@@ -710,5 +721,20 @@ contains
     error%column = col
 
   end subroutine make_parse_error
+
+  !> Check if a value node contains newline characters in its content.
+  pure function has_newline_content(val) result(has_nl)
+    type(hsd_value), intent(in) :: val
+    logical :: has_nl
+
+    has_nl = .false.
+    if (allocated(val%string_value)) then
+      has_nl = index(val%string_value, new_line("a")) > 0
+    end if
+    if (.not. has_nl .and. allocated(val%raw_text)) then
+      has_nl = index(val%raw_text, new_line("a")) > 0
+    end if
+
+  end function has_newline_content
 
 end module hsd_data_xml_parser

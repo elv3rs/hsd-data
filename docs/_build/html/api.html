@@ -1,0 +1,711 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Reference &mdash; hsd-data 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="CLI Tool: hsd-convert" href="cli.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            hsd-data
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#requirements">Requirements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#optional-dependencies">Optional Dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#building-with-cmake">Building with CMake</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#minimal-build">Minimal Build</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#full-build-all-backends">Full Build (all backends)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#cmake-options">CMake Options</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#using-as-a-dependency">Using as a Dependency</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#cmake-fetchcontent">CMake FetchContent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#local-subdirectory">Local Subdirectory</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#verifying-the-installation">Verifying the Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_guide.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide.html#loading-data">Loading Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guide.html#from-a-file">From a File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide.html#with-explicit-format">With Explicit Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide.html#from-a-string">From a String</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide.html#with-root-wrapping">With Root Wrapping</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide.html#dumping-data">Dumping Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guide.html#to-a-file">To a File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide.html#to-a-string">To a String</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide.html#pretty-vs-compact-output">Pretty vs Compact Output</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide.html#converting-between-formats">Converting Between Formats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guide.html#programmatic">Programmatic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide.html#command-line">Command Line</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide.html#working-with-the-tree">Working with the Tree</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide.html#format-detection">Format Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide.html#error-handling">Error Handling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guide.html#status-codes">Status Codes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide.html#backend-specific-access">Backend-Specific Access</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="format_mapping.html">Format Mapping</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="format_mapping.html#core-concepts">Core Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="format_mapping.html#hsd-xml">HSD ↔ XML</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#table-nodes">Table Nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#value-nodes">Value Nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#attributes">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#anonymous-values">Anonymous Values</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="format_mapping.html#hsd-json">HSD ↔ JSON</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#id1">Table Nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#id2">Value Nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#arrays">Arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#id3">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#id4">Anonymous Values</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="format_mapping.html#hsd-toml">HSD ↔ TOML</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#id5">Table Nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#id6">Value Nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#id7">Arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#id8">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#complex-values">Complex Values</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="format_mapping.html#hsd-hdf5">HSD ↔ HDF5</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#id9">Table Nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#id10">Value Nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#id11">Attributes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="format_mapping.html#round-trip-considerations">Round-Trip Considerations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#lossless-round-trips">Lossless Round-Trips</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#potentially-lossy-conversions">Potentially Lossy Conversions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI Tool: hsd-convert</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#examples">Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli.html#file-to-file-auto-detected-formats">File-to-File (auto-detected formats)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli.html#explicit-format-override">Explicit Format Override</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli.html#compact-output">Compact Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli.html#stdin-stdout">Stdin/Stdout</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#options">Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#format-identifiers">Format Identifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#exit-codes">Exit Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#building">Building</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#unified-io">Unified IO</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#data-load"><code class="docutils literal notranslate"><span class="pre">data_load</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-load-string"><code class="docutils literal notranslate"><span class="pre">data_load_string</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-dump"><code class="docutils literal notranslate"><span class="pre">data_dump</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-dump-to-string"><code class="docutils literal notranslate"><span class="pre">data_dump_to_string</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-convert"><code class="docutils literal notranslate"><span class="pre">data_convert</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#format-constants">Format Constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#utilities">Utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#data-detect-format"><code class="docutils literal notranslate"><span class="pre">data_detect_format</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-format-available"><code class="docutils literal notranslate"><span class="pre">data_format_available</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#backend-specific-functions">Backend-Specific Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#hsd-backend">HSD Backend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#xml-backend">XML Backend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#json-backend">JSON Backend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#toml-backend-optional">TOML Backend (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#re-exported-hsd-fortran-api">Re-exported hsd-fortran API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#types">Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#constructors">Constructors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#accessors">Accessors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mutators">Mutators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#query">Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#validation">Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#schema">Schema</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#attributes">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#status-codes">Status Codes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#value-type-constants">Value Type Constants</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">hsd-data</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/dftbplus/hsd-data/blob/main/docs/api.md" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading"></a></h1>
+<section id="unified-io">
+<h2>Unified IO<a class="headerlink" href="#unified-io" title="Link to this heading"></a></h2>
+<section id="data-load">
+<h3><code class="docutils literal notranslate"><span class="pre">data_load</span></code><a class="headerlink" href="#data-load" title="Link to this heading"></a></h3>
+<p>Load structured data from a file.</p>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">data_load</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="p">[,</span><span class="w"> </span><span class="n">fmt</span><span class="p">]</span><span class="w"> </span><span class="p">[,</span><span class="w"> </span><span class="n">wrap_name</span><span class="p">])</span>
+<span class="w">  </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">filename</span>
+<span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">hsd_table</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">root</span>
+<span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">hsd_error_t</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">error</span>
+<span class="w">  </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fmt</span><span class="w">        </span><span class="c">! DATA_FMT_* constant</span>
+<span class="w">  </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wrap_name</span><span class="w">  </span><span class="c">! wrap content under this name</span>
+<span class="k">end subroutine</span>
+</pre></div>
+</div>
+<p><strong>Parameters:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">filename</span></code> — Path to the input file.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">root</span></code> — Output: the parsed tree.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">error</span></code> — Output: allocated on error, unallocated on success.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fmt</span></code> — Optional format override. Default: <code class="docutils literal notranslate"><span class="pre">DATA_FMT_AUTO</span></code> (detect from extension).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wrap_name</span></code> — Optional: wrap the loaded content under a root table with this name.</p></li>
+</ul>
+</section>
+<section id="data-load-string">
+<h3><code class="docutils literal notranslate"><span class="pre">data_load_string</span></code><a class="headerlink" href="#data-load-string" title="Link to this heading"></a></h3>
+<p>Load structured data from a string.</p>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">data_load_string</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="n">fmt</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="p">[,</span><span class="w"> </span><span class="n">filename</span><span class="p">])</span>
+<span class="w">  </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">source</span>
+<span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">hsd_table</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">root</span>
+<span class="w">  </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fmt</span><span class="w">              </span><span class="c">! DATA_FMT_* constant (required)</span>
+<span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">hsd_error_t</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">error</span>
+<span class="w">  </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">filename</span><span class="w">  </span><span class="c">! for error messages</span>
+<span class="k">end subroutine</span>
+</pre></div>
+</div>
+</section>
+<section id="data-dump">
+<h3><code class="docutils literal notranslate"><span class="pre">data_dump</span></code><a class="headerlink" href="#data-dump" title="Link to this heading"></a></h3>
+<p>Dump a tree to a file.</p>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">data_dump</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="p">[,</span><span class="w"> </span><span class="n">fmt</span><span class="p">]</span><span class="w"> </span><span class="p">[,</span><span class="w"> </span><span class="n">pretty</span><span class="p">])</span>
+<span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">hsd_table</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">root</span>
+<span class="w">  </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">filename</span>
+<span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">hsd_error_t</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">error</span>
+<span class="w">  </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fmt</span><span class="w">      </span><span class="c">! DATA_FMT_* constant</span>
+<span class="w">  </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">pretty</span><span class="w">   </span><span class="c">! default: .true.</span>
+<span class="k">end subroutine</span>
+</pre></div>
+</div>
+</section>
+<section id="data-dump-to-string">
+<h3><code class="docutils literal notranslate"><span class="pre">data_dump_to_string</span></code><a class="headerlink" href="#data-dump-to-string" title="Link to this heading"></a></h3>
+<p>Dump a tree to a string.</p>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">data_dump_to_string</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="n">fmt</span><span class="w"> </span><span class="p">[,</span><span class="w"> </span><span class="n">pretty</span><span class="p">])</span>
+<span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">hsd_table</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">root</span>
+<span class="w">  </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">output</span>
+<span class="w">  </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fmt</span>
+<span class="w">  </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">pretty</span>
+<span class="k">end subroutine</span>
+</pre></div>
+</div>
+</section>
+<section id="data-convert">
+<h3><code class="docutils literal notranslate"><span class="pre">data_convert</span></code><a class="headerlink" href="#data-convert" title="Link to this heading"></a></h3>
+<p>Convert a file from one format to another.</p>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">data_convert</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span><span class="w"> </span><span class="n">output_file</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="p">[,</span><span class="w"> </span><span class="n">input_fmt</span><span class="p">]</span><span class="w"> </span><span class="p">[,</span><span class="w"> </span><span class="n">output_fmt</span><span class="p">])</span>
+<span class="w">  </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">input_file</span><span class="p">,</span><span class="w"> </span><span class="n">output_file</span>
+<span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">hsd_error_t</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">error</span>
+<span class="w">  </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">input_fmt</span><span class="p">,</span><span class="w"> </span><span class="n">output_fmt</span>
+<span class="k">end subroutine</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="format-constants">
+<h2>Format Constants<a class="headerlink" href="#format-constants" title="Link to this heading"></a></h2>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">DATA_FMT_AUTO</span><span class="w">  </span><span class="c">! Auto-detect from file extension</span>
+<span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">DATA_FMT_HSD</span><span class="w">   </span><span class="c">! HSD format</span>
+<span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">DATA_FMT_XML</span><span class="w">   </span><span class="c">! XML format</span>
+<span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">DATA_FMT_JSON</span><span class="w">  </span><span class="c">! JSON format</span>
+<span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">DATA_FMT_TOML</span><span class="w">  </span><span class="c">! TOML format (requires WITH_TOML)</span>
+<span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">DATA_FMT_HDF5</span><span class="w">  </span><span class="c">! HDF5 format (requires WITH_HDF5)</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="utilities">
+<h2>Utilities<a class="headerlink" href="#utilities" title="Link to this heading"></a></h2>
+<section id="data-detect-format">
+<h3><code class="docutils literal notranslate"><span class="pre">data_detect_format</span></code><a class="headerlink" href="#data-detect-format" title="Link to this heading"></a></h3>
+<p>Detect format from a filename’s extension.</p>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">integer </span><span class="k">function </span><span class="n">data_detect_format</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+<span class="w">  </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">filename</span>
+<span class="k">end function</span>
+</pre></div>
+</div>
+<p>Returns one of the <code class="docutils literal notranslate"><span class="pre">DATA_FMT_*</span></code> constants, or <code class="docutils literal notranslate"><span class="pre">DATA_FMT_AUTO</span></code> if the
+extension is not recognized.</p>
+</section>
+<section id="data-format-available">
+<h3><code class="docutils literal notranslate"><span class="pre">data_format_available</span></code><a class="headerlink" href="#data-format-available" title="Link to this heading"></a></h3>
+<p>Check if a backend is available at runtime.</p>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">logical </span><span class="k">function </span><span class="n">data_format_available</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
+<span class="w">  </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fmt</span>
+<span class="k">end function</span>
+</pre></div>
+</div>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">.true.</span></code> for HSD, XML, and JSON (always available). Returns <code class="docutils literal notranslate"><span class="pre">.true.</span></code>
+for TOML and HDF5 only if the library was built with the respective option.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="backend-specific-functions">
+<h2>Backend-Specific Functions<a class="headerlink" href="#backend-specific-functions" title="Link to this heading"></a></h2>
+<section id="hsd-backend">
+<h3>HSD Backend<a class="headerlink" href="#hsd-backend" title="Link to this heading"></a></h3>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">hsd_backend_load</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="p">)</span>
+<span class="k">subroutine </span><span class="n">hsd_backend_load_string</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="p">[,</span><span class="w"> </span><span class="n">filename</span><span class="p">])</span>
+<span class="k">subroutine </span><span class="n">hsd_backend_dump</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="p">)</span>
+<span class="k">subroutine </span><span class="n">hsd_backend_dump_to_string</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="n">output</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="xml-backend">
+<h3>XML Backend<a class="headerlink" href="#xml-backend" title="Link to this heading"></a></h3>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">xml_parse_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="p">)</span>
+<span class="k">subroutine </span><span class="n">xml_parse_string</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="p">[,</span><span class="w"> </span><span class="n">filename</span><span class="p">])</span>
+<span class="k">subroutine </span><span class="n">xml_dump_file</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="p">[,</span><span class="w"> </span><span class="n">pretty</span><span class="p">])</span>
+<span class="k">subroutine </span><span class="n">xml_dump_to_string</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="n">output</span><span class="w"> </span><span class="p">[,</span><span class="w"> </span><span class="n">pretty</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="json-backend">
+<h3>JSON Backend<a class="headerlink" href="#json-backend" title="Link to this heading"></a></h3>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">json_parse_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="p">)</span>
+<span class="k">subroutine </span><span class="n">json_parse_string</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="p">[,</span><span class="w"> </span><span class="n">filename</span><span class="p">])</span>
+<span class="k">subroutine </span><span class="n">json_dump_file</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="p">[,</span><span class="w"> </span><span class="n">pretty</span><span class="p">])</span>
+<span class="k">subroutine </span><span class="n">json_dump_to_string</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="n">output</span><span class="w"> </span><span class="p">[,</span><span class="w"> </span><span class="n">pretty</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="toml-backend-optional">
+<h3>TOML Backend (optional)<a class="headerlink" href="#toml-backend-optional" title="Link to this heading"></a></h3>
+<p>Available only when built with <code class="docutils literal notranslate"><span class="pre">HSD_DATA_WITH_TOML=ON</span></code>.</p>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">toml_backend_load</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="p">)</span>
+<span class="k">subroutine </span><span class="n">toml_backend_load_string</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="p">)</span>
+<span class="k">subroutine </span><span class="n">toml_backend_dump</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="p">)</span>
+<span class="k">subroutine </span><span class="n">toml_backend_dump_to_string</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="n">output</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="re-exported-hsd-fortran-api">
+<h2>Re-exported hsd-fortran API<a class="headerlink" href="#re-exported-hsd-fortran-api" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">hsd_data</span></code> module re-exports the <strong>entire</strong> hsd-fortran public API. This
+means you only need <code class="docutils literal notranslate"><span class="pre">use</span> <span class="pre">hsd_data</span></code> to access both the multi-format IO and all
+tree manipulation functions. Key re-exported symbols:</p>
+<section id="types">
+<h3>Types<a class="headerlink" href="#types" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_table</span></code></p></td>
+<td><p>Container node with named children</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_value</span></code></p></td>
+<td><p>Leaf node holding scalar/array data</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_node</span></code></p></td>
+<td><p>Abstract base class for all nodes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_node_ptr</span></code></p></td>
+<td><p>Pointer wrapper for polymorphic node references</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_iterator</span></code></p></td>
+<td><p>Stateful child iterator</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_error_t</span></code></p></td>
+<td><p>Error type with message and status code</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="constructors">
+<h3>Constructors<a class="headerlink" href="#constructors" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Function</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">new_table([name])</span></code></p></td>
+<td><p>Create a new table node</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">new_value(name,</span> <span class="pre">data)</span></code></p></td>
+<td><p>Create a new value node</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="accessors">
+<h3>Accessors<a class="headerlink" href="#accessors" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Procedure</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_get(table,</span> <span class="pre">path,</span> <span class="pre">value,</span> <span class="pre">stat)</span></code></p></td>
+<td><p>Get typed value by path</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_get_or(table,</span> <span class="pre">path,</span> <span class="pre">value,</span> <span class="pre">default,</span> <span class="pre">stat)</span></code></p></td>
+<td><p>Get with fallback default</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_get_or_set(table,</span> <span class="pre">path,</span> <span class="pre">value,</span> <span class="pre">default,</span> <span class="pre">stat)</span></code></p></td>
+<td><p>Get or set default in tree</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_get_matrix(table,</span> <span class="pre">path,</span> <span class="pre">matrix,</span> <span class="pre">nrow,</span> <span class="pre">ncol,</span> <span class="pre">stat)</span></code></p></td>
+<td><p>Get 2-D matrix</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_get_with_unit(table,</span> <span class="pre">path,</span> <span class="pre">value,</span> <span class="pre">converter,</span> <span class="pre">stat)</span></code></p></td>
+<td><p>Get with unit conversion</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="mutators">
+<h3>Mutators<a class="headerlink" href="#mutators" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Procedure</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_set(table,</span> <span class="pre">path,</span> <span class="pre">value)</span></code></p></td>
+<td><p>Set a value by path</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_clear_children(table)</span></code></p></td>
+<td><p>Remove all children from a table</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="query">
+<h3>Query<a class="headerlink" href="#query" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Procedure</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_has_child(table,</span> <span class="pre">name)</span></code></p></td>
+<td><p>Check if child exists</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_get_child(table,</span> <span class="pre">path,</span> <span class="pre">child)</span></code></p></td>
+<td><p>Get child node by path</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_get_table(table,</span> <span class="pre">name,</span> <span class="pre">child</span> <span class="pre">[,</span> <span class="pre">auto_wrap])</span></code></p></td>
+<td><p>Get child table</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_remove_child(table,</span> <span class="pre">name)</span></code></p></td>
+<td><p>Remove a child</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_child_count(table)</span></code></p></td>
+<td><p>Count children</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_get_keys(table,</span> <span class="pre">keys)</span></code></p></td>
+<td><p>Get all child names</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_is_table(node)</span></code> / <code class="docutils literal notranslate"><span class="pre">hsd_is_value(node)</span></code></p></td>
+<td><p>Type checks</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_get_type(node)</span></code></p></td>
+<td><p>Get value type constant</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_merge(target,</span> <span class="pre">source)</span></code></p></td>
+<td><p>Merge two trees</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_clone(source,</span> <span class="pre">target)</span></code></p></td>
+<td><p>Deep copy a tree</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_table_equal(a,</span> <span class="pre">b)</span></code></p></td>
+<td><p>Structural equality</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="validation">
+<h3>Validation<a class="headerlink" href="#validation" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Procedure</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_require(table,</span> <span class="pre">path,</span> <span class="pre">stat)</span></code></p></td>
+<td><p>Assert a key exists</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_validate_range(value,</span> <span class="pre">min,</span> <span class="pre">max,</span> <span class="pre">stat)</span></code></p></td>
+<td><p>Range validation</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_validate_one_of(value,</span> <span class="pre">choices,</span> <span class="pre">stat)</span></code></p></td>
+<td><p>Enum validation</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_warn_unprocessed(table,</span> <span class="pre">warnings)</span></code></p></td>
+<td><p>Find unprocessed nodes</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="schema">
+<h3>Schema<a class="headerlink" href="#schema" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Procedure</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">schema_init(schema)</span></code></p></td>
+<td><p>Initialize schema</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">schema_add_field(schema,</span> <span class="pre">name,</span> <span class="pre">type,</span> <span class="pre">required)</span></code></p></td>
+<td><p>Add field definition</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">schema_validate(schema,</span> <span class="pre">table,</span> <span class="pre">errors)</span></code></p></td>
+<td><p>Validate against schema</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">schema_validate_strict(schema,</span> <span class="pre">table,</span> <span class="pre">errors)</span></code></p></td>
+<td><p>Strict validation (reject unknown)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Procedure</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_get_attrib(node,</span> <span class="pre">name,</span> <span class="pre">value)</span></code></p></td>
+<td><p>Get attribute value</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_has_attrib(node,</span> <span class="pre">name)</span></code></p></td>
+<td><p>Check attribute existence</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hsd_set_attrib(node,</span> <span class="pre">name,</span> <span class="pre">value)</span></code></p></td>
+<td><p>Set attribute value</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="status-codes">
+<h3>Status Codes<a class="headerlink" href="#status-codes" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Constant</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">HSD_STAT_OK</span></code></p></td>
+<td><p>0</p></td>
+<td><p>Success</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">HSD_STAT_SYNTAX_ERROR</span></code></p></td>
+<td><p>1</p></td>
+<td><p>Parse error</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">HSD_STAT_UNCLOSED_TAG</span></code></p></td>
+<td><p>2</p></td>
+<td><p>Block not closed</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">HSD_STAT_UNCLOSED_ATTRIB</span></code></p></td>
+<td><p>3</p></td>
+<td><p>Attribute bracket not closed</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">HSD_STAT_UNCLOSED_QUOTE</span></code></p></td>
+<td><p>4</p></td>
+<td><p>String quote not closed</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">HSD_STAT_ORPHAN_TEXT</span></code></p></td>
+<td><p>5</p></td>
+<td><p>Text outside any block</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">HSD_STAT_INCLUDE_CYCLE</span></code></p></td>
+<td><p>6</p></td>
+<td><p>Circular include detected</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">HSD_STAT_INCLUDE_DEPTH</span></code></p></td>
+<td><p>7</p></td>
+<td><p>Too many nested includes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">HSD_STAT_FILE_NOT_FOUND</span></code></p></td>
+<td><p>8</p></td>
+<td><p>File not found</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">HSD_STAT_IO_ERROR</span></code></p></td>
+<td><p>9</p></td>
+<td><p>IO operation failed</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">HSD_STAT_TYPE_ERROR</span></code></p></td>
+<td><p>10</p></td>
+<td><p>Type conversion failed</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">HSD_STAT_NOT_FOUND</span></code></p></td>
+<td><p>11</p></td>
+<td><p>Key not found</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">HSD_STAT_SCHEMA_ERROR</span></code></p></td>
+<td><p>20</p></td>
+<td><p>Schema validation failed</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="value-type-constants">
+<h3>Value Type Constants<a class="headerlink" href="#value-type-constants" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Constant</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">VALUE_TYPE_NONE</span></code></p></td>
+<td><p>No type / table node</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">VALUE_TYPE_STRING</span></code></p></td>
+<td><p>String value</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">VALUE_TYPE_INTEGER</span></code></p></td>
+<td><p>Integer value</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">VALUE_TYPE_REAL</span></code></p></td>
+<td><p>Real (double precision) value</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">VALUE_TYPE_LOGICAL</span></code></p></td>
+<td><p>Logical (boolean) value</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">VALUE_TYPE_ARRAY</span></code></p></td>
+<td><p>Array of values</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">VALUE_TYPE_COMPLEX</span></code></p></td>
+<td><p>Complex number</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cli.html" class="btn btn-neutral float-left" title="CLI Tool: hsd-convert" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, DFTB+ developers group.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

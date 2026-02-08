@@ -137,12 +137,19 @@ contains
   !> @param error      Optional error descriptor; allocated on failure.
   !> @param fmt        Optional format constant (DATA_FMT_*). Default: auto-detect.
   !> @param root_name  Optional expected root tag name.
-  subroutine data_load(filename, root, error, fmt, root_name)
+  !> @param wrap_name   Optional: wrap loaded content in a named root element.
+  !>                    If present, the loaded content is placed as a child
+  !>                    named wrap_name inside a new anonymous document table.
+  !>                    If the loaded tree already has a single child whose
+  !>                    name matches wrap_name, no additional wrapping is
+  !>                    applied (idempotent).
+  subroutine data_load(filename, root, error, fmt, root_name, wrap_name)
     character(len=*), intent(in) :: filename
     type(hsd_table), intent(out) :: root
     type(hsd_error_t), allocatable, intent(out), optional :: error
     integer, intent(in), optional :: fmt
     character(len=*), intent(in), optional :: root_name
+    character(len=*), intent(in), optional :: wrap_name
 
     integer :: actual_fmt
 
@@ -189,6 +196,14 @@ contains
         if (allocated(error)) return
       end if
       call check_root_name_(root, root_name, error)
+    end if
+
+    ! Wrap in a named root element if requested
+    if (present(wrap_name)) then
+      if (present(error)) then
+        if (allocated(error)) return
+      end if
+      call wrap_root_(root, wrap_name)
     end if
 
   end subroutine data_load
@@ -381,5 +396,71 @@ contains
     end if
 
   end subroutine check_root_name_
+
+
+  !> Wrap the loaded root table in a named element if not already present.
+  !>
+  !> If root already has a single child whose name matches wrap_name (case-
+  !> insensitive), no wrapping is applied (idempotent). Otherwise, a new
+  !> anonymous root table is created with the old content placed inside
+  !> a child named wrap_name.
+  subroutine wrap_root_(root, wrap_name)
+    type(hsd_table), intent(inout) :: root
+    character(len=*), intent(in) :: wrap_name
+
+    type(hsd_table) :: new_root, wrapper
+    class(hsd_node), pointer :: first_child
+    integer :: ii
+
+    ! Check idempotency: if root has exactly one child matching wrap_name, done
+    if (root%num_children == 1) then
+      call root%get_child(1, first_child)
+      if (associated(first_child)) then
+        if (allocated(first_child%name)) then
+          block
+            character(len=:), allocatable :: lower_child, lower_wrap
+            lower_child = to_lower_(first_child%name)
+            lower_wrap = to_lower_(wrap_name)
+            if (lower_child == lower_wrap) return
+          end block
+        end if
+      end if
+    end if
+
+    ! Build wrapper: anonymous root -> wrap_name table -> old children
+    call new_table(wrapper, name=wrap_name)
+    do ii = 1, root%num_children
+      call root%get_child(ii, first_child)
+      if (associated(first_child)) then
+        select type (first_child)
+        type is (hsd_table)
+          call wrapper%add_child(first_child)
+        type is (hsd_value)
+          call wrapper%add_child(first_child)
+        end select
+      end if
+    end do
+
+    ! Replace root content
+    call new_table(new_root)
+    call new_root%add_child(wrapper)
+    root = new_root
+
+  end subroutine wrap_root_
+
+
+  !> Simple case-insensitive lowering (ASCII only)
+  pure function to_lower_(str) result(lower)
+    character(len=*), intent(in) :: str
+    character(len=:), allocatable :: lower
+    integer :: ii, ic
+    lower = str
+    do ii = 1, len(lower)
+      ic = iachar(lower(ii:ii))
+      if (ic >= iachar('A') .and. ic <= iachar('Z')) then
+        lower(ii:ii) = achar(ic + 32)
+      end if
+    end do
+  end function to_lower_
 
 end module hsd_data

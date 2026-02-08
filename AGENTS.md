@@ -4,7 +4,8 @@
 
 The project has reached **v1.0.0 release** status.  All specification phases
 are complete.  When making changes, ensure builds pass, `fortitude check` is
-clean, and all tests pass.
+clean, all tests pass, and Sphinx docs build without warnings.  Commit
+atomically with clear messages.
 
 ## Project Overview
 
@@ -144,6 +145,26 @@ hsd-data/
 └── external/
     └── hsd-fortran/          # FetchContent or local path
 ```
+
+## Documentation
+
+The project uses Sphinx for user-facing documentation:
+
+```bash
+# Install requirements
+pip install -r docs/requirements.txt
+
+# Build
+sphinx-build -b html docs docs/_build/html 2>&1 | tail -5
+```
+
+Documentation pages:
+- `docs/index.rst` — Landing page
+- `docs/installation.md` — Build & install guide
+- `docs/user_guide.md` — Tutorial (loading, converting, dumping)
+- `docs/api.md` — Complete API reference
+- `docs/format_mapping.md` — How HSD maps to JSON/XML/TOML/HDF5
+- `docs/cli.md` — `hsd-convert` CLI tool guide
 
 ## Dependencies
 

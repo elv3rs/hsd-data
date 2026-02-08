@@ -1,0 +1,260 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Search &mdash; hsd-data 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+    
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="#" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            hsd-data
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="#" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#requirements">Requirements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#optional-dependencies">Optional Dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#building-with-cmake">Building with CMake</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#minimal-build">Minimal Build</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#full-build-all-backends">Full Build (all backends)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#cmake-options">CMake Options</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#using-as-a-dependency">Using as a Dependency</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#cmake-fetchcontent">CMake FetchContent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#local-subdirectory">Local Subdirectory</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#verifying-the-installation">Verifying the Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_guide.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide.html#loading-data">Loading Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guide.html#from-a-file">From a File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide.html#with-explicit-format">With Explicit Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide.html#from-a-string">From a String</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide.html#with-root-wrapping">With Root Wrapping</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide.html#dumping-data">Dumping Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guide.html#to-a-file">To a File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide.html#to-a-string">To a String</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide.html#pretty-vs-compact-output">Pretty vs Compact Output</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide.html#converting-between-formats">Converting Between Formats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guide.html#programmatic">Programmatic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide.html#command-line">Command Line</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide.html#working-with-the-tree">Working with the Tree</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide.html#format-detection">Format Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide.html#error-handling">Error Handling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guide.html#status-codes">Status Codes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide.html#backend-specific-access">Backend-Specific Access</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="format_mapping.html">Format Mapping</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="format_mapping.html#core-concepts">Core Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="format_mapping.html#hsd-xml">HSD ↔ XML</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#table-nodes">Table Nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#value-nodes">Value Nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#attributes">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#anonymous-values">Anonymous Values</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="format_mapping.html#hsd-json">HSD ↔ JSON</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#id1">Table Nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#id2">Value Nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#arrays">Arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#id3">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#id4">Anonymous Values</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="format_mapping.html#hsd-toml">HSD ↔ TOML</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#id5">Table Nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#id6">Value Nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#id7">Arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#id8">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#complex-values">Complex Values</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="format_mapping.html#hsd-hdf5">HSD ↔ HDF5</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#id9">Table Nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#id10">Value Nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#id11">Attributes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="format_mapping.html#round-trip-considerations">Round-Trip Considerations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#lossless-round-trips">Lossless Round-Trips</a></li>
+<li class="toctree-l3"><a class="reference internal" href="format_mapping.html#potentially-lossy-conversions">Potentially Lossy Conversions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI Tool: hsd-convert</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#examples">Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli.html#file-to-file-auto-detected-formats">File-to-File (auto-detected formats)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli.html#explicit-format-override">Explicit Format Override</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli.html#compact-output">Compact Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli.html#stdin-stdout">Stdin/Stdout</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#options">Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#format-identifiers">Format Identifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#exit-codes">Exit Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#building">Building</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.html#unified-io">Unified IO</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api.html#data-load"><code class="docutils literal notranslate"><span class="pre">data_load</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api.html#data-load-string"><code class="docutils literal notranslate"><span class="pre">data_load_string</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api.html#data-dump"><code class="docutils literal notranslate"><span class="pre">data_dump</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api.html#data-dump-to-string"><code class="docutils literal notranslate"><span class="pre">data_dump_to_string</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api.html#data-convert"><code class="docutils literal notranslate"><span class="pre">data_convert</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#format-constants">Format Constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#utilities">Utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api.html#data-detect-format"><code class="docutils literal notranslate"><span class="pre">data_detect_format</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api.html#data-format-available"><code class="docutils literal notranslate"><span class="pre">data_format_available</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#backend-specific-functions">Backend-Specific Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api.html#hsd-backend">HSD Backend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api.html#xml-backend">XML Backend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api.html#json-backend">JSON Backend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api.html#toml-backend-optional">TOML Backend (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#re-exported-hsd-fortran-api">Re-exported hsd-fortran API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api.html#types">Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api.html#constructors">Constructors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api.html#accessors">Accessors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api.html#mutators">Mutators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api.html#query">Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api.html#validation">Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api.html#schema">Schema</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api.html#attributes">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api.html#status-codes">Status Codes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api.html#value-type-constants">Value Type Constants</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">hsd-data</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Search</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <noscript>
+  <div id="fallback" class="admonition warning">
+    <p class="last">
+      Please activate JavaScript to enable the search functionality.
+    </p>
+  </div>
+  </noscript>
+
+  
+  <div id="search-results">
+  
+  </div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, DFTB+ developers group.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+  <script>
+    jQuery(function() { Search.loadIndex("searchindex.js"); });
+  </script>
+  
+  <script id="searchindexloader"></script>
+   
+
+
+</body>
+</html>

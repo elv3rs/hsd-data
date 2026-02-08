@@ -128,13 +128,14 @@ contains
       return
     end if
 
-    ! Check for table with single anonymous value child → inline
+    ! Check for table with single anonymous or #text value child → inline
     if (real_children == 1) then
       select type (child => table%children(first_real_child(table))%node)
       type is (hsd_value)
-        if (.not. allocated(child%name) .or. len_trim(child%name) == 0) then
+        if (.not. allocated(child%name) .or. len_trim(child%name) == 0 &
+            & .or. child%name == "#text") then
           call append_str(buf, buf_len, buf_cap, ">")
-          call write_value_content(child, buf, buf_len, buf_cap)
+          call write_value_content(child, buf, buf_len, buf_cap, pretty)
           call append_str(buf, buf_len, buf_cap, "</" // tag_name // ">")
           call append_newline(buf, buf_len, buf_cap, pretty)
           return
@@ -188,10 +189,11 @@ contains
 
     character(len=:), allocatable :: tag_name
 
-    ! Anonymous value: write as bare text content
-    if (.not. allocated(val%name) .or. len_trim(val%name) == 0) then
+    ! Anonymous or #text value: write as bare text content
+    if (.not. allocated(val%name) .or. len_trim(val%name) == 0 &
+        & .or. val%name == "#text") then
       call write_indent(buf, buf_len, buf_cap, depth, pretty)
-      call write_value_content(val, buf, buf_len, buf_cap)
+      call write_value_content(val, buf, buf_len, buf_cap, pretty)
       call append_newline(buf, buf_len, buf_cap, pretty)
       return
     end if
@@ -207,24 +209,34 @@ contains
     end if
 
     call append_str(buf, buf_len, buf_cap, ">")
-    call write_value_content(val, buf, buf_len, buf_cap)
+    call write_value_content(val, buf, buf_len, buf_cap, pretty)
     call append_str(buf, buf_len, buf_cap, "</" // tag_name // ">")
     call append_newline(buf, buf_len, buf_cap, pretty)
 
   end subroutine write_value
 
   !> Write the text content of a value node (no surrounding tags).
-  subroutine write_value_content(val, buf, buf_len, buf_cap)
+  subroutine write_value_content(val, buf, buf_len, buf_cap, pretty)
     type(hsd_value), intent(in) :: val
     character(len=:), allocatable, intent(inout) :: buf
     integer, intent(inout) :: buf_len, buf_cap
+    logical, intent(in), optional :: pretty
 
     character(len=40) :: num_buf
+    logical :: do_pretty
+
+    do_pretty = .true.
+    if (present(pretty)) do_pretty = pretty
 
     select case (val%value_type)
     case (VALUE_TYPE_STRING)
       if (allocated(val%string_value)) then
-        call append_str(buf, buf_len, buf_cap, xml_escape_text(val%string_value))
+        if (do_pretty) then
+          call append_str(buf, buf_len, buf_cap, xml_escape_text(val%string_value))
+        else
+          call append_str(buf, buf_len, buf_cap, &
+              & xml_escape_text(collapse_newlines(val%string_value)))
+        end if
       end if
     case (VALUE_TYPE_INTEGER)
       write(num_buf, "(i0)") val%int_value
@@ -246,7 +258,12 @@ contains
     case (VALUE_TYPE_ARRAY, VALUE_TYPE_NONE)
       ! Use raw_text if available, otherwise empty
       if (allocated(val%raw_text)) then
-        call append_str(buf, buf_len, buf_cap, xml_escape_text(val%raw_text))
+        if (do_pretty) then
+          call append_str(buf, buf_len, buf_cap, xml_escape_text(val%raw_text))
+        else
+          call append_str(buf, buf_len, buf_cap, &
+              & xml_escape_text(collapse_newlines(val%raw_text)))
+        end if
       end if
     case default
       ! Unknown value type: skip
@@ -424,5 +441,43 @@ contains
     buf_cap = new_cap
 
   end subroutine ensure_capacity
+
+  !> Replace newlines (and surrounding whitespace) with a single space.
+  !>
+  !> Used in compact mode to prevent multi-line text content from
+  !> introducing line breaks in the XML output.
+  pure function collapse_newlines(text) result(res)
+    character(len=*), intent(in) :: text
+    character(len=:), allocatable :: res
+
+    integer :: i, tlen, out_len
+    logical :: in_ws
+
+    tlen = len(text)
+    allocate(character(len=tlen) :: res)
+    out_len = 0
+    in_ws = .false.
+
+    do i = 1, tlen
+      if (text(i:i) == new_line("a") .or. text(i:i) == char(13)) then
+        ! Replace newline sequence with single space (collapse adjacent ws)
+        if (.not. in_ws .and. out_len > 0) then
+          out_len = out_len + 1
+          res(out_len:out_len) = " "
+        end if
+        in_ws = .true.
+      else if (in_ws .and. (text(i:i) == " " .or. text(i:i) == char(9))) then
+        ! Skip whitespace immediately after a newline
+        cycle
+      else
+        in_ws = .false.
+        out_len = out_len + 1
+        res(out_len:out_len) = text(i:i)
+      end if
+    end do
+
+    res = res(1:out_len)
+
+  end function collapse_newlines
 
 end module hsd_data_xml_writer
