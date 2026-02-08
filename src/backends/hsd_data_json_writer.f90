@@ -112,7 +112,7 @@ contains
     emitted = .false.
 
     do ii = 1, table%num_children
-      if (.not. allocated(table%children(ii)%node)) cycle
+      if (.not. associated(table%children(ii)%node)) cycle
       if (emitted(ii)) cycle
 
       ! Get this child's name
@@ -121,7 +121,7 @@ contains
       ! Count how many children share this name
       name_count = 0
       do jj = ii, table%num_children
-        if (.not. allocated(table%children(jj)%node)) cycle
+        if (.not. associated(table%children(jj)%node)) cycle
         if (get_child_name(table%children(jj)%node) == child_name) then
           name_count = name_count + 1
         end if
@@ -229,7 +229,7 @@ contains
 
     arr_count = 0
     do jj = start_idx, table%num_children
-      if (.not. allocated(table%children(jj)%node)) cycle
+      if (.not. associated(table%children(jj)%node)) cycle
       if (get_child_name(table%children(jj)%node) /= name) cycle
 
       emitted(jj) = .true.

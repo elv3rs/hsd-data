@@ -492,7 +492,7 @@ contains
     ! Emit all scalar key-value pairs before any table sections so that
     ! the output matches what toml-f produces after parsing.
     do ii = 1, ht%num_children
-      if (.not. allocated(ht%children(ii)%node)) cycle
+      if (.not. associated(ht%children(ii)%node)) cycle
 
       select type (child => ht%children(ii)%node)
       type is (hsd_value)
@@ -500,7 +500,7 @@ contains
         ! Check for same-named siblings (arrays handled in pass 2)
         name_count = 0
         do jj = ii, ht%num_children
-          if (.not. allocated(ht%children(jj)%node)) cycle
+          if (.not. associated(ht%children(jj)%node)) cycle
           if (get_hsd_child_name(ht%children(jj)%node) == child_name) then
             name_count = name_count + 1
           end if
@@ -517,7 +517,7 @@ contains
     ! --- Pass 1b: table-child attribs (scalar keys for table attributes) ---
     ! These must appear after value scalars but before table sections.
     do ii = 1, ht%num_children
-      if (.not. allocated(ht%children(ii)%node)) cycle
+      if (.not. associated(ht%children(ii)%node)) cycle
 
       select type (child => ht%children(ii)%node)
       type is (hsd_table)
@@ -530,7 +530,7 @@ contains
 
     ! --- Pass 2: table sections and array-of-tables ---
     do ii = 1, ht%num_children
-      if (.not. allocated(ht%children(ii)%node)) cycle
+      if (.not. associated(ht%children(ii)%node)) cycle
       if (emitted(ii)) cycle
 
       child_name = get_hsd_child_name(ht%children(ii)%node)
@@ -538,7 +538,7 @@ contains
       ! Count same-named siblings
       name_count = 0
       do jj = ii, ht%num_children
-        if (.not. allocated(ht%children(jj)%node)) cycle
+        if (.not. associated(ht%children(jj)%node)) cycle
         if (get_hsd_child_name(ht%children(jj)%node) == child_name) then
           name_count = name_count + 1
         end if
@@ -576,7 +576,7 @@ contains
     call add_array(tt, name, arr)
 
     do jj = start_idx, ht%num_children
-      if (.not. allocated(ht%children(jj)%node)) cycle
+      if (.not. associated(ht%children(jj)%node)) cycle
       if (get_hsd_child_name(ht%children(jj)%node) /= name) cycle
       emitted(jj) = .true.
 

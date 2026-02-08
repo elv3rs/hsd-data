@@ -350,7 +350,7 @@ contains
 
     ! Find the sibling and set its attrib
     do ii = table%num_children, 1, -1
-      if (.not. allocated(table%children(ii)%node)) cycle
+      if (.not. associated(table%children(ii)%node)) cycle
       select type (child => table%children(ii)%node)
       type is (hsd_table)
         if (allocated(child%name) .and. child%name == sibling_name) then
@@ -380,7 +380,7 @@ contains
     integer :: ii
 
     do ii = table%num_children, 1, -1
-      if (.not. allocated(table%children(ii)%node)) cycle
+      if (.not. associated(table%children(ii)%node)) cycle
       select type (child => table%children(ii)%node)
       type is (hsd_table)
         if (allocated(child%name) .and. child%name == sibling_name) then

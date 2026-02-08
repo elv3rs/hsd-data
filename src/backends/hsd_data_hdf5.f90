@@ -103,7 +103,7 @@ contains
     end if
 
     do ii = 1, table%num_children
-      if (.not. allocated(table%children(ii)%node)) cycle
+      if (.not. associated(table%children(ii)%node)) cycle
       select type (child => table%children(ii)%node)
       type is (hsd_table)
         call write_child_table_(child, group_id, error)

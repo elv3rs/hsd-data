@@ -165,7 +165,7 @@ contains
     integer :: ii
 
     do ii = 1, table%num_children
-      if (.not. allocated(table%children(ii)%node)) cycle
+      if (.not. associated(table%children(ii)%node)) cycle
       if (is_attr_child(table%children(ii)%node)) cycle
 
       select type (child => table%children(ii)%node)
@@ -294,7 +294,7 @@ contains
     integer :: ii
 
     do ii = 1, table%num_children
-      if (.not. allocated(table%children(ii)%node)) cycle
+      if (.not. associated(table%children(ii)%node)) cycle
       select type (child => table%children(ii)%node)
       type is (hsd_value)
         if (allocated(child%name)) then
@@ -324,7 +324,7 @@ contains
 
     cnt = 0
     do ii = 1, table%num_children
-      if (.not. allocated(table%children(ii)%node)) cycle
+      if (.not. associated(table%children(ii)%node)) cycle
       if (.not. is_attr_child(table%children(ii)%node)) cnt = cnt + 1
     end do
 
@@ -339,7 +339,7 @@ contains
 
     idx = 1
     do ii = 1, table%num_children
-      if (.not. allocated(table%children(ii)%node)) cycle
+      if (.not. associated(table%children(ii)%node)) cycle
       if (.not. is_attr_child(table%children(ii)%node)) then
         idx = ii
         return
