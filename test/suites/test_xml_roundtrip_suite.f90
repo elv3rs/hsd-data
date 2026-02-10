@@ -13,6 +13,21 @@ module test_xml_roundtrip_suite
 
 contains
 
+  !> Convert a string to lowercase for case-insensitive comparison.
+  pure function to_lower(str) result(lower)
+    character(len=*), intent(in) :: str
+    character(len=len(str)) :: lower
+    integer :: ii, ic
+
+    lower = str
+    do ii = 1, len(str)
+      ic = iachar(str(ii:ii))
+      if (ic >= iachar('A') .and. ic <= iachar('Z')) then
+        lower(ii:ii) = achar(ic + 32)
+      end if
+    end do
+  end function to_lower
+
   function tests()
     type(test_list) :: tests
 
@@ -98,10 +113,11 @@ contains
     call data_load_string(hsd_str, root2, DATA_FMT_HSD, error)
     call check(.not. allocated(error), msg="HSD re-parse should succeed")
 
-    ! Compare via HSD dump
+    ! Compare via HSD dump (case-insensitive, since HSD parser lowercases names)
     call data_dump_to_string(root1, dump1, DATA_FMT_HSD)
     call data_dump_to_string(root2, dump2, DATA_FMT_HSD)
-    call check(dump1 == dump2, msg="XML→HSD→XML should preserve content")
+    call check(to_lower(dump1) == to_lower(dump2), &
+        & msg="XML→HSD→XML should preserve content")
 
   end subroutine test_xml_to_hsd_string
 
@@ -158,12 +174,12 @@ contains
     call data_load(trim(hsd_path), root2, error, fmt=DATA_FMT_HSD)
     call check(.not. allocated(error), msg="HSD re-load should succeed")
 
-    ! Verify key structure is preserved
-    call check(hsd_has_child(root2, "Geometry"), &
+    ! Verify key structure is preserved (HSD parser lowercases names)
+    call check(hsd_has_child(root2, "geometry"), &
         & msg="Round-tripped HSD should have Geometry")
-    call check(hsd_has_child(root2, "Hamiltonian"), &
+    call check(hsd_has_child(root2, "hamiltonian"), &
         & msg="Round-tripped HSD should have Hamiltonian")
-    call check(hsd_has_child(root2, "Options"), &
+    call check(hsd_has_child(root2, "options"), &
         & msg="Round-tripped HSD should have Options")
 
   end subroutine test_xml_hsd_xml_file
@@ -184,7 +200,7 @@ contains
     ! Verify by loading the result
     call data_load(trim(outpath), root, error, fmt=DATA_FMT_XML)
     call check(.not. allocated(error), msg="Converted XML should be loadable")
-    call check(hsd_has_child(root, "Geometry"), &
+    call check(hsd_has_child(root, "geometry"), &
         & msg="Converted XML should have Geometry")
 
   end subroutine test_convert_hsd_to_xml
@@ -205,7 +221,7 @@ contains
     ! Verify by loading the result
     call data_load(trim(outpath), root, error, fmt=DATA_FMT_HSD)
     call check(.not. allocated(error), msg="Converted HSD should be loadable")
-    call check(hsd_has_child(root, "Geometry"), &
+    call check(hsd_has_child(root, "geometry"), &
         & msg="Converted HSD should have Geometry")
 
   end subroutine test_convert_xml_to_hsd

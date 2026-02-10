@@ -39,9 +39,9 @@ contains
     call data_load(trim(filepath), root, error, fmt=DATA_FMT_HSD)
 
     call check(.not. allocated(error), msg="Loading simple.hsd should succeed")
-    call check(hsd_has_child(root, "Geometry"), msg="Should have Geometry node")
-    call check(hsd_has_child(root, "Hamiltonian"), msg="Should have Hamiltonian node")
-    call check(hsd_has_child(root, "Options"), msg="Should have Options node")
+    call check(hsd_has_child(root, "geometry"), msg="Should have Geometry node")
+    call check(hsd_has_child(root, "hamiltonian"), msg="Should have Hamiltonian node")
+    call check(hsd_has_child(root, "options"), msg="Should have Options node")
 
   end subroutine test_load_file
 
@@ -82,8 +82,8 @@ contains
 
     call data_load_string(src, root, DATA_FMT_HSD, error)
     call check(.not. allocated(error), msg="String load should succeed")
-    call check(hsd_has_child(root, "Foo"), msg="Should have Foo")
-    call check(hsd_has_child(root, "Baz"), msg="Should have Baz")
+    call check(hsd_has_child(root, "foo"), msg="Should have Foo")
+    call check(hsd_has_child(root, "baz"), msg="Should have Baz")
 
   end subroutine test_load_string
 
@@ -114,7 +114,7 @@ contains
     ! Auto-detect format from .hsd extension
     call data_load(trim(filepath), root, error)
     call check(.not. allocated(error), msg="Auto-detect load should succeed")
-    call check(hsd_has_child(root, "Geometry"), msg="Should have Geometry")
+    call check(hsd_has_child(root, "geometry"), msg="Should have Geometry")
 
   end subroutine test_data_load_auto
 

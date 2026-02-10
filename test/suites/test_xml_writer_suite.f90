@@ -73,11 +73,11 @@ contains
 
     call xml_dump_to_string(root, xml)
 
-    ! Should contain Foo element
-    call check(index(xml, "<Foo>") > 0, msg="Should contain <Foo>")
-    call check(index(xml, "</Foo>") > 0, msg="Should contain </Foo>")
-    call check(index(xml, "<Bar>") > 0, msg="Should contain <Bar>")
-    call check(index(xml, "</Bar>") > 0, msg="Should contain </Bar>")
+    ! Should contain foo element (HSD parser lowercases names)
+    call check(index(xml, "<foo>") > 0, msg="Should contain <foo>")
+    call check(index(xml, "</foo>") > 0, msg="Should contain </foo>")
+    call check(index(xml, "<bar>") > 0, msg="Should contain <bar>")
+    call check(index(xml, "</bar>") > 0, msg="Should contain </bar>")
 
   end subroutine test_simple_value
 
@@ -97,12 +97,12 @@ contains
 
     call xml_dump_to_string(root, xml)
 
-    call check(index(xml, "<A>") > 0, msg="Should contain <A>")
-    call check(index(xml, "<B>") > 0, msg="Should contain <B>")
-    call check(index(xml, "<C>") > 0, msg="Should contain <C>")
-    call check(index(xml, "</C>") > 0, msg="Should contain </C>")
-    call check(index(xml, "</B>") > 0, msg="Should contain </B>")
-    call check(index(xml, "</A>") > 0, msg="Should contain </A>")
+    call check(index(xml, "<a>") > 0, msg="Should contain <a>")
+    call check(index(xml, "<b>") > 0, msg="Should contain <b>")
+    call check(index(xml, "<c>") > 0, msg="Should contain <c>")
+    call check(index(xml, "</c>") > 0, msg="Should contain </c>")
+    call check(index(xml, "</b>") > 0, msg="Should contain </b>")
+    call check(index(xml, "</a>") > 0, msg="Should contain </a>")
 
   end subroutine test_nested_tables
 

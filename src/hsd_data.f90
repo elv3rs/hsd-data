@@ -63,6 +63,9 @@ module hsd_data
       & toml_backend_load, toml_backend_load_string, &
       & toml_backend_dump, toml_backend_dump_to_string
 #endif
+#ifdef WITH_HDF5
+  use hsd_data_hdf5, only: hdf5_backend_load, hdf5_backend_dump
+#endif
 
   implicit none(type, external)
   private
@@ -182,6 +185,10 @@ contains
     case (DATA_FMT_TOML)
       call toml_backend_load(filename, root, error)
 #endif
+#ifdef WITH_HDF5
+    case (DATA_FMT_HDF5)
+      call hdf5_backend_load(filename, root, error)
+#endif
     case default
       if (present(error)) then
         allocate(error)
@@ -294,6 +301,10 @@ contains
     case (DATA_FMT_TOML)
       call toml_backend_dump(root, filename, error, pretty)
 #endif
+#ifdef WITH_HDF5
+    case (DATA_FMT_HDF5)
+      call hdf5_backend_dump(root, filename, error, pretty)
+#endif
     case default
       if (present(error)) then
         allocate(error)
@@ -386,7 +397,7 @@ contains
     character(len=*), intent(in) :: expected_name
     type(hsd_error_t), allocatable, intent(inout), optional :: error
 
-    if (hsd_has_child(root, expected_name)) return
+    if (hsd_has_child(root, expected_name, case_insensitive=.true.)) return
 
     if (present(error)) then
       allocate(error)

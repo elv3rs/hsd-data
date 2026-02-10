@@ -66,8 +66,8 @@ contains
     call data_load_string('Outer { Inner = 99 }', root, DATA_FMT_HSD, error)
     call check(.not. allocated(error), msg="HSD parse should succeed")
     call data_dump_to_string(root, toml_str, DATA_FMT_TOML)
-    call check(index(toml_str, "[Outer]") > 0, &
-        & msg="Output should contain [Outer] section")
+    call check(index(toml_str, "[outer]") > 0, &
+        & msg="Output should contain [outer] section")
     call check(index(toml_str, "99") > 0, msg="Output should contain value 99")
 
   end subroutine test_write_nested
@@ -81,8 +81,8 @@ contains
         & root, DATA_FMT_HSD, error)
     call check(.not. allocated(error), msg="HSD parse should succeed")
     call data_dump_to_string(root, toml_str, DATA_FMT_TOML)
-    call check(index(toml_str, "Temperature") > 0, &
-        & msg="Output should contain Temperature key")
+    call check(index(toml_str, "temperature") > 0, &
+        & msg="Output should contain temperature key")
     call check(index(toml_str, "__attrib") > 0, &
         & msg="Output should contain __attrib key for unit")
     call check(index(toml_str, "Kelvin") > 0, &
@@ -242,9 +242,9 @@ contains
     call check(.not. allocated(error), msg="TOML re-parse should succeed")
 
     ! Verify structure is preserved (not exact strings, due to float formatting)
-    call check(hsd_has_child(root, "Geometry"), msg="Should have Geometry")
-    call check(hsd_has_child(root, "Hamiltonian"), msg="Should have Hamiltonian")
-    call check(hsd_has_child(root, "Options"), msg="Should have Options")
+    call check(hsd_has_child(root, "geometry"), msg="Should have geometry")
+    call check(hsd_has_child(root, "hamiltonian"), msg="Should have hamiltonian")
+    call check(hsd_has_child(root, "options"), msg="Should have options")
 
     ! Verify can dump back to HSD without errors
     call data_dump_to_string(root, hsd_str, DATA_FMT_HSD)
@@ -428,13 +428,13 @@ contains
     ! TOML → tree: verify structure and attributes
     call data_load_string(toml_str, root, DATA_FMT_TOML, error)
     call check(.not. allocated(error), msg="TOML re-parse should succeed")
-    call check(hsd_has_child(root, "Geometry"), msg="Should have Geometry")
-    call check(hsd_has_child(root, "Hamiltonian"), msg="Should have Hamiltonian")
+    call check(hsd_has_child(root, "geometry"), msg="Should have geometry")
+    call check(hsd_has_child(root, "hamiltonian"), msg="Should have hamiltonian")
 
     ! Verify attributes survived the roundtrip
-    call hsd_get_attrib(root, "Geometry/LatticeVectors", attrib)
+    call hsd_get_attrib(root, "geometry/latticevectors", attrib)
     call check(attrib == "Angstrom", msg="LatticeVectors attrib should be Angstrom")
-    call hsd_get_attrib(root, "Geometry/Cutoff", attrib)
+    call hsd_get_attrib(root, "geometry/cutoff", attrib)
     call check(attrib == "Bohr", msg="Cutoff attrib should be Bohr")
 
   end subroutine test_attrib_fixture

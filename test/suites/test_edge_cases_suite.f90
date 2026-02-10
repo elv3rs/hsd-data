@@ -240,18 +240,18 @@ contains
     filepath = source_dir // "/test/fixtures/nested.hsd"
     call data_load(trim(filepath), root, error)
     call check(.not. allocated(error), msg="nested.hsd load should succeed")
-    call check(hsd_has_child(root, "Geometry"), msg="HSD: root/Geometry")
-    call check(hsd_has_child(root, "Hamiltonian"), msg="HSD: root/Hamiltonian")
-    call check(hsd_has_child(root, "Analysis"), msg="HSD: root/Analysis")
-    ! Depth 3: Hamiltonian/DFTB/Mixer
-    call hsd_get_table(root, "Hamiltonian/DFTB/Mixer", tbl, stat)
+    call check(hsd_has_child(root, "geometry"), msg="HSD: root/Geometry")
+    call check(hsd_has_child(root, "hamiltonian"), msg="HSD: root/Hamiltonian")
+    call check(hsd_has_child(root, "analysis"), msg="HSD: root/Analysis")
+    ! Depth 3: hamiltonian/dftb/mixer (HSD parser lowercases names)
+    call hsd_get_table(root, "hamiltonian/dftb/mixer", tbl, stat)
     call check(stat == 0, msg="HSD: depth 3 Mixer")
-    ! Depth 4: Hamiltonian/DFTB/Mixer/Broyden
-    call hsd_get_table(root, "Hamiltonian/DFTB/Mixer/Broyden", tbl, stat)
+    ! Depth 4: hamiltonian/dftb/mixer/broyden
+    call hsd_get_table(root, "hamiltonian/dftb/mixer/broyden", tbl, stat)
     call check(stat == 0, msg="HSD: depth 4 Broyden")
     ! Depth 7: leaf value
-    call hsd_get(root, "Hamiltonian/DFTB/SpinPolarisation/Colinear/" &
-        & // "InitialSpins/AtomSpin/Atoms", val, stat)
+    call hsd_get(root, "hamiltonian/dftb/spinpolarisation/colinear/" &
+        & // "initialspins/atomspin/atoms", val, stat)
     call check(stat == 0, msg="HSD: depth 7 AtomSpin/Atoms")
 
     ! --- JSON ---

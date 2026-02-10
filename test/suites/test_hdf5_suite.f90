@@ -292,9 +292,9 @@ contains
     call data_load(trim(filepath), root2, error, fmt=DATA_FMT_HDF5)
     call check(.not. allocated(error), msg="HDF5 load should succeed")
 
-    call check(hsd_has_child(root2, "Level1"), &
+    call check(hsd_has_child(root2, "level1"), &
         & msg="Should have Level1 group")
-    call check(hsd_child_count(root2, "Level1") == 2, &
+    call check(hsd_child_count(root2, "level1") == 2, &
         & msg="Level1 should have 2 children")
 
     call hsd_get(root2, "Level1/Level2/DeepVal", val)
@@ -391,11 +391,11 @@ contains
     call check(.not. allocated(error), msg="HDF5 load should succeed")
 
     ! Verify key fields survived the round-trip
-    call check(hsd_has_child(root2, "Geometry"), &
+    call check(hsd_has_child(root2, "geometry"), &
         & msg="Should have Geometry")
-    call check(hsd_has_child(root2, "Hamiltonian"), &
+    call check(hsd_has_child(root2, "hamiltonian"), &
         & msg="Should have Hamiltonian")
-    call check(hsd_has_child(root2, "Options"), &
+    call check(hsd_has_child(root2, "options"), &
         & msg="Should have Options")
 
   end subroutine test_hsd_to_hdf5_roundtrip

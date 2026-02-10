@@ -17,6 +17,22 @@ module test_cross_format_suite
 
 contains
 
+  !> Convert a string to lowercase (ASCII only). Local helper for case-insensitive comparison.
+  pure function to_lower_local(str) result(lower)
+    character(len=*), intent(in) :: str
+    character(len=:), allocatable :: lower
+    integer :: ii, ic
+    allocate(character(len=len(str)) :: lower)
+    do ii = 1, len(str)
+      ic = iachar(str(ii:ii))
+      if (ic >= iachar("A") .and. ic <= iachar("Z")) then
+        lower(ii:ii) = achar(ic + 32)
+      else
+        lower(ii:ii) = str(ii:ii)
+      end if
+    end do
+  end function to_lower_local
+
   function tests()
     type(test_list) :: tests
 
@@ -164,9 +180,9 @@ contains
     call data_load_string(xml_str, root, DATA_FMT_XML, error)
     call check(.not. allocated(error), msg="XML re-parse should succeed")
 
-    ! tree → JSON (compare)
+    ! tree → JSON (compare, case-insensitive since HSD parser lowercases node names)
     call data_dump_to_string(root, json2, DATA_FMT_JSON)
-    call check(json1 == json2, &
+    call check(to_lower_local(json1) == to_lower_local(json2), &
         & msg="JSON→HSD→XML→JSON should preserve content")
 
   end subroutine test_json_hsd_xml_json
@@ -197,9 +213,9 @@ contains
     call data_load_string(hsd_str, root, DATA_FMT_HSD, error)
     call check(.not. allocated(error), msg="HSD re-parse should succeed")
 
-    ! tree → HSD (compare)
+    ! tree → HSD (compare, case-insensitive since HSD parser lowercases node names)
     call data_dump_to_string(root, hsd2, DATA_FMT_HSD)
-    call check(hsd1 == hsd2, &
+    call check(to_lower_local(hsd1) == to_lower_local(hsd2), &
         & msg="XML→JSON→HSD→XML should preserve content (HSD canonical)")
 
   end subroutine test_xml_json_hsd_xml
@@ -252,13 +268,13 @@ contains
     call data_load_string(xml_str, root, DATA_FMT_XML, error)
     call check(.not. allocated(error), msg="XML re-parse should succeed")
 
-    ! Verify key nodes survive the full chain
-    call check(hsd_has_child(root, "Geometry"), &
-        & msg="Geometry should survive HSD→JSON→XML chain")
-    call check(hsd_has_child(root, "Hamiltonian"), &
-        & msg="Hamiltonian should survive HSD→JSON→XML chain")
-    call check(hsd_has_child(root, "Options"), &
-        & msg="Options should survive HSD→JSON→XML chain")
+    ! Verify key nodes survive the full chain (use lowercase since HSD parser lowercases)
+    call check(hsd_has_child(root, "geometry"), &
+        & msg="geometry should survive HSD→JSON→XML chain")
+    call check(hsd_has_child(root, "hamiltonian"), &
+        & msg="hamiltonian should survive HSD→JSON→XML chain")
+    call check(hsd_has_child(root, "options"), &
+        & msg="options should survive HSD→JSON→XML chain")
 
   end subroutine test_all_three_preserve
 
@@ -427,8 +443,15 @@ contains
     call data_dump_to_string(root, dst2, dst_fmt)
 
     ! The two destination-format dumps should be identical
-    call check(dst1 == dst2, msg=label // ": idempotency check")
-    ok = (dst1 == dst2)
+    ! When dst is HSD, the parser lowercases node names, so normalize before comparison
+    if (dst_fmt == DATA_FMT_HSD) then
+      call check(to_lower_local(dst1) == to_lower_local(dst2), &
+          & msg=label // ": idempotency check")
+      ok = (to_lower_local(dst1) == to_lower_local(dst2))
+    else
+      call check(dst1 == dst2, msg=label // ": idempotency check")
+      ok = (dst1 == dst2)
+    end if
 
   end subroutine roundtrip_pair
 
@@ -610,9 +633,9 @@ contains
     call data_load_string(json_str, root, DATA_FMT_JSON, error)
     call check(.not. allocated(error), msg="JSON re-parse should succeed")
 
-    ! tree → TOML (compare)
+    ! tree → TOML (compare, case-insensitive since HSD parser lowercases node names)
     call data_dump_to_string(root, toml2, DATA_FMT_TOML)
-    call check(toml1 == toml2, &
+    call check(to_lower_local(toml1) == to_lower_local(toml2), &
         & msg="TOML→HSD→JSON→TOML should preserve content")
 
   end subroutine test_toml_hsd_json_toml
