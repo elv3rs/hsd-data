@@ -1,0 +1,41 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Build & Test (GCC ${{ matrix.gcc-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        gcc-version: [12, 13, 14]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install GCC Fortran
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gfortran-${{ matrix.gcc-version }}
+
+      - name: Configure CMake
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_Fortran_COMPILER=gfortran-${{ matrix.gcc-version }} \
+            -DHSD_DATA_BUILD_TESTS=ON \
+            -DHSD_DATA_BUILD_APP=ON \
+            -DHSD_DATA_WITH_TOML=ON
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure

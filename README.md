@@ -1,5 +1,8 @@
 # hsd-data
 
+[![Tests](https://github.com/dftbplus/hsd-data/actions/workflows/tests.yml/badge.svg)](https://github.com/dftbplus/hsd-data/actions/workflows/tests.yml)
+[![Linting](https://github.com/dftbplus/hsd-data/actions/workflows/lint.yml/badge.svg)](https://github.com/dftbplus/hsd-data/actions/workflows/lint.yml)
+
 Multi-format structured data IO library for Fortran.
 
 **hsd-data** builds on [hsd-fortran](https://github.com/dftbplus/hsd-fortran) to
@@ -77,7 +80,7 @@ is not found as a sibling directory or installed system-wide.
 |---|---|---|
 | `HSD_DATA_BUILD_TESTS` | `ON` | Build the test suite |
 | `HSD_DATA_BUILD_APP` | `ON` | Build the `hsd-convert` CLI tool |
-| `HSD_DATA_WITH_TOML` | `ON` | Enable TOML backend (fetches toml-f automatically) |
+| `HSD_DATA_WITH_TOML` | `OFF` | Enable TOML backend (fetches toml-f automatically) |
 | `HSD_DATA_WITH_HDF5` | `OFF` | Enable HDF5 backend (requires HDF5) |
 | `HSD_DATA_COVERAGE` | `OFF` | Enable gcov instrumentation (GCC only) |
 

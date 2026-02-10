@@ -1,0 +1,113 @@
+name: Docs & Coverage
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  coverage:
+    name: Generate Docs & Coverage
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install anybadge
+          pip install -r docs/requirements.txt
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gfortran lcov
+
+      - name: Configure CMake
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_Fortran_COMPILER=gfortran \
+            -DHSD_DATA_BUILD_TESTS=ON \
+            -DHSD_DATA_BUILD_APP=ON \
+            -DHSD_DATA_WITH_TOML=ON \
+            -DHSD_DATA_COVERAGE=ON
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Generate coverage report
+        run: |
+          lcov --capture \
+            --directory build/src \
+            --output-file build/coverage.info \
+            --ignore-errors inconsistent
+
+          # Remove system files and external dependencies
+          lcov --remove build/coverage.info \
+            '/usr/*' \
+            '*/external/*' \
+            '*/_deps/*' \
+            --ignore-errors unused \
+            --output-file build/coverage.info
+
+          # Generate HTML report
+          genhtml build/coverage.info --output-directory coverage_html
+
+      - name: Generate Coverage Badge
+        run: |
+          # Extract percentage
+          COVERAGE=$(lcov --summary build/coverage.info | grep -m 1 "lines" | cut -d ':' -f 2 | cut -d '%' -f 1 | tr -d '[:space:]')
+          echo "Coverage: $COVERAGE%"
+
+          # Generate badge
+          anybadge --value=$COVERAGE --file=coverage_html/coverage.svg --label="coverage" --color=green --overwrite
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Build Sphinx documentation
+        run: sphinx-build -b html docs public
+
+      - name: Merge documentation and coverage
+        run: |
+          mkdir -p public/coverage
+          cp -r coverage_html/* public/coverage/
+
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public/
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: coverage
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
