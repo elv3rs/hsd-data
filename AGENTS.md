@@ -43,6 +43,14 @@ All source code **must** pass `fortitude check` with zero warnings before
 being committed. [Fortitude](https://github.com/PlasmaFAIR/fortitude) is
 configured via `fpm.toml`.
 
+### CI Workflows (`.github/workflows/`)
+
+| Workflow | Purpose |
+|----------|---------|
+| `tests.yml` | Build and run full test suite |
+| `lint.yml` | Run `fortitude check` on all source files |
+| `docs.yml` | Build Sphinx documentation |
+
 ## Testing Framework
 
 Uses [Fortuno](https://github.com/fortuno-repos/fortuno) with automatic test
