@@ -5,7 +5,7 @@ hsd-data Documentation
    :alt: License
 
 **hsd-data** is a multi-format structured data IO library for Fortran. It
-builds on `hsd-fortran <https://github.com/dftbplus/hsd-fortran>`_ to provide
+builds on `hsd-fortran <https://github.com/elv3rs/hsd-fortran>`_ to provide
 unified loading and dumping of structured data in **HSD**, **XML**, **JSON**,
 **TOML**, and **HDF5** formats.
 

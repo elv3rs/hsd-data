@@ -17,8 +17,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Checkout hsd-fortran (sibling dependency)
+        uses: actions/checkout@v4
         with:
-          submodules: recursive
+          repository: ${{ github.repository_owner }}/hsd-fortran
+          path: _hsd-fortran
+
+      - name: Set up hsd-fortran sibling link
+        run: ln -s "$GITHUB_WORKSPACE/_hsd-fortran" ../hsd-fortran
 
       - name: Install GCC Fortran
         run: |

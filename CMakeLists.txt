@@ -26,15 +26,17 @@ endif()
 include(FetchContent)
 
 # hsd-fortran (required)
-# Prefer a local sibling checkout, fall back to FetchContent
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../hsd-fortran/CMakeLists.txt")
+# Check if already available from parent project, prefer local sibling, fall back to FetchContent
+if(TARGET hsd)
+  message(STATUS "Using hsd-fortran from parent project")
+elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../hsd-fortran/CMakeLists.txt")
   message(STATUS "Using local hsd-fortran from ../hsd-fortran")
   add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../hsd-fortran" hsd-fortran)
 else()
   find_package(hsd QUIET)
   if(NOT hsd_FOUND)
     FetchContent_Declare(hsd-fortran
-      GIT_REPOSITORY https://github.com/dftbplus/hsd-fortran
+      GIT_REPOSITORY https://github.com/elv3rs/hsd-fortran
       GIT_TAG main
     )
     # Disable hsd-fortran sub-project tests/examples in our build

@@ -4,7 +4,7 @@
 
 hsd-data provides a unified interface for loading and dumping structured data
 across multiple file formats. The in-memory representation is always the
-`hsd_table` / `hsd_value` tree from [hsd-fortran](https://github.com/dftbplus/hsd-fortran).
+`hsd_table` / `hsd_value` tree from [hsd-fortran](https://github.com/elv3rs/hsd-fortran).
 
 ```
             ┌─────────┐
@@ -192,7 +192,7 @@ All status codes from hsd-fortran are available:
 | `HSD_STAT_TYPE_ERROR` | 10 | Type conversion failed |
 | `HSD_STAT_NOT_FOUND` | 11 | Key not found |
 
-See the [hsd-fortran error handling guide](https://github.com/dftbplus/hsd-fortran)
+See the [hsd-fortran error handling guide](https://github.com/elv3rs/hsd-fortran)
 for the complete list.
 
 ## Backend-Specific Access

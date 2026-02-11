@@ -43,11 +43,6 @@ target_include_directories(hsd-data PUBLIC
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hsd-data>
 )
 
-# Also need to see hsd-fortran's modules
-target_include_directories(hsd-data PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/modules>
-)
-
 # Compiler flags
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
   target_compile_options(hsd-data PRIVATE

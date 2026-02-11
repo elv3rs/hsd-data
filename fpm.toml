@@ -28,7 +28,7 @@ exclude = ["test/testapp.f90"]
 line-length = 100
 
 [dependencies]
-hsd = { git = "https://github.com/dftbplus/hsd-fortran" }
+hsd = { git = "https://github.com/elv3rs/hsd-fortran" }
 
 [dev-dependencies]
 fortuno = { git = "https://github.com/fortuno-repos/fortuno-fpm-serial.git" }

@@ -4,7 +4,7 @@
 
 - CMake ≥ 3.14
 - Fortran compiler (gfortran ≥ 10, Intel ifx, NAG)
-- [hsd-fortran](https://github.com/dftbplus/hsd-fortran) (auto-fetched if not found)
+- [hsd-fortran](https://github.com/elv3rs/hsd-fortran) (auto-fetched if not found)
 
 ### Optional Dependencies
 
@@ -52,7 +52,7 @@ ctest --test-dir build
 include(FetchContent)
 FetchContent_Declare(
   hsd-data
-  GIT_REPOSITORY https://github.com/dftbplus/hsd-data
+  GIT_REPOSITORY https://github.com/elv3rs/hsd-data
   GIT_TAG main
 )
 FetchContent_MakeAvailable(hsd-data)

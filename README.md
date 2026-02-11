@@ -1,11 +1,11 @@
 # hsd-data
 
-[![Tests](https://github.com/dftbplus/hsd-data/actions/workflows/tests.yml/badge.svg)](https://github.com/dftbplus/hsd-data/actions/workflows/tests.yml)
-[![Linting](https://github.com/dftbplus/hsd-data/actions/workflows/lint.yml/badge.svg)](https://github.com/dftbplus/hsd-data/actions/workflows/lint.yml)
+[![Tests](https://github.com/elv3rs/hsd-data/actions/workflows/tests.yml/badge.svg)](https://github.com/elv3rs/hsd-data/actions/workflows/tests.yml)
+[![Linting](https://github.com/elv3rs/hsd-data/actions/workflows/lint.yml/badge.svg)](https://github.com/elv3rs/hsd-data/actions/workflows/lint.yml)
 
 Multi-format structured data IO library for Fortran.
 
-**hsd-data** builds on [hsd-fortran](https://github.com/dftbplus/hsd-fortran) to
+**hsd-data** builds on [hsd-fortran](https://github.com/elv3rs/hsd-fortran) to
 provide unified loading and dumping of structured data in **HSD**, **XML**,
 **JSON**, **TOML**, and **HDF5** formats. Application code works exclusively with
 the familiar `hsd_table` / `hsd_value` tree — the backend handles all
@@ -53,7 +53,7 @@ call data_convert("input.xml", "output.hsd", error)
 
 - CMake ≥ 3.14
 - Fortran compiler (gfortran ≥ 10, Intel ifx, NAG)
-- [hsd-fortran](https://github.com/dftbplus/hsd-fortran) (auto-fetched if not
+- [hsd-fortran](https://github.com/elv3rs/hsd-fortran) (auto-fetched if not
   found locally)
 - HDF5 with Fortran bindings (optional, for HDF5 backend)
 
