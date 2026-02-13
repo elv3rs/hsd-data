@@ -46,3 +46,46 @@ jobs:
 
       - name: Run tests
         run: ctest --test-dir build --output-on-failure
+
+  test-intel:
+    name: Build & Test (Intel ifx)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Checkout hsd-fortran (sibling dependency)
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/hsd-fortran
+          path: _hsd-fortran
+
+      - name: Set up hsd-fortran sibling link
+        run: ln -s "$GITHUB_WORKSPACE/_hsd-fortran" ../hsd-fortran
+
+      - name: Setup Intel oneAPI
+        uses: rscohn2/setup-oneapi@v0
+        with:
+          components: ifx@2025.0.0
+
+      - name: Setup Intel environment
+        run: |
+          source /opt/intel/oneapi/setvars.sh
+          printenv >> "$GITHUB_ENV"
+          echo "/opt/intel/oneapi/compiler/latest/bin" >> "$GITHUB_PATH"
+
+      - name: Configure CMake
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_Fortran_COMPILER=ifx \
+            -DHSD_DATA_BUILD_TESTS=ON \
+            -DHSD_DATA_BUILD_APP=ON \
+            -DHSD_DATA_WITH_TOML=ON
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure
