@@ -1,0 +1,12 @@
+Geometry:
+  LatticeVectors:
+    _value: "6.32  0.00  0.00\n0.00  6.32  0.00\n0.00  0.00  6.32"
+  LatticeVectors__attrib: Angstrom
+  Cutoff: 40.0
+  Cutoff__attrib: Bohr
+Hamiltonian:
+  Filling:
+    Temperature: 300.0
+    Temperature__attrib: Kelvin
+  Convergence: "1.0e-6"
+  Convergence__attrib: Hartree

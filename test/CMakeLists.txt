@@ -20,6 +20,7 @@ set(TEST_SUITES
   suites/test_edge_cases_suite.f90
   suites/test_cross_format_suite.f90
   suites/test_toml_suite.f90
+  suites/test_yaml_suite.f90
 )
 
 if(HSD_DATA_WITH_HDF5)
@@ -179,5 +180,75 @@ if(HSD_DATA_BUILD_APP)
   add_test(NAME cli/load_arrays_json
     COMMAND ${HSD_CONVERT} ${FIXTURE_DIR}/arrays.json
       ${CMAKE_CURRENT_BINARY_DIR}/cli_arrays_fixture.hsd
+  )
+
+  # --- YAML CLI integration tests ---
+
+  # HSD → YAML file conversion
+  add_test(NAME cli/hsd_to_yaml
+    COMMAND ${HSD_CONVERT} ${FIXTURE_DIR}/simple.hsd
+      ${CMAKE_CURRENT_BINARY_DIR}/cli_hsd_to_yaml.yaml
+  )
+
+  # YAML → HSD file conversion
+  add_test(NAME cli/yaml_to_hsd
+    COMMAND ${HSD_CONVERT} ${FIXTURE_DIR}/simple.yaml
+      ${CMAKE_CURRENT_BINARY_DIR}/cli_yaml_to_hsd.hsd
+  )
+
+  # YAML → JSON file conversion
+  add_test(NAME cli/yaml_to_json
+    COMMAND ${HSD_CONVERT} ${FIXTURE_DIR}/simple.yaml
+      ${CMAKE_CURRENT_BINARY_DIR}/cli_yaml_to_json.json
+  )
+
+  # JSON → YAML file conversion
+  add_test(NAME cli/json_to_yaml
+    COMMAND ${HSD_CONVERT} ${FIXTURE_DIR}/simple.json
+      ${CMAKE_CURRENT_BINARY_DIR}/cli_json_to_yaml.yaml
+  )
+
+  # YAML → XML file conversion
+  add_test(NAME cli/yaml_to_xml
+    COMMAND ${HSD_CONVERT} ${FIXTURE_DIR}/simple.yaml
+      ${CMAKE_CURRENT_BINARY_DIR}/cli_yaml_to_xml.xml
+  )
+
+  # YAML round-trip: HSD → YAML → HSD
+  add_test(NAME cli/yaml_roundtrip_hsd_to_yaml
+    COMMAND ${HSD_CONVERT} ${FIXTURE_DIR}/nested.hsd
+      ${CMAKE_CURRENT_BINARY_DIR}/cli_nested.yaml
+  )
+  add_test(NAME cli/yaml_roundtrip_yaml_to_hsd
+    COMMAND ${HSD_CONVERT} ${CMAKE_CURRENT_BINARY_DIR}/cli_nested.yaml
+      ${CMAKE_CURRENT_BINARY_DIR}/cli_nested_yaml_rt.hsd
+  )
+  set_tests_properties(cli/yaml_roundtrip_yaml_to_hsd PROPERTIES
+    DEPENDS cli/yaml_roundtrip_hsd_to_yaml)
+
+  # --compact flag for YAML
+  add_test(NAME cli/compact_yaml
+    COMMAND ${HSD_CONVERT} ${FIXTURE_DIR}/simple.hsd
+      ${CMAKE_CURRENT_BINARY_DIR}/cli_compact.yaml --compact
+  )
+
+  # --from/--to override with YAML
+  add_test(NAME cli/format_override_yaml
+    COMMAND ${HSD_CONVERT} ${FIXTURE_DIR}/simple.hsd
+      ${CMAKE_CURRENT_BINARY_DIR}/cli_override.yaml --from=hsd --to=yaml
+  )
+
+  # Load pre-built YAML fixture files
+  add_test(NAME cli/load_simple_yaml
+    COMMAND ${HSD_CONVERT} ${FIXTURE_DIR}/simple.yaml
+      ${CMAKE_CURRENT_BINARY_DIR}/cli_simple_yaml_fixture.hsd
+  )
+  add_test(NAME cli/load_nested_yaml
+    COMMAND ${HSD_CONVERT} ${FIXTURE_DIR}/nested.yaml
+      ${CMAKE_CURRENT_BINARY_DIR}/cli_nested_yaml_fixture.hsd
+  )
+  add_test(NAME cli/load_arrays_yaml
+    COMMAND ${HSD_CONVERT} ${FIXTURE_DIR}/arrays.yaml
+      ${CMAKE_CURRENT_BINARY_DIR}/cli_arrays_yaml_fixture.hsd
   )
 endif()

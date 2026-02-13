@@ -14,6 +14,7 @@
 program hsd_convert
   use hsd_data, only: hsd_table, hsd_error_t, &
       & DATA_FMT_AUTO, DATA_FMT_HSD, DATA_FMT_XML, DATA_FMT_JSON, DATA_FMT_TOML, &
+      & DATA_FMT_YAML, &
       & data_load, data_load_string, data_dump, data_dump_to_string, &
       & data_detect_format, data_format_available
   implicit none(type, external)
@@ -153,6 +154,8 @@ contains
       fmt = DATA_FMT_JSON
     case ("toml")
       fmt = DATA_FMT_TOML
+    case ("yaml", "yml")
+      fmt = DATA_FMT_YAML
     case default
       fmt = -1
     end select
@@ -204,15 +207,15 @@ contains
     write(*, "(a)") "Usage: hsd-convert INPUT OUTPUT [options]"
     write(*, "(a)") "       hsd-convert --from=FMT --to=FMT < input > output"
     write(*, "(a)") ""
-    write(*, "(a)") "Convert between structured data formats (HSD, XML, JSON, TOML)."
+    write(*, "(a)") "Convert between structured data formats (HSD, XML, JSON, TOML, YAML)."
     write(*, "(a)") ""
     write(*, "(a)") "Positional arguments:"
     write(*, "(a)") "  INPUT       Input file (format auto-detected from extension)"
     write(*, "(a)") "  OUTPUT      Output file (format auto-detected from extension)"
     write(*, "(a)") ""
     write(*, "(a)") "Options:"
-    write(*, "(a)") "  --from=FMT  Input format: hsd, xml, json, toml"
-    write(*, "(a)") "  --to=FMT    Output format: hsd, xml, json, toml"
+    write(*, "(a)") "  --from=FMT  Input format: hsd, xml, json, toml, yaml"
+    write(*, "(a)") "  --to=FMT    Output format: hsd, xml, json, toml, yaml"
     write(*, "(a)") "  --pretty    Pretty-print output (default)"
     write(*, "(a)") "  --compact   Compact output"
     write(*, "(a)") "  --help      Show this help message"

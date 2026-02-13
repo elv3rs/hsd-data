@@ -11,6 +11,7 @@ program testapp
   use test_edge_cases_suite, only: edge_tests => tests
   use test_cross_format_suite, only: cross_format_tests => tests
   use test_toml_suite, only: toml_tests => tests
+  use test_yaml_suite, only: yaml_tests => tests
 #ifdef WITH_HDF5
   use test_hdf5_suite, only: hdf5_tests => tests
 #endif
@@ -26,7 +27,8 @@ program testapp
       json_tests(), &
       edge_tests(), &
       cross_format_tests(), &
-      toml_tests() &
+      toml_tests(), &
+      yaml_tests() &
 #ifdef WITH_HDF5
       , hdf5_tests() &
 #endif

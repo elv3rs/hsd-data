@@ -47,7 +47,7 @@ module hsd_data
   ! hsd-data specific modules
   use hsd_data_common, only: &
       & DATA_FMT_AUTO, DATA_FMT_HSD, DATA_FMT_XML, DATA_FMT_JSON, &
-      & DATA_FMT_TOML, DATA_FMT_HDF5, &
+      & DATA_FMT_TOML, DATA_FMT_HDF5, DATA_FMT_YAML, &
       & data_detect_format, data_format_available
 
   ! Backends
@@ -58,6 +58,8 @@ module hsd_data
   use hsd_data_xml_writer, only: xml_dump_file, xml_dump_to_string
   use hsd_data_json_parser, only: json_parse_file, json_parse_string
   use hsd_data_json_writer, only: json_dump_file, json_dump_to_string
+  use hsd_data_yaml_parser, only: yaml_parse_file, yaml_parse_string
+  use hsd_data_yaml_writer, only: yaml_dump_file, yaml_dump_to_string
 #ifdef WITH_TOML
   use hsd_data_toml, only: &
       & toml_backend_load, toml_backend_load_string, &
@@ -117,7 +119,7 @@ module hsd_data
 
   ! Format constants
   public :: DATA_FMT_AUTO, DATA_FMT_HSD, DATA_FMT_XML, DATA_FMT_JSON
-  public :: DATA_FMT_TOML, DATA_FMT_HDF5
+  public :: DATA_FMT_TOML, DATA_FMT_HDF5, DATA_FMT_YAML
 
   ! Unified IO
   public :: data_load, data_load_string
@@ -181,6 +183,8 @@ contains
       call xml_parse_file(filename, root, error)
     case (DATA_FMT_JSON)
       call json_parse_file(filename, root, error)
+    case (DATA_FMT_YAML)
+      call yaml_parse_file(filename, root, error)
 #ifdef WITH_TOML
     case (DATA_FMT_TOML)
       call toml_backend_load(filename, root, error)
@@ -239,6 +243,8 @@ contains
       call xml_parse_string(source, root, error, filename)
     case (DATA_FMT_JSON)
       call json_parse_string(source, root, error, filename)
+    case (DATA_FMT_YAML)
+      call yaml_parse_string(source, root, error, filename)
 #ifdef WITH_TOML
     case (DATA_FMT_TOML)
       call toml_backend_load_string(source, root, error, filename)
@@ -297,6 +303,8 @@ contains
       call xml_dump_file(root, filename, error, pretty)
     case (DATA_FMT_JSON)
       call json_dump_file(root, filename, error, pretty)
+    case (DATA_FMT_YAML)
+      call yaml_dump_file(root, filename, error, pretty)
 #ifdef WITH_TOML
     case (DATA_FMT_TOML)
       call toml_backend_dump(root, filename, error, pretty)
@@ -338,6 +346,8 @@ contains
       call xml_dump_to_string(root, output, pretty)
     case (DATA_FMT_JSON)
       call json_dump_to_string(root, output, pretty)
+    case (DATA_FMT_YAML)
+      call yaml_dump_to_string(root, output, pretty)
 #ifdef WITH_TOML
     case (DATA_FMT_TOML)
       call toml_backend_dump_to_string(root, output, pretty)

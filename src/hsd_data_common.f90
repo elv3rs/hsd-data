@@ -10,6 +10,7 @@ module hsd_data_common
   integer, parameter, public :: DATA_FMT_JSON = 3  !< JSON format
   integer, parameter, public :: DATA_FMT_TOML = 4  !< TOML format
   integer, parameter, public :: DATA_FMT_HDF5 = 5  !< HDF5 format
+  integer, parameter, public :: DATA_FMT_YAML = 6  !< YAML format
 
   public :: data_detect_format, data_format_available
 
@@ -45,6 +46,8 @@ contains
       fmt = DATA_FMT_TOML
     case ("h5", "hdf5")
       fmt = DATA_FMT_HDF5
+    case ("yaml", "yml")
+      fmt = DATA_FMT_YAML
     case default
       fmt = -1
     end select
@@ -81,6 +84,8 @@ contains
 #else
       available = .false.
 #endif
+    case (DATA_FMT_YAML)
+      available = .true.
     case default
       available = .false.
     end select

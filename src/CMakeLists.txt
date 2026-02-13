@@ -9,6 +9,8 @@ set(HSD_DATA_SOURCES
   backends/hsd_data_xml_writer.f90
   backends/hsd_data_json_writer.f90
   backends/hsd_data_json_parser.f90
+  backends/hsd_data_yaml_parser.f90
+  backends/hsd_data_yaml_writer.f90
   hsd_data.f90
 )
 

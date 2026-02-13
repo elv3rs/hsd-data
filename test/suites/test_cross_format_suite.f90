@@ -3,7 +3,7 @@ module test_cross_format_suite
   use hsd_data, only: hsd_table, hsd_error_t, hsd_has_child, hsd_child_count, &
       & hsd_get, hsd_table_equal, &
       & data_load, data_load_string, data_dump_to_string, &
-      & DATA_FMT_HSD, DATA_FMT_XML, DATA_FMT_JSON
+      & DATA_FMT_HSD, DATA_FMT_XML, DATA_FMT_JSON, DATA_FMT_YAML
 #ifdef WITH_TOML
   use hsd_data, only: DATA_FMT_TOML
 #endif
@@ -474,6 +474,10 @@ contains
         & "simple XML->HSD->XML", ok)
     call roundtrip_pair(trim(base) // ".xml", DATA_FMT_XML, DATA_FMT_JSON, &
         & "simple XML->JSON->XML", ok)
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_YAML, &
+        & "simple HSD->YAML->HSD", ok)
+    call roundtrip_pair(trim(base) // ".yaml", DATA_FMT_YAML, DATA_FMT_JSON, &
+        & "simple YAML->JSON->YAML", ok)
 
   end subroutine test_fixture_simple_pairs
 
@@ -602,6 +606,237 @@ contains
         & "unicode XML->JSON->XML", ok)
 
   end subroutine test_fixture_unicode_pairs
+
+  !> YAML → JSON → YAML: direct 2-format hop.
+  subroutine test_yaml_json_yaml()
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+    character(len=:), allocatable :: yaml1, json_str, yaml2
+
+    call data_load_string( &
+        & 'A: "1"' // new_line("a") // 'B:' // new_line("a") // '  C: "2"', &
+        & root, DATA_FMT_YAML, error)
+    call check(.not. allocated(error), msg="YAML parse should succeed")
+    call data_dump_to_string(root, yaml1, DATA_FMT_YAML)
+
+    ! YAML → JSON
+    call data_dump_to_string(root, json_str, DATA_FMT_JSON)
+    call check(len(json_str) > 0, msg="JSON output should be non-empty")
+
+    ! JSON → tree
+    call data_load_string(json_str, root, DATA_FMT_JSON, error)
+    call check(.not. allocated(error), msg="JSON re-parse should succeed")
+
+    ! tree → YAML (compare)
+    call data_dump_to_string(root, yaml2, DATA_FMT_YAML)
+    call check(yaml1 == yaml2, msg="YAML→JSON→YAML should preserve content")
+
+  end subroutine test_yaml_json_yaml
+
+
+  !> HSD → YAML → XML → HSD: 3-format chain including YAML.
+  subroutine test_hsd_yaml_xml_hsd()
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+    character(len=:), allocatable :: hsd1, yaml_str, xml_str, hsd2
+
+    call data_load_string( &
+        & 'Foo { Bar = 42 }' // new_line("a") // 'Baz = "hello"', &
+        & root, DATA_FMT_HSD, error)
+    call check(.not. allocated(error), msg="HSD parse should succeed")
+    call data_dump_to_string(root, hsd1, DATA_FMT_HSD)
+
+    ! HSD → YAML
+    call data_dump_to_string(root, yaml_str, DATA_FMT_YAML)
+    call check(len(yaml_str) > 0, msg="YAML output should be non-empty")
+
+    ! YAML → tree
+    call data_load_string(yaml_str, root, DATA_FMT_YAML, error)
+    call check(.not. allocated(error), msg="YAML re-parse should succeed")
+
+    ! tree → XML
+    call data_dump_to_string(root, xml_str, DATA_FMT_XML)
+    call check(len(xml_str) > 0, msg="XML output should be non-empty")
+
+    ! XML → tree
+    call data_load_string(xml_str, root, DATA_FMT_XML, error)
+    call check(.not. allocated(error), msg="XML re-parse should succeed")
+
+    ! tree → HSD (compare)
+    call data_dump_to_string(root, hsd2, DATA_FMT_HSD)
+    call check(hsd1 == hsd2, msg="HSD→YAML→XML→HSD should preserve content")
+
+  end subroutine test_hsd_yaml_xml_hsd
+
+
+  !> YAML → HSD → JSON → YAML: 3-format chain starting from YAML.
+  subroutine test_yaml_hsd_json_yaml()
+    type(hsd_table) :: root
+    type(hsd_error_t), allocatable :: error
+    character(len=:), allocatable :: yaml1, hsd_str, json_str, yaml2
+
+    call data_load_string( &
+        & 'Alpha:' // new_line("a") // '  Beta: "7"' // new_line("a") &
+        & // 'Gamma: "text"', &
+        & root, DATA_FMT_YAML, error)
+    call check(.not. allocated(error), msg="YAML parse should succeed")
+    call data_dump_to_string(root, yaml1, DATA_FMT_YAML)
+
+    ! YAML → HSD
+    call data_dump_to_string(root, hsd_str, DATA_FMT_HSD)
+
+    ! HSD → tree
+    call data_load_string(hsd_str, root, DATA_FMT_HSD, error)
+    call check(.not. allocated(error), msg="HSD re-parse should succeed")
+
+    ! tree → JSON
+    call data_dump_to_string(root, json_str, DATA_FMT_JSON)
+
+    ! JSON → tree
+    call data_load_string(json_str, root, DATA_FMT_JSON, error)
+    call check(.not. allocated(error), msg="JSON re-parse should succeed")
+
+    ! tree → YAML (compare, case-insensitive since HSD parser lowercases)
+    call data_dump_to_string(root, yaml2, DATA_FMT_YAML)
+    call check(to_lower_local(yaml1) == to_lower_local(yaml2), &
+        & msg="YAML→HSD→JSON→YAML should preserve content")
+
+  end subroutine test_yaml_hsd_json_yaml
+
+
+  !> Systematic roundtrip for simple fixture across YAML format pairs.
+  subroutine test_fixture_simple_yaml_pairs()
+    character(len=512) :: base
+    logical :: ok
+
+    base = source_dir // "/test/fixtures/simple"
+
+    ! From other formats → YAML
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_YAML, &
+        & "simple HSD->YAML", ok)
+    call roundtrip_pair(trim(base) // ".json", DATA_FMT_JSON, DATA_FMT_YAML, &
+        & "simple JSON->YAML", ok)
+    call roundtrip_pair(trim(base) // ".xml", DATA_FMT_XML, DATA_FMT_YAML, &
+        & "simple XML->YAML", ok)
+
+    ! From YAML → other formats
+    call roundtrip_pair(trim(base) // ".yaml", DATA_FMT_YAML, DATA_FMT_HSD, &
+        & "simple YAML->HSD", ok)
+    call roundtrip_pair(trim(base) // ".yaml", DATA_FMT_YAML, DATA_FMT_JSON, &
+        & "simple YAML->JSON", ok)
+    call roundtrip_pair(trim(base) // ".yaml", DATA_FMT_YAML, DATA_FMT_XML, &
+        & "simple YAML->XML", ok)
+
+  end subroutine test_fixture_simple_yaml_pairs
+
+
+  !> Systematic roundtrip for nested fixture across YAML format pairs.
+  subroutine test_fixture_nested_yaml_pairs()
+    character(len=512) :: base
+    logical :: ok
+
+    base = source_dir // "/test/fixtures/nested"
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_YAML, &
+        & "nested HSD->YAML", ok)
+    call roundtrip_pair(trim(base) // ".json", DATA_FMT_JSON, DATA_FMT_YAML, &
+        & "nested JSON->YAML", ok)
+    call roundtrip_pair(trim(base) // ".yaml", DATA_FMT_YAML, DATA_FMT_HSD, &
+        & "nested YAML->HSD", ok)
+    call roundtrip_pair(trim(base) // ".yaml", DATA_FMT_YAML, DATA_FMT_JSON, &
+        & "nested YAML->JSON", ok)
+
+  end subroutine test_fixture_nested_yaml_pairs
+
+
+  !> Systematic roundtrip for arrays fixture across YAML format pairs.
+  subroutine test_fixture_arrays_yaml_pairs()
+    character(len=512) :: base
+    logical :: ok
+
+    base = source_dir // "/test/fixtures/arrays"
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_YAML, &
+        & "arrays HSD->YAML", ok)
+    call roundtrip_pair(trim(base) // ".json", DATA_FMT_JSON, DATA_FMT_YAML, &
+        & "arrays JSON->YAML", ok)
+    call roundtrip_pair(trim(base) // ".yaml", DATA_FMT_YAML, DATA_FMT_HSD, &
+        & "arrays YAML->HSD", ok)
+    call roundtrip_pair(trim(base) // ".yaml", DATA_FMT_YAML, DATA_FMT_JSON, &
+        & "arrays YAML->JSON", ok)
+
+  end subroutine test_fixture_arrays_yaml_pairs
+
+
+  !> Systematic roundtrip for attributes fixture across YAML format pairs.
+  subroutine test_fixture_attribs_yaml_pairs()
+    character(len=512) :: base
+    logical :: ok
+
+    base = source_dir // "/test/fixtures/attributes"
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_YAML, &
+        & "attributes HSD->YAML", ok)
+    call roundtrip_pair(trim(base) // ".json", DATA_FMT_JSON, DATA_FMT_YAML, &
+        & "attributes JSON->YAML", ok)
+    call roundtrip_pair(trim(base) // ".yaml", DATA_FMT_YAML, DATA_FMT_HSD, &
+        & "attributes YAML->HSD", ok)
+    call roundtrip_pair(trim(base) // ".yaml", DATA_FMT_YAML, DATA_FMT_JSON, &
+        & "attributes YAML->JSON", ok)
+
+  end subroutine test_fixture_attribs_yaml_pairs
+
+
+  !> Systematic roundtrip for complex_values fixture across YAML format pairs.
+  subroutine test_fixture_complex_yaml_pairs()
+    character(len=512) :: base
+    logical :: ok
+
+    base = source_dir // "/test/fixtures/complex_values"
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_YAML, &
+        & "complex HSD->YAML", ok)
+    call roundtrip_pair(trim(base) // ".json", DATA_FMT_JSON, DATA_FMT_YAML, &
+        & "complex JSON->YAML", ok)
+    call roundtrip_pair(trim(base) // ".yaml", DATA_FMT_YAML, DATA_FMT_HSD, &
+        & "complex YAML->HSD", ok)
+    call roundtrip_pair(trim(base) // ".yaml", DATA_FMT_YAML, DATA_FMT_JSON, &
+        & "complex YAML->JSON", ok)
+
+  end subroutine test_fixture_complex_yaml_pairs
+
+
+  !> Systematic roundtrip for special_chars fixture across YAML format pairs.
+  subroutine test_fixture_special_yaml_pairs()
+    character(len=512) :: base
+    logical :: ok
+
+    base = source_dir // "/test/fixtures/special_chars"
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_YAML, &
+        & "special HSD->YAML", ok)
+    call roundtrip_pair(trim(base) // ".json", DATA_FMT_JSON, DATA_FMT_YAML, &
+        & "special JSON->YAML", ok)
+    call roundtrip_pair(trim(base) // ".yaml", DATA_FMT_YAML, DATA_FMT_HSD, &
+        & "special YAML->HSD", ok)
+    call roundtrip_pair(trim(base) // ".yaml", DATA_FMT_YAML, DATA_FMT_JSON, &
+        & "special YAML->JSON", ok)
+
+  end subroutine test_fixture_special_yaml_pairs
+
+
+  !> Systematic roundtrip for unicode fixture across YAML format pairs.
+  subroutine test_fixture_unicode_yaml_pairs()
+    character(len=512) :: base
+    logical :: ok
+
+    base = source_dir // "/test/fixtures/unicode"
+    call roundtrip_pair(trim(base) // ".hsd", DATA_FMT_HSD, DATA_FMT_YAML, &
+        & "unicode HSD->YAML", ok)
+    call roundtrip_pair(trim(base) // ".json", DATA_FMT_JSON, DATA_FMT_YAML, &
+        & "unicode JSON->YAML", ok)
+    call roundtrip_pair(trim(base) // ".yaml", DATA_FMT_YAML, DATA_FMT_HSD, &
+        & "unicode YAML->HSD", ok)
+    call roundtrip_pair(trim(base) // ".yaml", DATA_FMT_YAML, DATA_FMT_JSON, &
+        & "unicode YAML->JSON", ok)
+
+  end subroutine test_fixture_unicode_yaml_pairs
+
 
 #ifdef WITH_TOML
   !> TOML → HSD → JSON → TOML: full 3-format chain starting from TOML.

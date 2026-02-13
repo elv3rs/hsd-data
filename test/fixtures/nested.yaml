@@ -1,0 +1,32 @@
+Geometry:
+  GenFormat: "2 C\n5.431 0.0 0.0\n0.0 5.431 0.0\n0.0 0.0 5.431"
+  Periodic: "No"
+Hamiltonian:
+  DFTB:
+    SCC: "Yes"
+    MaxSccIterations: "200"
+    Mixer:
+      Broyden:
+        MixingParameter: "0.2"
+        InverseJacobiWeight: "0.01"
+    MaxAngularMomentum:
+      O: p
+      H: s
+    Filling:
+      Fermi:
+        Temperature: "0.0"
+        Temperature__attrib: Kelvin
+    KPointsAndWeights:
+      _value: "0.0 0.0 0.0 1.0"
+    SpinPolarisation:
+      Colinear:
+        InitialSpins:
+          AtomSpin:
+            Atoms: "1:-1"
+            SpinPerAtom: "1.0"
+Analysis:
+  ProjectStates:
+    Region:
+      Atoms: "1 2 3"
+      Label: first_three
+      ShellResolved: "Yes"
