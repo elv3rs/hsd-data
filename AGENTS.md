@@ -20,12 +20,12 @@ in-memory representation is always `hsd_table` / `hsd_value` from hsd-fortran.
 > Use `FC=ifx cmake ...` to build with ifx. All 643 tests pass with both compilers.
 
 ```bash
-# Build (all backends, gfortran default)
-cmake -B build -DCMAKE_BUILD_TYPE=Debug -DHSD_DATA_WITH_TOML=ON -DHSD_DATA_WITH_HDF5=ON
+# Build (all backends, gfortran default — TOML and HDF5 are ON by default)
+cmake -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build 2>&1 | tail -5
 
 # Build (Intel ifx)
-FC=ifx cmake -B build -DCMAKE_BUILD_TYPE=Debug -DHSD_DATA_WITH_TOML=ON -DHSD_DATA_WITH_HDF5=ON
+FC=ifx cmake -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build 2>&1 | tail -5
 
 # Lint (must pass with zero warnings before committing)

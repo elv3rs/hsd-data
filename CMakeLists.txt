@@ -8,8 +8,8 @@ project(hsd-data
 
 # Options
 option(HSD_DATA_BUILD_TESTS "Build test suite" ON)
-option(HSD_DATA_WITH_TOML "Build TOML backend (requires toml-f)" OFF)
-option(HSD_DATA_WITH_HDF5 "Build HDF5 backend (requires HDF5)" OFF)
+option(HSD_DATA_WITH_TOML "Build TOML backend (requires toml-f)" ON)
+option(HSD_DATA_WITH_HDF5 "Build HDF5 backend (requires HDF5)" ON)
 option(HSD_DATA_COVERAGE "Enable code coverage instrumentation (requires GCC)" OFF)
 
 # Coverage flags

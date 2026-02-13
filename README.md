@@ -70,9 +70,11 @@ call data_convert("input.xml", "output.hsd", error)
 - Fortran compiler (gfortran ≥ 10, Intel ifx, NAG)
 - [hsd-fortran](https://github.com/elv3rs/hsd-fortran) (auto-fetched if not
   found locally)
-- HDF5 with Fortran bindings (optional, for HDF5 backend)
+- HDF5 with Fortran bindings (for HDF5 backend, enabled by default)
 
 ### Build & Test
+
+All backends (HSD, XML, JSON, YAML, TOML, HDF5) are enabled by default:
 
 ```bash
 cmake -B build
@@ -80,10 +82,10 @@ cmake --build build
 ctest --test-dir build
 ```
 
-To enable optional backends:
+To disable optional backends:
 
 ```bash
-cmake -B build -DHSD_DATA_WITH_TOML=ON -DHSD_DATA_WITH_HDF5=ON
+cmake -B build -DHSD_DATA_WITH_TOML=OFF -DHSD_DATA_WITH_HDF5=OFF
 ```
 
 The YAML backend is always enabled (pure Fortran, no external dependency).
@@ -97,8 +99,8 @@ is not found as a sibling directory or installed system-wide.
 |---|---|---|
 | `HSD_DATA_BUILD_TESTS` | `ON` | Build the test suite |
 | `HSD_DATA_BUILD_APP` | `ON` | Build the `hsd-convert` CLI tool |
-| `HSD_DATA_WITH_TOML` | `OFF` | Enable TOML backend (fetches toml-f automatically) |
-| `HSD_DATA_WITH_HDF5` | `OFF` | Enable HDF5 backend (requires HDF5) |
+| `HSD_DATA_WITH_TOML` | `ON` | Enable TOML backend (fetches toml-f automatically) |
+| `HSD_DATA_WITH_HDF5` | `ON` | Enable HDF5 backend (requires HDF5) |
 | `HSD_DATA_COVERAGE` | `OFF` | Enable gcov instrumentation (GCC only) |
 
 > **Note:** The YAML backend is always built (no CMake option needed). It is a

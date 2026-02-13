@@ -28,13 +28,21 @@ ctest --test-dir build
 
 ### Full Build (all backends)
 
+All backends (TOML, HDF5) are enabled by default:
+
 ```bash
 cmake -B build \
-  -DCMAKE_BUILD_TYPE=Debug \
-  -DHSD_DATA_WITH_TOML=ON \
-  -DHSD_DATA_WITH_HDF5=ON
+  -DCMAKE_BUILD_TYPE=Debug
 cmake --build build
 ctest --test-dir build
+```
+
+To disable optional backends:
+
+```bash
+cmake -B build \
+  -DHSD_DATA_WITH_TOML=OFF \
+  -DHSD_DATA_WITH_HDF5=OFF
 ```
 
 ### CMake Options
@@ -44,7 +52,7 @@ ctest --test-dir build
 | `HSD_DATA_BUILD_TESTS` | `ON` | Build the test suite |
 | `HSD_DATA_BUILD_APP` | `ON` | Build the `hsd-convert` CLI tool |
 | `HSD_DATA_WITH_TOML` | `ON` | Enable TOML backend (auto-fetches toml-f) |
-| `HSD_DATA_WITH_HDF5` | `OFF` | Enable HDF5 backend (requires system HDF5) |
+| `HSD_DATA_WITH_HDF5` | `ON` | Enable HDF5 backend (requires system HDF5) |
 | `HSD_DATA_COVERAGE` | `OFF` | Enable gcov instrumentation (GCC only) |
 
 > **Note:** The YAML backend is always built. No CMake option is needed.

@@ -27,10 +27,10 @@ jobs:
       - name: Set up hsd-fortran sibling link
         run: ln -s "$GITHUB_WORKSPACE/_hsd-fortran" ../hsd-fortran
 
-      - name: Install GCC Fortran
+      - name: Install GCC Fortran and HDF5
         run: |
           sudo apt-get update
-          sudo apt-get install -y gfortran-${{ matrix.gcc-version }}
+          sudo apt-get install -y gfortran-${{ matrix.gcc-version }} libhdf5-dev
 
       - name: Configure CMake
         run: |
@@ -38,8 +38,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_Fortran_COMPILER=gfortran-${{ matrix.gcc-version }} \
             -DHSD_DATA_BUILD_TESTS=ON \
-            -DHSD_DATA_BUILD_APP=ON \
-            -DHSD_DATA_WITH_TOML=ON
+            -DHSD_DATA_BUILD_APP=ON
 
       - name: Build
         run: cmake --build build --parallel
@@ -82,7 +81,7 @@ jobs:
             -DCMAKE_Fortran_COMPILER=ifx \
             -DHSD_DATA_BUILD_TESTS=ON \
             -DHSD_DATA_BUILD_APP=ON \
-            -DHSD_DATA_WITH_TOML=ON
+            -DHSD_DATA_WITH_HDF5=OFF
 
       - name: Build
         run: cmake --build build --parallel
