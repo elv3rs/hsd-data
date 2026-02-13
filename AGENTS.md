@@ -10,8 +10,8 @@ atomically with clear messages.
 ## Project Overview
 
 **hsd-data** is a multi-format structured data IO library for Fortran. It
-builds on top of [hsd-fortran](../hsd-fortran/) and adds XML, JSON, TOML, and
-HDF5 backends behind a unified `data_load` / `data_dump` API. The canonical
+builds on top of [hsd-fortran](../hsd-fortran/) and adds XML, JSON, YAML, TOML,
+and HDF5 backends behind a unified `data_load` / `data_dump` API. The canonical
 in-memory representation is always `hsd_table` / `hsd_value` from hsd-fortran.
 
 ## Quick Reference
@@ -123,7 +123,9 @@ hsd-data/
 │   │   ├── hsd_data_toml.f90        # TOML backend (optional, WITH_TOML)
 │   │   ├── hsd_data_hdf5.f90        # HDF5 backend (optional, WITH_HDF5)
 │   │   ├── hsd_data_xml_parser.f90  # XML pull parser
-│   │   └── hsd_data_xml_writer.f90  # XML serializer
+│   │   ├── hsd_data_xml_writer.f90  # XML serializer
+│   │   ├── hsd_data_yaml_parser.f90 # YAML parser
+│   │   └── hsd_data_yaml_writer.f90 # YAML serializer
 │   └── utils/
 │       ├── hsd_data_json_escape.f90 # JSON string escape/unescape + \uXXXX
 │       └── hsd_data_xml_escape.f90  # XML entity escape/unescape
@@ -142,7 +144,8 @@ hsd-data/
 │   │   ├── test_toml_suite.f90
 │   │   ├── test_xml_parser_suite.f90
 │   │   ├── test_xml_roundtrip_suite.f90
-│   │   └── test_xml_writer_suite.f90
+│   │   ├── test_xml_writer_suite.f90
+│   │   └── test_yaml_suite.f90
 │   └── fixtures/
 │       ├── simple.{hsd,json,xml,toml}
 │       ├── nested.{hsd,json,xml,toml}
@@ -189,3 +192,4 @@ Documentation pages:
 | Fortuno | Test only | Unit test framework |
 | toml-f | Optional | TOML backend |
 | HDF5 | Optional | HDF5 backend |
+| YAML | Built-in | Pure Fortran, no external dependency |

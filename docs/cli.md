@@ -1,7 +1,7 @@
 # CLI Tool: hsd-convert
 
 `hsd-convert` is a command-line tool for converting structured data files
-between HSD, XML, JSON, TOML, and HDF5 formats.
+between HSD, XML, JSON, YAML, TOML, and HDF5 formats.
 
 ## Usage
 
@@ -56,8 +56,8 @@ hsd-convert --from=hsd --to=json < dftb_in.hsd | jq '.Hamiltonian'
 
 | Flag | Description |
 |---|---|
-| `--from=FMT` | Input format (`hsd`, `xml`, `json`, `toml`, `h5`). Overrides extension-based auto-detection. |
-| `--to=FMT` | Output format (`hsd`, `xml`, `json`, `toml`, `h5`). Overrides extension-based auto-detection. |
+| `--from=FMT` | Input format (`hsd`, `xml`, `json`, `yaml`, `toml`, `h5`). Overrides extension-based auto-detection. |
+| `--to=FMT` | Output format (`hsd`, `xml`, `json`, `yaml`, `toml`, `h5`). Overrides extension-based auto-detection. |
 | `--pretty` | Pretty-print output with indentation (default). |
 | `--compact` | Compact output without indentation. |
 | `--help` | Show help message and exit. |
@@ -72,6 +72,7 @@ The `--from` and `--to` flags accept these format identifiers:
 | `hsd` | Human-friendly Structured Data |
 | `xml` | Extensible Markup Language |
 | `json` | JavaScript Object Notation |
+| `yaml` | YAML Ain't Markup Language |
 | `toml` | Tom's Obvious Minimal Language |
 | `h5`, `hdf5` | Hierarchical Data Format 5 |
 

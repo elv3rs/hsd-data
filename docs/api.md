@@ -86,6 +86,7 @@ integer, parameter :: DATA_FMT_AUTO  ! Auto-detect from file extension
 integer, parameter :: DATA_FMT_HSD   ! HSD format
 integer, parameter :: DATA_FMT_XML   ! XML format
 integer, parameter :: DATA_FMT_JSON  ! JSON format
+integer, parameter :: DATA_FMT_YAML  ! YAML format
 integer, parameter :: DATA_FMT_TOML  ! TOML format (requires WITH_TOML)
 integer, parameter :: DATA_FMT_HDF5  ! HDF5 format (requires WITH_HDF5)
 ```
@@ -117,8 +118,9 @@ logical function data_format_available(fmt)
 end function
 ```
 
-Returns `.true.` for HSD, XML, and JSON (always available). Returns `.true.`
-for TOML and HDF5 only if the library was built with the respective option.
+Returns `.true.` for HSD, XML, JSON, and YAML (always available). Returns
+`.true.` for TOML and HDF5 only if the library was built with the respective
+option.
 
 ---
 
@@ -149,6 +151,15 @@ subroutine json_parse_file(filename, root, error)
 subroutine json_parse_string(source, root, error [, filename])
 subroutine json_dump_file(root, filename, error [, pretty])
 subroutine json_dump_to_string(root, output [, pretty])
+```
+
+### YAML Backend
+
+```fortran
+subroutine yaml_parse_file(filename, root, error)
+subroutine yaml_parse_string(source, root, error [, filename])
+subroutine yaml_dump_file(root, filename, error [, pretty])
+subroutine yaml_dump_to_string(root, output [, pretty])
 ```
 
 ### TOML Backend (optional)

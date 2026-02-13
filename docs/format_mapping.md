@@ -112,6 +112,59 @@ Anonymous text content uses the `_value` key:
 |---|---|
 | `Hamiltonian = DFTB { ... }` | `"Hamiltonian": { "_value": "DFTB", ... }` |
 
+## HSD ↔ YAML
+
+YAML's indentation-based structure maps naturally to HSD's hierarchy.
+
+### Table Nodes
+
+:::{list-table}
+:header-rows: 1
+
+* - HSD
+  - YAML
+* - ```
+    Hamiltonian = DFTB {
+      SCC = Yes
+    }
+    ```
+  - ```yaml
+    Hamiltonian:
+      _choice: DFTB
+      SCC: true
+    ```
+:::
+
+### Value Nodes
+
+| HSD | YAML |
+|---|---|
+| `MaxSteps = 100` | `MaxSteps: 100` |
+| `Label = "water"` | `Label: water` |
+| `SCC = Yes` | `SCC: true` |
+
+### Arrays
+
+| HSD | YAML |
+|---|---|
+| `Masses = { 1.0 2.0 3.0 }` | `Masses: [1.0, 2.0, 3.0]` or block sequence |
+
+### Attributes
+
+Same convention as JSON — sibling key with `__attrib` suffix:
+
+| HSD | YAML |
+|---|---|
+| `Temperature [Kelvin] = 300.0` | `Temperature: 300.0` / `Temperature__attrib: Kelvin` |
+
+### Anonymous Values
+
+Anonymous text content uses the `_value` key:
+
+| HSD | YAML |
+|---|---|
+| `Hamiltonian = DFTB { ... }` | `Hamiltonian: { _value: DFTB, ... }` |
+
 ## HSD ↔ TOML
 
 TOML's table-based structure maps well to HSD's hierarchy.
@@ -202,6 +255,7 @@ dataset or group:
 - **HSD → HSD**: Fully lossless (comments and formatting may change).
 - **XML → XML**: Fully lossless.
 - **JSON → JSON**: Fully lossless.
+- **YAML → YAML**: Fully lossless.
 
 ### Potentially Lossy Conversions
 

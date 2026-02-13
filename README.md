@@ -7,7 +7,7 @@ Multi-format structured data IO library for Fortran.
 
 **hsd-data** builds on [hsd-fortran](https://github.com/elv3rs/hsd-fortran) to
 provide unified loading and dumping of structured data in **HSD**, **XML**,
-**JSON**, **TOML**, and **HDF5** formats. Application code works exclusively with
+**JSON**, **YAML**, **TOML**, and **HDF5** formats. Application code works exclusively with
 the familiar `hsd_table` / `hsd_value` tree — the backend handles all
 format-specific serialization.
 
@@ -19,9 +19,12 @@ format-specific serialization.
   structure, values, and attributes (within each format's inherent capabilities).
 - **Built-in backends** — HSD (passthrough to hsd-fortran), XML (pure-Fortran
   pull parser + serializer), JSON (pure-Fortran recursive-descent parser +
-  serializer). No external XML/JSON libraries required.
+  serializer), YAML (pure-Fortran parser + serializer). No external
+  XML/JSON/YAML libraries required.
 - **CLI tool** — `hsd-convert` converts between any supported format pair from
   the command line.
+- **YAML backend** — built-in YAML support (pure Fortran, always enabled). No
+  external dependency required.
 - **TOML backend** — optional TOML support via
   [toml-f](https://github.com/toml-f/toml-f), enabled with `HSD_DATA_WITH_TOML`
   (auto-fetched).
@@ -42,6 +45,9 @@ call data_load("input.hsd", root, error)
 
 ! Dump to another format
 call data_dump(root, "output.json", error)
+
+! YAML works too
+call data_dump(root, "output.yaml", error)
 
 ! Or use the high-level converter
 call data_convert("input.xml", "output.hsd", error)
@@ -71,6 +77,8 @@ To enable optional backends:
 cmake -B build -DHSD_DATA_WITH_TOML=ON -DHSD_DATA_WITH_HDF5=ON
 ```
 
+The YAML backend is always enabled (pure Fortran, no external dependency).
+
 The build will automatically fetch hsd-fortran via CMake FetchContent if it
 is not found as a sibling directory or installed system-wide.
 
@@ -83,6 +91,9 @@ is not found as a sibling directory or installed system-wide.
 | `HSD_DATA_WITH_TOML` | `OFF` | Enable TOML backend (fetches toml-f automatically) |
 | `HSD_DATA_WITH_HDF5` | `OFF` | Enable HDF5 backend (requires HDF5) |
 | `HSD_DATA_COVERAGE` | `OFF` | Enable gcov instrumentation (GCC only) |
+
+> **Note:** The YAML backend is always built (no CMake option needed). It is a
+> pure-Fortran implementation with no external dependencies.
 
 ## CLI Tool: hsd-convert
 
@@ -107,8 +118,8 @@ hsd-convert input.hsd output.json --compact
 
 | Flag | Description |
 |---|---|
-| `--from=FMT` | Input format (`hsd`, `xml`, `json`, `toml`, `h5`) |
-| `--to=FMT` | Output format (`hsd`, `xml`, `json`, `toml`, `h5`) |
+| `--from=FMT` | Input format (`hsd`, `xml`, `json`, `yaml`, `toml`, `h5`) |
+| `--to=FMT` | Output format (`hsd`, `xml`, `json`, `yaml`, `toml`, `h5`) |
 | `--pretty` | Pretty-print output (default) |
 | `--compact` | Compact output (no indentation) |
 | `--help` | Show help message |
@@ -143,6 +154,7 @@ DATA_FMT_AUTO   ! Auto-detect from file extension
 DATA_FMT_HSD    ! HSD format
 DATA_FMT_XML    ! XML format
 DATA_FMT_JSON   ! JSON format
+DATA_FMT_YAML   ! YAML format
 DATA_FMT_TOML   ! TOML format (requires WITH_TOML)
 DATA_FMT_HDF5   ! HDF5 format (requires WITH_HDF5)
 ```
@@ -180,6 +192,16 @@ call data_convert(input_file, output_file, error [, input_fmt] [, output_fmt])
 | attribute | `"Bar__attrib": "unit"` sibling key |
 | anonymous value | `"_value": "..."` key |
 
+### HSD ↔ YAML
+
+| HSD | YAML |
+|---|---|
+| `hsd_table` named "Foo" | `Foo:` mapping key |
+| `hsd_value` named "Bar" | `Bar: value` |
+| attribute | `Bar__attrib: "unit"` sibling key |
+| anonymous value | `_value: "..."` key |
+| array value | YAML sequence (`- 1\n- 2\n- 3`) |
+
 ### HSD ↔ TOML
 
 | HSD | TOML |
@@ -210,6 +232,7 @@ call data_convert(input_file, output_file, error [, input_fmt] [, output_fmt])
 | HSD | Built-in | hsd-fortran | hsd-fortran | hsd-fortran (required) |
 | XML | Built-in | Pure Fortran | Pure Fortran | None |
 | JSON | Built-in | Pure Fortran | Pure Fortran | None |
+| YAML | Built-in | Pure Fortran | Pure Fortran | None |
 | TOML | Optional | toml-f | toml-f | toml-f (auto-fetched) |
 | HDF5 | Optional | HDF5 Fortran API | HDF5 Fortran API | System HDF5 |
 
@@ -229,6 +252,8 @@ hsd-data/
 │   │   ├── hsd_data_xml_writer.f90  XML serializer
 │   │   ├── hsd_data_json_parser.f90 JSON recursive-descent parser
 │   │   ├── hsd_data_json_writer.f90 JSON serializer
+│   │   ├── hsd_data_yaml_parser.f90 YAML parser
+│   │   ├── hsd_data_yaml_writer.f90 YAML serializer
 │   │   ├── hsd_data_toml.f90        TOML backend (optional)
 │   │   └── hsd_data_hdf5.f90        HDF5 backend (optional)
 │   └── utils/

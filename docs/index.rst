@@ -7,7 +7,7 @@ hsd-data Documentation
 **hsd-data** is a multi-format structured data IO library for Fortran. It
 builds on `hsd-fortran <https://github.com/elv3rs/hsd-fortran>`_ to provide
 unified loading and dumping of structured data in **HSD**, **XML**, **JSON**,
-**TOML**, and **HDF5** formats.
+**YAML**, **TOML**, and **HDF5** formats.
 
 Application code works exclusively with the familiar ``hsd_table`` /
 ``hsd_value`` tree from hsd-fortran — the backend handles all format-specific
@@ -21,8 +21,8 @@ Features
 - **Round-trip safe** — loading from one format and dumping to another preserves
   structure, values, and attributes (within each format's capabilities).
 - **Built-in backends** — HSD, XML (pure-Fortran pull parser + serializer),
-  JSON (pure-Fortran recursive-descent parser + serializer). No external
-  XML/JSON libraries required.
+  JSON (pure-Fortran recursive-descent parser + serializer), YAML (pure-Fortran
+  parser + serializer). No external XML/JSON/YAML libraries required.
 - **Optional backends** — TOML (via `toml-f <https://github.com/toml-f/toml-f>`_),
   HDF5 (via HDF5 Fortran API).
 - **CLI tool** — ``hsd-convert`` converts between any supported format pair.

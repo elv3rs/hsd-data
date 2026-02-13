@@ -13,6 +13,9 @@
 | [toml-f](https://github.com/toml-f/toml-f) | TOML backend | `HSD_DATA_WITH_TOML=ON` |
 | HDF5 (with Fortran bindings) | HDF5 backend | `HSD_DATA_WITH_HDF5=ON` |
 
+> **Note:** The YAML backend is always available (pure Fortran, no external
+> dependency). No CMake option is needed.
+
 ## Building with CMake
 
 ### Minimal Build
@@ -43,6 +46,8 @@ ctest --test-dir build
 | `HSD_DATA_WITH_TOML` | `ON` | Enable TOML backend (auto-fetches toml-f) |
 | `HSD_DATA_WITH_HDF5` | `OFF` | Enable HDF5 backend (requires system HDF5) |
 | `HSD_DATA_COVERAGE` | `OFF` | Enable gcov instrumentation (GCC only) |
+
+> **Note:** The YAML backend is always built. No CMake option is needed.
 
 ## Using as a Dependency
 

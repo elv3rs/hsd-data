@@ -14,9 +14,11 @@ across multiple file formats. The in-memory representation is always the
             ├──────────┤  ├────────────────▶│  hsd_table   │────────────────▶│  .json   │
             │  .json   │──┤                 │  hsd_value   │                 │  .xml    │
             ├──────────┤  │                 └──────────────┘                 │  .hsd    │
-            │  .toml   │──┤                                                  │  .toml   │
-            ├──────────┤  │                                                  │  .h5     │
-            │  .h5     │──╯                                                  └──────────┘
+            │  .yaml   │──┤                                                  │  .yaml   │
+            ├──────────┤  │                                                  │  .toml   │
+            │  .toml   │──┤                                                  │  .h5     │
+            ├──────────┤  │                                                  └──────────┘
+            │  .h5     │──╯
             └──────────┘
 ```
 
@@ -45,6 +47,7 @@ Supported extensions for auto-detection:
 | `.hsd` | HSD |
 | `.xml` | XML |
 | `.json` | JSON |
+| `.yaml`, `.yml` | YAML |
 | `.toml` | TOML |
 | `.h5`, `.hdf5` | HDF5 |
 
@@ -210,6 +213,10 @@ call xml_dump_file(root, "output.xml", error)
 ! JSON-specific
 call json_parse_file("input.json", root, error)
 call json_dump_file(root, "output.json", error)
+
+! YAML-specific
+call yaml_parse_file("input.yaml", root, error)
+call yaml_dump_file(root, "output.yaml", error)
 
 ! HSD-specific (equivalent to hsd_load/hsd_dump)
 call hsd_backend_load("input.hsd", root, error)
