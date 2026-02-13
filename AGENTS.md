@@ -17,7 +17,7 @@ in-memory representation is always `hsd_table` / `hsd_value` from hsd-fortran.
 ## Quick Reference
 
 > **Intel ifx support:** The project is tested with both `gfortran` and Intel `ifx`.
-> Use `FC=ifx cmake ...` to build with ifx. All 643 tests pass with both compilers.
+> Use `FC=ifx cmake ...` to build with ifx. All 810 tests pass with both compilers.
 
 ```bash
 # Build (all backends, gfortran default — TOML and HDF5 are ON by default)
