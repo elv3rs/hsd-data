@@ -12,6 +12,8 @@
 
 Multi-format structured data IO library for Fortran.
 
+**📖 [Full Documentation](https://elv3rs.github.io/hsd-data/)** · **[Coverage Report](https://elv3rs.github.io/hsd-data/coverage/)**
+
 **hsd-data** builds on [hsd-fortran](https://github.com/elv3rs/hsd-fortran) to
 provide unified loading and dumping of structured data in **HSD**, **XML**,
 **JSON**, **YAML**, **TOML**, and **HDF5** formats. Application code works exclusively with
