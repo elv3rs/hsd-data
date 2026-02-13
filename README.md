@@ -3,6 +3,13 @@
 [![Tests](https://github.com/elv3rs/hsd-data/actions/workflows/tests.yml/badge.svg)](https://github.com/elv3rs/hsd-data/actions/workflows/tests.yml)
 [![Linting](https://github.com/elv3rs/hsd-data/actions/workflows/lint.yml/badge.svg)](https://github.com/elv3rs/hsd-data/actions/workflows/lint.yml)
 
+> **⚠️ Agentic Coding Proof of Concept**
+>
+> This repository was developed as a proof-of-concept for AI-assisted
+> (agentic) coding workflows. All code and documentation are **pending
+> human review** and should not be used in production without thorough
+> independent verification.
+
 Multi-format structured data IO library for Fortran.
 
 **hsd-data** builds on [hsd-fortran](https://github.com/elv3rs/hsd-fortran) to
