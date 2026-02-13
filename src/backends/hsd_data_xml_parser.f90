@@ -389,30 +389,35 @@ contains
     if (child_table%num_children == 1) then
       select type (only_child => child_table%children(1)%node)
       type is (hsd_value)
-        if (.not. allocated(only_child%name) .or. len_trim(only_child%name) == 0) then
-          ! Check if the text content contains newlines
-          if (has_newline_content(only_child)) then
-            ! Multi-line content: keep as table with #text child
-            only_child%name = "#text"
-            ! Invalidate hash index since we renamed the child
-            call child_table%invalidate_index()
-            call parent%add_child(child_table)
+        block
+          logical :: is_unnamed
+          is_unnamed = .not. allocated(only_child%name)
+          if (.not. is_unnamed) is_unnamed = (len_trim(only_child%name) == 0)
+          if (is_unnamed) then
+            ! Check if the text content contains newlines
+            if (has_newline_content(only_child)) then
+              ! Multi-line content: keep as table with #text child
+              only_child%name = "#text"
+              ! Invalidate hash index since we renamed the child
+              call child_table%invalidate_index()
+              call parent%add_child(child_table)
+              return
+            end if
+            allocate(child_value)
+            child_value%name = tag_name
+            child_value%value_type = only_child%value_type
+            if (allocated(only_child%string_value)) &
+                & child_value%string_value = only_child%string_value
+            child_value%int_value = only_child%int_value
+            child_value%real_value = only_child%real_value
+            child_value%logical_value = only_child%logical_value
+            child_value%complex_value = only_child%complex_value
+            if (allocated(only_child%raw_text)) child_value%raw_text = only_child%raw_text
+            if (allocated(child_table%attrib)) child_value%attrib = child_table%attrib
+            call parent%add_child(child_value)
             return
           end if
-          allocate(child_value)
-          child_value%name = tag_name
-          child_value%value_type = only_child%value_type
-          if (allocated(only_child%string_value)) &
-              & child_value%string_value = only_child%string_value
-          child_value%int_value = only_child%int_value
-          child_value%real_value = only_child%real_value
-          child_value%logical_value = only_child%logical_value
-          child_value%complex_value = only_child%complex_value
-          if (allocated(only_child%raw_text)) child_value%raw_text = only_child%raw_text
-          if (allocated(child_table%attrib)) child_value%attrib = child_table%attrib
-          call parent%add_child(child_value)
-          return
-        end if
+        end block
       end select
     end if
 

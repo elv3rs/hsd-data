@@ -997,8 +997,12 @@ contains
     character(len=:), allocatable, intent(in) :: name
     character(len=:), allocatable :: sname
 
-    if (allocated(name) .and. len(name) > 0) then
-      sname = name
+    if (allocated(name)) then
+      if (len(name) > 0) then
+        sname = name
+      else
+        sname = "_unnamed"
+      end if
     else
       sname = "_unnamed"
     end if

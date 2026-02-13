@@ -353,16 +353,20 @@ contains
       if (.not. associated(table%children(ii)%node)) cycle
       select type (child => table%children(ii)%node)
       type is (hsd_table)
-        if (allocated(child%name) .and. child%name == sibling_name) then
-          child%attrib = attrib_val
-          if (present(applied)) applied = .true.
-          return
+        if (allocated(child%name)) then
+          if (child%name == sibling_name) then
+            child%attrib = attrib_val
+            if (present(applied)) applied = .true.
+            return
+          end if
         end if
       type is (hsd_value)
-        if (allocated(child%name) .and. child%name == sibling_name) then
-          child%attrib = attrib_val
-          if (present(applied)) applied = .true.
-          return
+        if (allocated(child%name)) then
+          if (child%name == sibling_name) then
+            child%attrib = attrib_val
+            if (present(applied)) applied = .true.
+            return
+          end if
         end if
       end select
     end do
@@ -383,14 +387,18 @@ contains
       if (.not. associated(table%children(ii)%node)) cycle
       select type (child => table%children(ii)%node)
       type is (hsd_table)
-        if (allocated(child%name) .and. child%name == sibling_name) then
-          child%attrib = attrib_val
-          return
+        if (allocated(child%name)) then
+          if (child%name == sibling_name) then
+            child%attrib = attrib_val
+            return
+          end if
         end if
       type is (hsd_value)
-        if (allocated(child%name) .and. child%name == sibling_name) then
-          child%attrib = attrib_val
-          return
+        if (allocated(child%name)) then
+          if (child%name == sibling_name) then
+            child%attrib = attrib_val
+            return
+          end if
         end if
       end select
     end do

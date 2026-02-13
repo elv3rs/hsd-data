@@ -508,8 +508,10 @@ contains
         if (name_count > 1 .or. emitted(ii)) cycle
         emitted(ii) = .true.
         call write_hsd_value_to_toml(child, child_name, tt)
-        if (allocated(child%attrib) .and. len_trim(child%attrib) > 0) then
-          call set_value(tt, child_name // ATTRIB_SUFFIX, child%attrib)
+        if (allocated(child%attrib)) then
+          if (len_trim(child%attrib) > 0) then
+            call set_value(tt, child_name // ATTRIB_SUFFIX, child%attrib)
+          end if
         end if
       end select
     end do
@@ -521,9 +523,11 @@ contains
 
       select type (child => ht%children(ii)%node)
       type is (hsd_table)
-        if (allocated(child%attrib) .and. len_trim(child%attrib) > 0) then
-          child_name = get_hsd_child_name(child)
-          call set_value(tt, child_name // ATTRIB_SUFFIX, child%attrib)
+        if (allocated(child%attrib)) then
+          if (len_trim(child%attrib) > 0) then
+            child_name = get_hsd_child_name(child)
+            call set_value(tt, child_name // ATTRIB_SUFFIX, child%attrib)
+          end if
         end if
       end select
     end do
@@ -646,8 +650,12 @@ contains
       end if
 
     case (VALUE_TYPE_NONE)
-      if (allocated(val%string_value) .and. len(val%string_value) > 0) then
-        call set_value(tt, key, val%string_value)
+      if (allocated(val%string_value)) then
+        if (len(val%string_value) > 0) then
+          call set_value(tt, key, val%string_value)
+        else
+          call set_value(tt, key, "")
+        end if
       else
         call set_value(tt, key, "")
       end if
@@ -807,14 +815,22 @@ contains
 
     select type (node)
     type is (hsd_table)
-      if (allocated(node%name) .and. len_trim(node%name) > 0) then
-        name = node%name
+      if (allocated(node%name)) then
+        if (len_trim(node%name) > 0) then
+          name = node%name
+        else
+          name = ANON_VALUE_KEY
+        end if
       else
         name = ANON_VALUE_KEY
       end if
     type is (hsd_value)
-      if (allocated(node%name) .and. len_trim(node%name) > 0) then
-        name = node%name
+      if (allocated(node%name)) then
+        if (len_trim(node%name) > 0) then
+          name = node%name
+        else
+          name = ANON_VALUE_KEY
+        end if
       else
         name = ANON_VALUE_KEY
       end if
@@ -904,6 +920,35 @@ contains
     if (str(ii:ii) == "-" .or. str(ii:ii) == "+") then
       ii = ii + 1
       if (ii > slen) return
+    end if
+
+    ! Accept leading dot (e.g., ".2" from some compilers' g0 format)
+    if (str(ii:ii) == ".") then
+      ii = ii + 1
+      if (ii > slen) return
+      ! Must have at least one digit after the dot
+      if (str(ii:ii) < "0" .or. str(ii:ii) > "9") return
+      do while (ii <= slen)
+        if (str(ii:ii) < "0" .or. str(ii:ii) > "9") exit
+        ii = ii + 1
+      end do
+      ! Check for exponent part
+      if (ii <= slen) then
+        if (str(ii:ii) == "e" .or. str(ii:ii) == "E" &
+            & .or. str(ii:ii) == "d" .or. str(ii:ii) == "D") then
+          ii = ii + 1
+          if (ii <= slen) then
+            if (str(ii:ii) == "+" .or. str(ii:ii) == "-") ii = ii + 1
+          end if
+          if (ii > slen) return
+          do while (ii <= slen)
+            if (str(ii:ii) < "0" .or. str(ii:ii) > "9") exit
+            ii = ii + 1
+          end do
+        end if
+      end if
+      is_num = (ii > slen)
+      return
     end if
 
     if (str(ii:ii) < "0" .or. str(ii:ii) > "9") return

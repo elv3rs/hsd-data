@@ -44,8 +44,17 @@ contains
     call append_newline(buf, buf_len, buf_cap, do_pretty)
 
     ! If root has a name, wrap in root element
-    if (allocated(root%name) .and. len_trim(root%name) > 0) then
-      call write_table(root, buf, buf_len, buf_cap, 0, do_pretty)
+    if (allocated(root%name)) then
+      if (len_trim(root%name) > 0) then
+        call write_table(root, buf, buf_len, buf_cap, 0, do_pretty)
+      else
+        ! Anonymous root: wrap in <root> document element for valid XML
+        call append_str(buf, buf_len, buf_cap, "<root>")
+        call append_newline(buf, buf_len, buf_cap, do_pretty)
+        call write_children(root, buf, buf_len, buf_cap, 1, do_pretty)
+        call append_str(buf, buf_len, buf_cap, "</root>")
+        call append_newline(buf, buf_len, buf_cap, do_pretty)
+      end if
     else
       ! Anonymous root: wrap in <root> document element for valid XML
       call append_str(buf, buf_len, buf_cap, "<root>")
@@ -111,8 +120,10 @@ contains
     call append_str(buf, buf_len, buf_cap, "<" // tag_name)
 
     ! Write attributes
-    if (allocated(table%attrib) .and. len_trim(table%attrib) > 0) then
-      call write_attrib_string(table%attrib, buf, buf_len, buf_cap)
+    if (allocated(table%attrib)) then
+      if (len_trim(table%attrib) > 0) then
+        call write_attrib_string(table%attrib, buf, buf_len, buf_cap)
+      end if
     end if
 
     ! Write __attr_* children as XML attributes
@@ -132,8 +143,13 @@ contains
     if (real_children == 1) then
       select type (child => table%children(first_real_child(table))%node)
       type is (hsd_value)
-        if (.not. allocated(child%name) .or. len_trim(child%name) == 0 &
-            & .or. child%name == "#text") then
+        if (.not. allocated(child%name)) then
+          call append_str(buf, buf_len, buf_cap, ">")
+          call write_value_content(child, buf, buf_len, buf_cap, pretty)
+          call append_str(buf, buf_len, buf_cap, "</" // tag_name // ">")
+          call append_newline(buf, buf_len, buf_cap, pretty)
+          return
+        else if (len_trim(child%name) == 0 .or. child%name == "#text") then
           call append_str(buf, buf_len, buf_cap, ">")
           call write_value_content(child, buf, buf_len, buf_cap, pretty)
           call append_str(buf, buf_len, buf_cap, "</" // tag_name // ">")
@@ -190,8 +206,12 @@ contains
     character(len=:), allocatable :: tag_name
 
     ! Anonymous or #text value: write as bare text content
-    if (.not. allocated(val%name) .or. len_trim(val%name) == 0 &
-        & .or. val%name == "#text") then
+    if (.not. allocated(val%name)) then
+      call write_indent(buf, buf_len, buf_cap, depth, pretty)
+      call write_value_content(val, buf, buf_len, buf_cap, pretty)
+      call append_newline(buf, buf_len, buf_cap, pretty)
+      return
+    else if (len_trim(val%name) == 0 .or. val%name == "#text") then
       call write_indent(buf, buf_len, buf_cap, depth, pretty)
       call write_value_content(val, buf, buf_len, buf_cap, pretty)
       call append_newline(buf, buf_len, buf_cap, pretty)
@@ -204,8 +224,10 @@ contains
     call append_str(buf, buf_len, buf_cap, "<" // tag_name)
 
     ! Write attributes
-    if (allocated(val%attrib) .and. len_trim(val%attrib) > 0) then
-      call write_attrib_string(val%attrib, buf, buf_len, buf_cap)
+    if (allocated(val%attrib)) then
+      if (len_trim(val%attrib) > 0) then
+        call write_attrib_string(val%attrib, buf, buf_len, buf_cap)
+      end if
     end if
 
     call append_str(buf, buf_len, buf_cap, ">")

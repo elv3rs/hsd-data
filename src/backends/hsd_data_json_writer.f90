@@ -147,12 +147,14 @@ contains
           member_count = member_count + 1
 
           ! Emit attrib sibling if present
-          if (allocated(child%attrib) .and. len_trim(child%attrib) > 0) then
-            call append_str(buf, buf_len, buf_cap, ",")
-            call append_newline(buf, buf_len, buf_cap, pretty)
-            call write_attrib_member(child%name, child%attrib, &
-                & buf, buf_len, buf_cap, depth + 1, pretty)
-            member_count = member_count + 1
+          if (allocated(child%attrib)) then
+            if (len_trim(child%attrib) > 0) then
+              call append_str(buf, buf_len, buf_cap, ",")
+              call append_newline(buf, buf_len, buf_cap, pretty)
+              call write_attrib_member(child%name, child%attrib, &
+                  & buf, buf_len, buf_cap, depth + 1, pretty)
+              member_count = member_count + 1
+            end if
           end if
 
         type is (hsd_value)
@@ -160,12 +162,14 @@ contains
           member_count = member_count + 1
 
           ! Emit attrib sibling if present
-          if (allocated(child%attrib) .and. len_trim(child%attrib) > 0) then
-            call append_str(buf, buf_len, buf_cap, ",")
-            call append_newline(buf, buf_len, buf_cap, pretty)
-            call write_attrib_member(child%name, child%attrib, &
-                & buf, buf_len, buf_cap, depth + 1, pretty)
-            member_count = member_count + 1
+          if (allocated(child%attrib)) then
+            if (len_trim(child%attrib) > 0) then
+              call append_str(buf, buf_len, buf_cap, ",")
+              call append_newline(buf, buf_len, buf_cap, pretty)
+              call write_attrib_member(child%name, child%attrib, &
+                  & buf, buf_len, buf_cap, depth + 1, pretty)
+              member_count = member_count + 1
+            end if
           end if
         end select
       end if
@@ -186,14 +190,22 @@ contains
 
     select type (node)
     type is (hsd_table)
-      if (allocated(node%name) .and. len_trim(node%name) > 0) then
-        name = node%name
+      if (allocated(node%name)) then
+        if (len_trim(node%name) > 0) then
+          name = node%name
+        else
+          name = ANON_VALUE_KEY
+        end if
       else
         name = ANON_VALUE_KEY
       end if
     type is (hsd_value)
-      if (allocated(node%name) .and. len_trim(node%name) > 0) then
-        name = node%name
+      if (allocated(node%name)) then
+        if (len_trim(node%name) > 0) then
+          name = node%name
+        else
+          name = ANON_VALUE_KEY
+        end if
       else
         name = ANON_VALUE_KEY
       end if
@@ -267,8 +279,12 @@ contains
 
     character(len=:), allocatable :: key
 
-    if (allocated(table%name) .and. len_trim(table%name) > 0) then
-      key = table%name
+    if (allocated(table%name)) then
+      if (len_trim(table%name) > 0) then
+        key = table%name
+      else
+        key = ANON_VALUE_KEY
+      end if
     else
       key = ANON_VALUE_KEY
     end if
@@ -290,8 +306,12 @@ contains
 
     character(len=:), allocatable :: key
 
-    if (allocated(val%name) .and. len_trim(val%name) > 0) then
-      key = val%name
+    if (allocated(val%name)) then
+      if (len_trim(val%name) > 0) then
+        key = val%name
+      else
+        key = ANON_VALUE_KEY
+      end if
     else
       key = ANON_VALUE_KEY
     end if
@@ -388,9 +408,13 @@ contains
 
     case (VALUE_TYPE_NONE)
       ! Try string_value, fall back to null
-      if (allocated(val%string_value) .and. len(val%string_value) > 0) then
-        call append_str(buf, buf_len, buf_cap, &
-            & '"' // json_escape_string(val%string_value) // '"')
+      if (allocated(val%string_value)) then
+        if (len(val%string_value) > 0) then
+          call append_str(buf, buf_len, buf_cap, &
+              & '"' // json_escape_string(val%string_value) // '"')
+        else
+          call append_str(buf, buf_len, buf_cap, "null")
+        end if
       else
         call append_str(buf, buf_len, buf_cap, "null")
       end if

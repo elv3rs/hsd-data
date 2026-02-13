@@ -66,18 +66,16 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
   endif()
 elseif(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
   target_compile_options(hsd-data PRIVATE
-    -warn all
-    -warn unused
-    -warn interfaces
+    "SHELL:-warn all,unused,interfaces"
     -stand f08
   )
   if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options(hsd-data PRIVATE
       -g
-      -check all
+      "SHELL:-check all"
       -traceback
       -fpe0
-      -init=snan
+      "SHELL:-init=snan"
     )
   endif()
 endif()
